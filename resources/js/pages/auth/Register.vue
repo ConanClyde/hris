@@ -11,15 +11,14 @@ import {
     User,
     Users,
 } from 'lucide-vue-next';
-import { ref, computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AlertError from '@/components/AlertError.vue';
-import TextLink from '@/components/TextLink.vue';
 import PasswordInput from '@/components/auth/PasswordInput.vue';
+import TextLink from '@/components/TextLink.vue';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
     Select,
     SelectContent,
@@ -104,6 +103,47 @@ const isCredentialsStep = computed(() => {
     return currentStep.value === 3;
 });
 
+const canProceedNext = computed(() => {
+    if (currentStep.value === 1) return false;
+
+    if (currentStep.value === 2) {
+        const baseOk = Boolean(formData.value.first_name?.trim())
+            && Boolean(formData.value.surname?.trim());
+        if (!baseOk) return false;
+        if (!isEmployee.value) return true;
+        return Boolean(formData.value.sex)
+            && Boolean(formData.value.date_of_birth);
+    }
+
+    if (currentStep.value === 3) {
+        if (isEmployee.value) {
+            const dateHiredOk = Boolean(formData.value.date_hired);
+            if (!dateHiredOk) return false;
+
+            const divisionOk = Boolean(formData.value.division_id);
+            if (!divisionOk) return false;
+
+            if (subdivisionOptions.value.length) {
+                const subdivisionOk = Boolean(formData.value.subdivision_id);
+                if (!subdivisionOk) return false;
+            }
+
+            if (sectionOptions.value.length) {
+                const sectionOk = Boolean(formData.value.section_id);
+                if (!sectionOk) return false;
+            }
+
+            const classificationOk = Boolean(formData.value.classification);
+            if (!classificationOk) return false;
+
+            return true;
+        }
+        return true;
+    }
+
+    return false;
+});
+
 const selectedDivision = computed(() => {
     const id = formData.value.division_id;
     if (id === null || id === '') return undefined;
@@ -121,8 +161,9 @@ const sectionOptions = computed(() => {
     const fromSub = subId
         ? div.subdivisions.find((s) => s.id === Number(subId))?.sections ?? []
         : [];
-    const fromDiv = div.sections ?? [];
-    return fromSub.length ? fromSub : fromDiv;
+    if (fromSub.length) return fromSub;
+    if (subdivisionOptions.value.length) return [];
+    return div.sections ?? [];
 });
 
 const registerFeatures = [
@@ -230,7 +271,7 @@ const errorsList = (errors: Record<string, string>) => {
                         class="flex w-full items-center gap-3 rounded-lg border p-4 text-left cursor-pointer transition-colors hover:border-gray-300 dark:hover:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-800/50"
                         :class="
                             formData.role === role.value
-                                ? 'border-[#013CFC] bg-[#013CFC]/5'
+                                ? 'border-brand bg-brand/5'
                                 : 'border-gray-200 dark:border-neutral-700'
                         "
                         @click="selectRole(role.value)"
@@ -239,7 +280,7 @@ const errorsList = (errors: Record<string, string>) => {
                             class="flex size-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800"
                             :class="
                                 formData.role === role.value
-                                    ? 'border-[#013CFC] bg-[#013CFC]/10'
+                                    ? 'border-brand bg-brand/10'
                                     : ''
                             "
                         >
@@ -248,7 +289,7 @@ const errorsList = (errors: Record<string, string>) => {
                                 class="size-5 text-gray-600 dark:text-gray-400"
                                 :class="
                                     formData.role === role.value
-                                        ? 'text-[#013CFC]'
+                                        ? 'text-brand'
                                         : ''
                                 "
                             />
@@ -265,7 +306,7 @@ const errorsList = (errors: Record<string, string>) => {
                             class="size-5 shrink-0 text-gray-400"
                             :class="
                                 formData.role === role.value
-                                    ? 'text-[#013CFC]'
+                                    ? 'text-brand'
                                     : ''
                             "
                         />
@@ -438,7 +479,7 @@ const errorsList = (errors: Record<string, string>) => {
                             v-model="formData.position"
                             type="text"
                             name="position"
-                            placeholder="e.g. Software Engineer"
+                            placeholder="e.g. Administrative Assistant"
                         />
                     </div>
                     <div class="grid gap-2">
@@ -526,6 +567,7 @@ const errorsList = (errors: Record<string, string>) => {
                     v-if="!isCredentialsStep"
                     type="button"
                     @click="nextStep"
+                    :disabled="!canProceedNext"
                 >
                     Next
                 </Button>
@@ -545,7 +587,7 @@ const errorsList = (errors: Record<string, string>) => {
             Already have an account?
             <TextLink
                 :href="login().url"
-                class="font-medium text-[#013CFC] hover:text-[#0031BC]"
+                class="font-medium text-brand hover:text-brand-dark"
             >
                 Sign in
             </TextLink>

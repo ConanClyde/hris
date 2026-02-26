@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import {
-    BarChart3,
-    BookOpen,
-    Calendar,
-    FileText,
-    LayoutGrid,
-} from 'lucide-vue-next';
-import AppLayout from '@/layouts/AppLayout.vue';
+import { BarChart3, BookOpen, Calendar, FileText } from 'lucide-vue-next';
+import { computed } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import hr from '@/routes/hr';
+import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
+import hr from '@/routes/hr';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import type { BreadcrumbItem } from '@/types';
 
-defineProps<{
+const props = defineProps<{
     totalUsers: number;
     pendingLeaveCount: number;
     pendingTrainingCount: number;
@@ -21,8 +17,32 @@ defineProps<{
     user?: { first_name: string } | null;
 }>();
 
+const { leavesPendingCount, trainingsAssignedCount, pdsPendingCount } = useBroadcasting();
+
+if (leavesPendingCount.value === null) {
+    leavesPendingCount.value = props.pendingLeaveCount ?? 0;
+}
+if (trainingsAssignedCount.value === null) {
+    trainingsAssignedCount.value = props.pendingTrainingCount ?? 0;
+}
+if (pdsPendingCount.value === null) {
+    pdsPendingCount.value = props.pdsPendingCount ?? 0;
+}
+
+const pendingLeaveCountComputed = computed(
+    () => leavesPendingCount.value ?? props.pendingLeaveCount,
+);
+
+const pendingTrainingCountComputed = computed(
+    () => trainingsAssignedCount.value ?? props.pendingTrainingCount,
+);
+
+const pdsPendingCountComputed = computed(
+    () => pdsPendingCount.value ?? props.pdsPendingCount,
+);
+
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: dashboard().url },
+    { title: 'Dashboard' }
 ];
 
 const quickActions = [
@@ -62,14 +82,14 @@ const pendingItems = [
                     </CardHeader>
                     <CardContent>
                         <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                            {{ pendingLeaveCount }}
+                            {{ pendingLeaveCountComputed }}
                         </p>
                         <p class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400">
                             Review required
                         </p>
                         <Link
                             :href="hr.leaveApplications.index().url"
-                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80"
+                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80"
                         >
                             View all →
                         </Link>
@@ -83,14 +103,14 @@ const pendingItems = [
                     </CardHeader>
                     <CardContent>
                         <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                            {{ pendingTrainingCount }}
+                            {{ pendingTrainingCountComputed }}
                         </p>
                         <p class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400">
                             Action required
                         </p>
                         <Link
                             :href="hr.training.index().url"
-                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80"
+                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80"
                         >
                             View all →
                         </Link>
@@ -104,14 +124,14 @@ const pendingItems = [
                     </CardHeader>
                     <CardContent>
                         <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                            {{ pdsPendingCount }}
+                            {{ pdsPendingCountComputed }}
                         </p>
                         <p class="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
                             On track
                         </p>
                         <Link
                             :href="hr.pds.index().url"
-                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80"
+                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80"
                         >
                             PDS Management →
                         </Link>
@@ -131,8 +151,8 @@ const pendingItems = [
                             Active records
                         </p>
                         <Link
-                            :href="hr.pds.index().url"
-                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80"
+                            :href="hr.users.index.url()"
+                            class="mt-2 block text-xs text-gray-500 dark:text-gray-400 cursor-pointer transition-colors text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80"
                         >
                             View list →
                         </Link>
@@ -157,8 +177,8 @@ const pendingItems = [
                             :href="action.href"
                             class="flex cursor-pointer items-center gap-3 rounded-md border border-gray-200 p-3 transition-colors hover:bg-gray-50 dark:border-neutral-800 dark:hover:bg-neutral-800/60"
                         >
-                            <div class="flex size-10 shrink-0 items-center justify-center rounded-md bg-[#013CFC]/[0.08]">
-                                <component :is="action.icon" class="size-5 text-[#013CFC]" />
+                            <div class="flex size-10 shrink-0 items-center justify-center rounded-md bg-brand/[0.08]">
+                                <component :is="action.icon" class="size-5 text-brand" />
                             </div>
                             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">
                                 {{ action.title }}
@@ -178,7 +198,7 @@ const pendingItems = [
                         </div>
                         <Link
                             :href="hr.leaveApplications.index().url"
-                            class="text-sm font-medium text-[#013CFC] cursor-pointer transition-colors hover:text-[#0031BC] dark:text-[#60C8FC]"
+                            class="text-sm font-medium text-brand cursor-pointer transition-colors hover:text-brand-dark dark:text-brand-light"
                         >
                             View all
                         </Link>
@@ -195,7 +215,7 @@ const pendingItems = [
                                     class="flex size-9 shrink-0 items-center justify-center rounded-md"
                                     :class="{
                                         'bg-amber-50 dark:bg-amber-900/30': item.type === 'Leave',
-                                        'bg-[#013CFC]/[0.08]': item.type === 'Training',
+                                        'bg-brand/[0.08]': item.type === 'Training',
                                         'bg-green-50 dark:bg-green-900/30': item.type === 'PDS',
                                     }"
                                 >
@@ -205,7 +225,7 @@ const pendingItems = [
                                     />
                                     <BookOpen
                                         v-else-if="item.type === 'Training'"
-                                        class="size-4 text-[#013CFC]"
+                                        class="size-4 text-brand"
                                     />
                                     <FileText
                                         v-else

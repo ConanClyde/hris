@@ -15,8 +15,7 @@ class LeaveStatusUpdated implements ShouldBroadcastNow
         public string $type,
         public string $dateFrom,
         public float $totalDays,
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

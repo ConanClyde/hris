@@ -3,13 +3,10 @@
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canRegister' => Features::enabled(Features::registration()),
-    ]);
+    return redirect()->route('login');
 })->name('home');
 
 // Generic /dashboard redirects to role-appropriate dashboard
@@ -18,16 +15,23 @@ Route::get('dashboard', function () {
         return redirect()->route('login');
     }
 
-    $role = Auth::user()->role ?? 'employee';
-    if ($role === 'admin') {
+    $user = Auth::user();
+    if ($user->isAdmin()) {
         return redirect()->route('admin.dashboard');
     }
-    if ($role === 'hr') {
+    if ($user->isHr()) {
         return redirect()->route('hr.dashboard');
     }
 
     return redirect()->route('employee.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Attendance / DTR Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/attendance/clock-in', [\App\Http\Controllers\AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
+    Route::post('/attendance/clock-out', [\App\Http\Controllers\AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
+    Route::get('/attendance/history', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.history');
+});
 
 if (Features::enabled(Features::registration())) {
     Route::get('/register', [RegisterController::class, 'create'])

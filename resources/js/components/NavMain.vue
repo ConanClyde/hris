@@ -26,10 +26,17 @@ const { isCurrentUrl } = useCurrentUrl();
                     as-child
                     :is-active="isCurrentUrl(item.href)"
                     :tooltip="item.title"
+                    class="relative"
                 >
                     <Link :href="item.href">
                         <component :is="item.icon" />
                         <span>{{ item.title }}</span>
+                        <span
+                            v-if="(typeof item.badge === 'number' && item.badge > 0) || (typeof item.badge === 'string' && item.badge !== '')"
+                            class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white"
+                        >
+                            {{ typeof item.badge === 'number' && item.badge > 99 ? '99+' : item.badge }}
+                        </span>
                     </Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>

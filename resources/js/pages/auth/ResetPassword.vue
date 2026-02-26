@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
 import {
     LifeBuoy,
     Lock,
     ShieldCheck,
     Zap,
 } from 'lucide-vue-next';
+import { ref } from 'vue';
 import AlertError from '@/components/AlertError.vue';
 import PasswordInput from '@/components/auth/PasswordInput.vue';
 import { Button } from '@/components/ui/button';

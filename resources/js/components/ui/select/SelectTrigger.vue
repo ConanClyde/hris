@@ -21,7 +21,7 @@ const forwardedProps = useForwardProps(delegatedProps)
     :data-size="size"
     v-bind="forwardedProps"
     :class="cn(
-      'cursor-pointer flex h-10 min-h-[44px] w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all outline-none data-[placeholder]:text-gray-400 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-[#013CFC] focus:border-[#013CFC] disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-[#111] dark:text-white dark:data-[placeholder]:text-gray-500 dark:hover:border-gray-600 dark:focus:border-[#013CFC]',
+      'cursor-pointer flex h-10 w-full items-center justify-between gap-2 whitespace-nowrap rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-all outline-none data-[placeholder]:text-gray-400 hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-brand focus:border-brand disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-neutral-900 dark:text-white dark:data-[placeholder]:text-gray-500 dark:hover:border-gray-600 dark:focus:border-brand',
       '*:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
       props.class,
     )"

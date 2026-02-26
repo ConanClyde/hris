@@ -6,9 +6,9 @@ import {
     Key,
     Mail,
 } from 'lucide-vue-next';
-import { computed } from 'vue';
 import AlertError from '@/components/AlertError.vue';
 import TextLink from '@/components/TextLink.vue';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,12 +42,12 @@ const errorsList = (errors: Record<string, string>) => {
     >
         <Head title="Forgot password" />
 
-        <div
+        <Alert
             v-if="status"
-            class="mb-4 rounded-md bg-green-50 p-3 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400"
+            class="mb-4 border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200"
         >
-            {{ status }}
-        </div>
+            <AlertDescription class="text-sm font-medium">{{ status }}</AlertDescription>
+        </Alert>
 
         <div class="space-y-6">
             <div class="flex justify-center">
@@ -92,7 +92,7 @@ const errorsList = (errors: Record<string, string>) => {
                 Remembered your password?
                 <TextLink
                     :href="login().url"
-                    class="font-medium text-[#013CFC] hover:text-[#0031BC]"
+                    class="font-medium text-brand hover:text-brand-dark"
                 >
                     Sign in
                 </TextLink>

@@ -9,8 +9,7 @@ class CustomHolidayDeleted implements ShouldBroadcastNow
 {
     public function __construct(
         public int $holidayId,
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

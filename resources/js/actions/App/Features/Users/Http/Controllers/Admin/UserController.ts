@@ -1,73 +1,96 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults, validateParameters } from './../../../../../../../wayfinder'
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-const indexde7b92f5d57ab3be25571f27f05793f8 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: indexde7b92f5d57ab3be25571f27f05793f8.url(options),
+const index9ce9e01736c0c679af7b66dde4a75b00 = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index9ce9e01736c0c679af7b66dde4a75b00.url(args, options),
     method: 'get',
 })
 
-indexde7b92f5d57ab3be25571f27f05793f8.definition = {
+index9ce9e01736c0c679af7b66dde4a75b00.definition = {
     methods: ["get","head"],
-    url: '/admin/users',
+    url: '/admin/users/{status?}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-indexde7b92f5d57ab3be25571f27f05793f8.url = (options?: RouteQueryOptions) => {
-    return indexde7b92f5d57ab3be25571f27f05793f8.definition.url + queryParams(options)
+index9ce9e01736c0c679af7b66dde4a75b00.url = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { status: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    status: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    validateParameters(args, [
+            "status",
+        ])
+
+    const parsedArgs = {
+                        status: args?.status,
+                }
+
+    return index9ce9e01736c0c679af7b66dde4a75b00.definition.url
+            .replace('{status?}', parsedArgs.status?.toString() ?? '')
+            .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-indexde7b92f5d57ab3be25571f27f05793f8.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: indexde7b92f5d57ab3be25571f27f05793f8.url(options),
+index9ce9e01736c0c679af7b66dde4a75b00.get = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: index9ce9e01736c0c679af7b66dde4a75b00.url(args, options),
     method: 'get',
 })
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-indexde7b92f5d57ab3be25571f27f05793f8.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: indexde7b92f5d57ab3be25571f27f05793f8.url(options),
+index9ce9e01736c0c679af7b66dde4a75b00.head = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: index9ce9e01736c0c679af7b66dde4a75b00.url(args, options),
     method: 'head',
 })
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-    const indexde7b92f5d57ab3be25571f27f05793f8Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: indexde7b92f5d57ab3be25571f27f05793f8.url(options),
+    const index9ce9e01736c0c679af7b66dde4a75b00Form = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: index9ce9e01736c0c679af7b66dde4a75b00.url(args, options),
         method: 'get',
     })
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-        indexde7b92f5d57ab3be25571f27f05793f8Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: indexde7b92f5d57ab3be25571f27f05793f8.url(options),
+        index9ce9e01736c0c679af7b66dde4a75b00Form.get = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index9ce9e01736c0c679af7b66dde4a75b00.url(args, options),
             method: 'get',
         })
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/admin/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/admin/users/{status?}'
  */
-        indexde7b92f5d57ab3be25571f27f05793f8Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: indexde7b92f5d57ab3be25571f27f05793f8.url({
+        index9ce9e01736c0c679af7b66dde4a75b00Form.head = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: index9ce9e01736c0c679af7b66dde4a75b00.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
                             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -76,76 +99,99 @@ indexde7b92f5d57ab3be25571f27f05793f8.head = (options?: RouteQueryOptions): Rout
             method: 'get',
         })
     
-    indexde7b92f5d57ab3be25571f27f05793f8.form = indexde7b92f5d57ab3be25571f27f05793f8Form
+    index9ce9e01736c0c679af7b66dde4a75b00.form = index9ce9e01736c0c679af7b66dde4a75b00Form
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-const index5d4b82f6576226cd2673896e07073a7a = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index5d4b82f6576226cd2673896e07073a7a.url(options),
+const indexd3aa4c27362218cd75e95286a9f53352 = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: indexd3aa4c27362218cd75e95286a9f53352.url(args, options),
     method: 'get',
 })
 
-index5d4b82f6576226cd2673896e07073a7a.definition = {
+indexd3aa4c27362218cd75e95286a9f53352.definition = {
     methods: ["get","head"],
-    url: '/hr/users',
+    url: '/hr/users/{status?}',
 } satisfies RouteDefinition<["get","head"]>
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-index5d4b82f6576226cd2673896e07073a7a.url = (options?: RouteQueryOptions) => {
-    return index5d4b82f6576226cd2673896e07073a7a.definition.url + queryParams(options)
+indexd3aa4c27362218cd75e95286a9f53352.url = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { status: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    status: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    validateParameters(args, [
+            "status",
+        ])
+
+    const parsedArgs = {
+                        status: args?.status,
+                }
+
+    return indexd3aa4c27362218cd75e95286a9f53352.definition.url
+            .replace('{status?}', parsedArgs.status?.toString() ?? '')
+            .replace(/\/+$/, '') + queryParams(options)
 }
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-index5d4b82f6576226cd2673896e07073a7a.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
-    url: index5d4b82f6576226cd2673896e07073a7a.url(options),
+indexd3aa4c27362218cd75e95286a9f53352.get = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: indexd3aa4c27362218cd75e95286a9f53352.url(args, options),
     method: 'get',
 })
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-index5d4b82f6576226cd2673896e07073a7a.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
-    url: index5d4b82f6576226cd2673896e07073a7a.url(options),
+indexd3aa4c27362218cd75e95286a9f53352.head = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: indexd3aa4c27362218cd75e95286a9f53352.url(args, options),
     method: 'head',
 })
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-    const index5d4b82f6576226cd2673896e07073a7aForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: index5d4b82f6576226cd2673896e07073a7a.url(options),
+    const indexd3aa4c27362218cd75e95286a9f53352Form = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: indexd3aa4c27362218cd75e95286a9f53352.url(args, options),
         method: 'get',
     })
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-        index5d4b82f6576226cd2673896e07073a7aForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index5d4b82f6576226cd2673896e07073a7a.url(options),
+        indexd3aa4c27362218cd75e95286a9f53352Form.get = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: indexd3aa4c27362218cd75e95286a9f53352.url(args, options),
             method: 'get',
         })
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::index
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:14
- * @route '/hr/users'
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @route '/hr/users/{status?}'
  */
-        index5d4b82f6576226cd2673896e07073a7aForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index5d4b82f6576226cd2673896e07073a7a.url({
+        indexd3aa4c27362218cd75e95286a9f53352Form.head = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: indexd3aa4c27362218cd75e95286a9f53352.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
                             ...(options?.query ?? options?.mergeQuery ?? {}),
@@ -154,16 +200,16 @@ index5d4b82f6576226cd2673896e07073a7a.head = (options?: RouteQueryOptions): Rout
             method: 'get',
         })
     
-    index5d4b82f6576226cd2673896e07073a7a.form = index5d4b82f6576226cd2673896e07073a7aForm
+    indexd3aa4c27362218cd75e95286a9f53352.form = indexd3aa4c27362218cd75e95286a9f53352Form
 
 export const index = {
-    '/admin/users': indexde7b92f5d57ab3be25571f27f05793f8,
-    '/hr/users': index5d4b82f6576226cd2673896e07073a7a,
+    '/admin/users/{status?}': index9ce9e01736c0c679af7b66dde4a75b00,
+    '/hr/users/{status?}': indexd3aa4c27362218cd75e95286a9f53352,
 }
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/admin/users'
  */
 const storede7b92f5d57ab3be25571f27f05793f8 = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -178,7 +224,7 @@ storede7b92f5d57ab3be25571f27f05793f8.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/admin/users'
  */
 storede7b92f5d57ab3be25571f27f05793f8.url = (options?: RouteQueryOptions) => {
@@ -187,7 +233,7 @@ storede7b92f5d57ab3be25571f27f05793f8.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/admin/users'
  */
 storede7b92f5d57ab3be25571f27f05793f8.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -197,7 +243,7 @@ storede7b92f5d57ab3be25571f27f05793f8.post = (options?: RouteQueryOptions): Rout
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/admin/users'
  */
     const storede7b92f5d57ab3be25571f27f05793f8Form = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -207,7 +253,7 @@ storede7b92f5d57ab3be25571f27f05793f8.post = (options?: RouteQueryOptions): Rout
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/admin/users'
  */
         storede7b92f5d57ab3be25571f27f05793f8Form.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -218,7 +264,7 @@ storede7b92f5d57ab3be25571f27f05793f8.post = (options?: RouteQueryOptions): Rout
     storede7b92f5d57ab3be25571f27f05793f8.form = storede7b92f5d57ab3be25571f27f05793f8Form
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/hr/users'
  */
 const store5d4b82f6576226cd2673896e07073a7a = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -233,7 +279,7 @@ store5d4b82f6576226cd2673896e07073a7a.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/hr/users'
  */
 store5d4b82f6576226cd2673896e07073a7a.url = (options?: RouteQueryOptions) => {
@@ -242,7 +288,7 @@ store5d4b82f6576226cd2673896e07073a7a.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/hr/users'
  */
 store5d4b82f6576226cd2673896e07073a7a.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -252,7 +298,7 @@ store5d4b82f6576226cd2673896e07073a7a.post = (options?: RouteQueryOptions): Rout
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/hr/users'
  */
     const store5d4b82f6576226cd2673896e07073a7aForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -262,7 +308,7 @@ store5d4b82f6576226cd2673896e07073a7a.post = (options?: RouteQueryOptions): Rout
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::store
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:56
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:114
  * @route '/hr/users'
  */
         store5d4b82f6576226cd2673896e07073a7aForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -279,7 +325,7 @@ export const store = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/admin/users/{id}'
  */
 const update10d1efffed943b02995f330502adb2de = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -294,7 +340,7 @@ update10d1efffed943b02995f330502adb2de.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/admin/users/{id}'
  */
 update10d1efffed943b02995f330502adb2de.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -322,7 +368,7 @@ update10d1efffed943b02995f330502adb2de.url = (args: { id: string | number } | [i
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/admin/users/{id}'
  */
 update10d1efffed943b02995f330502adb2de.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -332,7 +378,7 @@ update10d1efffed943b02995f330502adb2de.put = (args: { id: string | number } | [i
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/admin/users/{id}'
  */
     const update10d1efffed943b02995f330502adb2deForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -347,7 +393,7 @@ update10d1efffed943b02995f330502adb2de.put = (args: { id: string | number } | [i
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/admin/users/{id}'
  */
         update10d1efffed943b02995f330502adb2deForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -363,7 +409,7 @@ update10d1efffed943b02995f330502adb2de.put = (args: { id: string | number } | [i
     update10d1efffed943b02995f330502adb2de.form = update10d1efffed943b02995f330502adb2deForm
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/hr/users/{id}'
  */
 const update6e1cc9cecdcb23d5aee5a287f88b7628 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -378,7 +424,7 @@ update6e1cc9cecdcb23d5aee5a287f88b7628.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/hr/users/{id}'
  */
 update6e1cc9cecdcb23d5aee5a287f88b7628.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -406,7 +452,7 @@ update6e1cc9cecdcb23d5aee5a287f88b7628.url = (args: { id: string | number } | [i
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/hr/users/{id}'
  */
 update6e1cc9cecdcb23d5aee5a287f88b7628.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -416,7 +462,7 @@ update6e1cc9cecdcb23d5aee5a287f88b7628.put = (args: { id: string | number } | [i
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/hr/users/{id}'
  */
     const update6e1cc9cecdcb23d5aee5a287f88b7628Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -431,7 +477,7 @@ update6e1cc9cecdcb23d5aee5a287f88b7628.put = (args: { id: string | number } | [i
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::update
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:84
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:240
  * @route '/hr/users/{id}'
  */
         update6e1cc9cecdcb23d5aee5a287f88b7628Form.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -453,7 +499,7 @@ export const update = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/admin/users/{id}'
  */
 const destroy10d1efffed943b02995f330502adb2de = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -468,7 +514,7 @@ destroy10d1efffed943b02995f330502adb2de.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/admin/users/{id}'
  */
 destroy10d1efffed943b02995f330502adb2de.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -496,7 +542,7 @@ destroy10d1efffed943b02995f330502adb2de.url = (args: { id: string | number } | [
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/admin/users/{id}'
  */
 destroy10d1efffed943b02995f330502adb2de.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -506,7 +552,7 @@ destroy10d1efffed943b02995f330502adb2de.delete = (args: { id: string | number } 
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/admin/users/{id}'
  */
     const destroy10d1efffed943b02995f330502adb2deForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -521,7 +567,7 @@ destroy10d1efffed943b02995f330502adb2de.delete = (args: { id: string | number } 
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/admin/users/{id}'
  */
         destroy10d1efffed943b02995f330502adb2deForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -537,7 +583,7 @@ destroy10d1efffed943b02995f330502adb2de.delete = (args: { id: string | number } 
     destroy10d1efffed943b02995f330502adb2de.form = destroy10d1efffed943b02995f330502adb2deForm
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/hr/users/{id}'
  */
 const destroy6e1cc9cecdcb23d5aee5a287f88b7628 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -552,7 +598,7 @@ destroy6e1cc9cecdcb23d5aee5a287f88b7628.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/hr/users/{id}'
  */
 destroy6e1cc9cecdcb23d5aee5a287f88b7628.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -580,7 +626,7 @@ destroy6e1cc9cecdcb23d5aee5a287f88b7628.url = (args: { id: string | number } | [
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/hr/users/{id}'
  */
 destroy6e1cc9cecdcb23d5aee5a287f88b7628.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -590,7 +636,7 @@ destroy6e1cc9cecdcb23d5aee5a287f88b7628.delete = (args: { id: string | number } 
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/hr/users/{id}'
  */
     const destroy6e1cc9cecdcb23d5aee5a287f88b7628Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -605,7 +651,7 @@ destroy6e1cc9cecdcb23d5aee5a287f88b7628.delete = (args: { id: string | number } 
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::destroy
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:111
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:273
  * @route '/hr/users/{id}'
  */
         destroy6e1cc9cecdcb23d5aee5a287f88b7628Form.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -626,8 +672,356 @@ export const destroy = {
 }
 
 /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/admin/users/{id}/approve'
+ */
+const approvefdba77d02759ea71576646426b8cbb4e = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: approvefdba77d02759ea71576646426b8cbb4e.url(args, options),
+    method: 'patch',
+})
+
+approvefdba77d02759ea71576646426b8cbb4e.definition = {
+    methods: ["patch"],
+    url: '/admin/users/{id}/approve',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/admin/users/{id}/approve'
+ */
+approvefdba77d02759ea71576646426b8cbb4e.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    id: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        id: args.id,
+                }
+
+    return approvefdba77d02759ea71576646426b8cbb4e.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/admin/users/{id}/approve'
+ */
+approvefdba77d02759ea71576646426b8cbb4e.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: approvefdba77d02759ea71576646426b8cbb4e.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/admin/users/{id}/approve'
+ */
+    const approvefdba77d02759ea71576646426b8cbb4eForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: approvefdba77d02759ea71576646426b8cbb4e.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/admin/users/{id}/approve'
+ */
+        approvefdba77d02759ea71576646426b8cbb4eForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: approvefdba77d02759ea71576646426b8cbb4e.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    approvefdba77d02759ea71576646426b8cbb4e.form = approvefdba77d02759ea71576646426b8cbb4eForm
+    /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/hr/users/{id}/approve'
+ */
+const approve45563f34e54636cab69c7e43770bc16d = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: approve45563f34e54636cab69c7e43770bc16d.url(args, options),
+    method: 'patch',
+})
+
+approve45563f34e54636cab69c7e43770bc16d.definition = {
+    methods: ["patch"],
+    url: '/hr/users/{id}/approve',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/hr/users/{id}/approve'
+ */
+approve45563f34e54636cab69c7e43770bc16d.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    id: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        id: args.id,
+                }
+
+    return approve45563f34e54636cab69c7e43770bc16d.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/hr/users/{id}/approve'
+ */
+approve45563f34e54636cab69c7e43770bc16d.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: approve45563f34e54636cab69c7e43770bc16d.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/hr/users/{id}/approve'
+ */
+    const approve45563f34e54636cab69c7e43770bc16dForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: approve45563f34e54636cab69c7e43770bc16d.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::approve
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:288
+ * @route '/hr/users/{id}/approve'
+ */
+        approve45563f34e54636cab69c7e43770bc16dForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: approve45563f34e54636cab69c7e43770bc16d.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    approve45563f34e54636cab69c7e43770bc16d.form = approve45563f34e54636cab69c7e43770bc16dForm
+
+export const approve = {
+    '/admin/users/{id}/approve': approvefdba77d02759ea71576646426b8cbb4e,
+    '/hr/users/{id}/approve': approve45563f34e54636cab69c7e43770bc16d,
+}
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/admin/users/{id}/reject'
+ */
+const reject2a960332cf8b677b3be582f587a6dff5 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: reject2a960332cf8b677b3be582f587a6dff5.url(args, options),
+    method: 'patch',
+})
+
+reject2a960332cf8b677b3be582f587a6dff5.definition = {
+    methods: ["patch"],
+    url: '/admin/users/{id}/reject',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/admin/users/{id}/reject'
+ */
+reject2a960332cf8b677b3be582f587a6dff5.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    id: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        id: args.id,
+                }
+
+    return reject2a960332cf8b677b3be582f587a6dff5.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/admin/users/{id}/reject'
+ */
+reject2a960332cf8b677b3be582f587a6dff5.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: reject2a960332cf8b677b3be582f587a6dff5.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/admin/users/{id}/reject'
+ */
+    const reject2a960332cf8b677b3be582f587a6dff5Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: reject2a960332cf8b677b3be582f587a6dff5.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/admin/users/{id}/reject'
+ */
+        reject2a960332cf8b677b3be582f587a6dff5Form.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: reject2a960332cf8b677b3be582f587a6dff5.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    reject2a960332cf8b677b3be582f587a6dff5.form = reject2a960332cf8b677b3be582f587a6dff5Form
+    /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/hr/users/{id}/reject'
+ */
+const rejectd7b66fb48126164d9249614822a09b6d = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: rejectd7b66fb48126164d9249614822a09b6d.url(args, options),
+    method: 'patch',
+})
+
+rejectd7b66fb48126164d9249614822a09b6d.definition = {
+    methods: ["patch"],
+    url: '/hr/users/{id}/reject',
+} satisfies RouteDefinition<["patch"]>
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/hr/users/{id}/reject'
+ */
+rejectd7b66fb48126164d9249614822a09b6d.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { id: args }
+    }
+
+    
+    if (Array.isArray(args)) {
+        args = {
+                    id: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        id: args.id,
+                }
+
+    return rejectd7b66fb48126164d9249614822a09b6d.definition.url
+            .replace('{id}', parsedArgs.id.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/hr/users/{id}/reject'
+ */
+rejectd7b66fb48126164d9249614822a09b6d.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
+    url: rejectd7b66fb48126164d9249614822a09b6d.url(args, options),
+    method: 'patch',
+})
+
+    /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/hr/users/{id}/reject'
+ */
+    const rejectd7b66fb48126164d9249614822a09b6dForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: rejectd7b66fb48126164d9249614822a09b6d.url(args, {
+                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                        _method: 'PATCH',
+                        ...(options?.query ?? options?.mergeQuery ?? {}),
+                    }
+                }),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Features\Users\Http\Controllers\Admin\UserController::reject
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:320
+ * @route '/hr/users/{id}/reject'
+ */
+        rejectd7b66fb48126164d9249614822a09b6dForm.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: rejectd7b66fb48126164d9249614822a09b6d.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'PATCH',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'post',
+        })
+    
+    rejectd7b66fb48126164d9249614822a09b6d.form = rejectd7b66fb48126164d9249614822a09b6dForm
+
+export const reject = {
+    '/admin/users/{id}/reject': reject2a960332cf8b677b3be582f587a6dff5,
+    '/hr/users/{id}/reject': rejectd7b66fb48126164d9249614822a09b6d,
+}
+
+/**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/admin/users/{id}/toggle-status'
  */
 const toggleStatus7b5caff9587ee14c41204ce4fba7e028 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -642,7 +1036,7 @@ toggleStatus7b5caff9587ee14c41204ce4fba7e028.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/admin/users/{id}/toggle-status'
  */
 toggleStatus7b5caff9587ee14c41204ce4fba7e028.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -670,7 +1064,7 @@ toggleStatus7b5caff9587ee14c41204ce4fba7e028.url = (args: { id: string | number 
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/admin/users/{id}/toggle-status'
  */
 toggleStatus7b5caff9587ee14c41204ce4fba7e028.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -680,7 +1074,7 @@ toggleStatus7b5caff9587ee14c41204ce4fba7e028.patch = (args: { id: string | numbe
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/admin/users/{id}/toggle-status'
  */
     const toggleStatus7b5caff9587ee14c41204ce4fba7e028Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -695,7 +1089,7 @@ toggleStatus7b5caff9587ee14c41204ce4fba7e028.patch = (args: { id: string | numbe
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/admin/users/{id}/toggle-status'
  */
         toggleStatus7b5caff9587ee14c41204ce4fba7e028Form.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -711,7 +1105,7 @@ toggleStatus7b5caff9587ee14c41204ce4fba7e028.patch = (args: { id: string | numbe
     toggleStatus7b5caff9587ee14c41204ce4fba7e028.form = toggleStatus7b5caff9587ee14c41204ce4fba7e028Form
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/hr/users/{id}/toggle-status'
  */
 const toggleStatusf1484736d17262b7ca802e5ae8abe435 = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -726,7 +1120,7 @@ toggleStatusf1484736d17262b7ca802e5ae8abe435.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/hr/users/{id}/toggle-status'
  */
 toggleStatusf1484736d17262b7ca802e5ae8abe435.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -754,7 +1148,7 @@ toggleStatusf1484736d17262b7ca802e5ae8abe435.url = (args: { id: string | number 
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/hr/users/{id}/toggle-status'
  */
 toggleStatusf1484736d17262b7ca802e5ae8abe435.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -764,7 +1158,7 @@ toggleStatusf1484736d17262b7ca802e5ae8abe435.patch = (args: { id: string | numbe
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/hr/users/{id}/toggle-status'
  */
     const toggleStatusf1484736d17262b7ca802e5ae8abe435Form = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -779,7 +1173,7 @@ toggleStatusf1484736d17262b7ca802e5ae8abe435.patch = (args: { id: string | numbe
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::toggleStatus
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:119
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:352
  * @route '/hr/users/{id}/toggle-status'
  */
         toggleStatusf1484736d17262b7ca802e5ae8abe435Form.patch = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -801,7 +1195,7 @@ export const toggleStatus = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/admin/users/bulk-action'
  */
 const bulkAction3c13f11221ea4c376260ad015f496f07 = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -816,7 +1210,7 @@ bulkAction3c13f11221ea4c376260ad015f496f07.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/admin/users/bulk-action'
  */
 bulkAction3c13f11221ea4c376260ad015f496f07.url = (options?: RouteQueryOptions) => {
@@ -825,7 +1219,7 @@ bulkAction3c13f11221ea4c376260ad015f496f07.url = (options?: RouteQueryOptions) =
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/admin/users/bulk-action'
  */
 bulkAction3c13f11221ea4c376260ad015f496f07.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -835,7 +1229,7 @@ bulkAction3c13f11221ea4c376260ad015f496f07.post = (options?: RouteQueryOptions):
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/admin/users/bulk-action'
  */
     const bulkAction3c13f11221ea4c376260ad015f496f07Form = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -845,7 +1239,7 @@ bulkAction3c13f11221ea4c376260ad015f496f07.post = (options?: RouteQueryOptions):
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/admin/users/bulk-action'
  */
         bulkAction3c13f11221ea4c376260ad015f496f07Form.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -856,7 +1250,7 @@ bulkAction3c13f11221ea4c376260ad015f496f07.post = (options?: RouteQueryOptions):
     bulkAction3c13f11221ea4c376260ad015f496f07.form = bulkAction3c13f11221ea4c376260ad015f496f07Form
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/hr/users/bulk-action'
  */
 const bulkAction406e877c8716eac7ce7f5ef2c6dbf63c = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -871,7 +1265,7 @@ bulkAction406e877c8716eac7ce7f5ef2c6dbf63c.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/hr/users/bulk-action'
  */
 bulkAction406e877c8716eac7ce7f5ef2c6dbf63c.url = (options?: RouteQueryOptions) => {
@@ -880,7 +1274,7 @@ bulkAction406e877c8716eac7ce7f5ef2c6dbf63c.url = (options?: RouteQueryOptions) =
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/hr/users/bulk-action'
  */
 bulkAction406e877c8716eac7ce7f5ef2c6dbf63c.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -890,7 +1284,7 @@ bulkAction406e877c8716eac7ce7f5ef2c6dbf63c.post = (options?: RouteQueryOptions):
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/hr/users/bulk-action'
  */
     const bulkAction406e877c8716eac7ce7f5ef2c6dbf63cForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -900,7 +1294,7 @@ bulkAction406e877c8716eac7ce7f5ef2c6dbf63c.post = (options?: RouteQueryOptions):
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::bulkAction
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:129
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:379
  * @route '/hr/users/bulk-action'
  */
         bulkAction406e877c8716eac7ce7f5ef2c6dbf63cForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -915,6 +1309,6 @@ export const bulkAction = {
     '/hr/users/bulk-action': bulkAction406e877c8716eac7ce7f5ef2c6dbf63c,
 }
 
-const UserController = { index, store, update, destroy, toggleStatus, bulkAction }
+const UserController = { index, store, update, destroy, approve, reject, toggleStatus, bulkAction }
 
 export default UserController

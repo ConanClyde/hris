@@ -1,10 +1,11 @@
 import { createInertiaApp } from '@inertiajs/vue3';
+import { configureEcho } from '@laravel/echo-vue';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import type { DefineComponent } from 'vue';
 import { createApp, h } from 'vue';
 import '../css/app.css';
 import { initializeTheme } from './composables/useAppearance';
-import { configureEcho } from '@laravel/echo-vue';
+import { useRealtimeAvatar } from './composables/useRealtimeAvatar';
 
 configureEcho({
     broadcaster: 'reverb',
@@ -20,9 +21,14 @@ createInertiaApp({
             import.meta.glob<DefineComponent>('./pages/**/*.vue'),
         ),
     setup({ el, App, props, plugin }) {
-        createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el);
+        const app = createApp({ render: () => h(App, props) });
+
+        app.use(plugin);
+        app.mount(el);
+
+        // Start listening for real-time avatar updates
+        const { startListening } = useRealtimeAvatar();
+        startListening();
     },
     progress: {
         color: '#4B5563',

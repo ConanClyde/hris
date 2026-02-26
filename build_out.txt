@@ -1,0 +1,38 @@
+﻿node.exe : npm warn Unknown project config "public-hoist-pattern". This will stop working in the next major version of 
+npm. See `npm help npmrc` for supported config options.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\Alvin\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm warn Unknow...config options.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+> build
+> vite build
+
+[36mvite v7.3.1 [32mbuilding client environment for production...[36m[39m
+[32mΓ£ô[39m 0 modules transformed.
+[31mΓ£ù[39m Build failed in 19.12s
+[31merror during build:
+[31m[@laravel/vite-plugin-wayfinder] [plugin @laravel/vite-plugin-wayfinder] Error generating types: Error: Command 
+failed: php artisan wayfinder:generate --with-form
+[31m
+    at getRollupError 
+(file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/parseAst.js:402:41)
+    at error 
+(file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/parseAst.js:398:42)
+    at Object.error 
+(file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/node-entry.js:22249:20)
+    at runCommand (file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/@laravel/vite-plugin-wayfinder/dis
+t/index.mjs:2101:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 2)
+    at async PluginDriver.hookParallel 
+(file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/node-entry.js:22481:9)
+    at async 
+file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/node-entry.js:23453:13
+    at async catchUnfinishedHookActions 
+(file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/node-entry.js:22925:16)
+    at async rollupInternal 
+(file:///C:/Users/Alvin/Documents/@@OJT/systems/hris_app/node_modules/rollup/dist/es/shared/node-entry.js:23450:5)[39m
+

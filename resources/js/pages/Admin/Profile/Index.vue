@@ -1,24 +1,34 @@
 <script setup lang="ts">
 import { Head, Form, router } from '@inertiajs/vue3';
+import { Upload, X } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import admin from '@/routes/admin';
-import type { BreadcrumbItem } from '@/types';
+import PasswordInput from '@/components/auth/PasswordInput.vue';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useInitials } from '@/composables/useInitials';
-import PasswordInput from '@/components/auth/PasswordInput.vue';
+import AppLayout from '@/layouts/AppLayout.vue';
+import admin from '@/routes/admin';
+import type { BreadcrumbItem } from '@/types';
+
+type ActivityLogItem = {
+    id: number;
+    action: string;
+    subject_type?: string | null;
+    subject_id?: number | null;
+    created_at: string | null;
+};
 
 type UserProp = {
     id: number;
@@ -32,6 +42,7 @@ type UserProp = {
     is_active: boolean;
     created_at: string | null;
     avatar?: string | null;
+    activity_logs?: ActivityLogItem[];
 };
 
 const props = defineProps<{
@@ -39,7 +50,6 @@ const props = defineProps<{
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: admin.dashboard().url },
     { title: 'Profile' },
 ];
 
@@ -61,7 +71,6 @@ const { getInitials } = useInitials();
 
 const editModalOpen = ref(false);
 const passwordModalOpen = ref(false);
-const activityModalOpen = ref(false);
 const deleteModalOpen = ref(false);
 
 const currentPassword = ref('');
@@ -73,6 +82,110 @@ const editMiddleName = ref('');
 const editLastName = ref('');
 const editNameExt = ref('');
 const editEmail = ref('');
+const removeAvatar = ref(false);
+const avatarPreviewUrl = ref<string | null>(null);
+const avatarBlob = ref<Blob | null>(null);
+const cropModalOpen = ref(false);
+const cropImageSrc = ref<string | null>(null);
+const cropCanvasRef = ref<HTMLCanvasElement | null>(null);
+const avatarInputRef = ref<HTMLInputElement | null>(null);
+
+function openCropModal(file: File) {
+    const url = URL.createObjectURL(file);
+    cropImageSrc.value = url;
+    cropModalOpen.value = true;
+}
+
+function closeCropModal() {
+    if (cropImageSrc.value) URL.revokeObjectURL(cropImageSrc.value);
+    cropImageSrc.value = null;
+    cropModalOpen.value = false;
+}
+
+function drawCrop() {
+    const canvas = cropCanvasRef.value;
+    const src = cropImageSrc.value;
+    if (!canvas || !src) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+        const size = Math.min(img.width, img.height);
+        const x = (img.width - size) / 2;
+        const y = (img.height - size) / 2;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            ctx.drawImage(img, x, y, size, size, 0, 0, size, size);
+        }
+    };
+    img.src = src;
+}
+
+function applyCrop() {
+    const canvas = cropCanvasRef.value;
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+        if (blob) {
+            avatarBlob.value = blob;
+            avatarPreviewUrl.value = URL.createObjectURL(blob);
+            removeAvatar.value = false;
+        }
+        closeCropModal();
+    }, 'image/jpeg', 0.9);
+}
+
+function onAvatarFileChange(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+        openCropModal(file);
+    }
+    input.value = '';
+}
+
+function clearAvatarSelection() {
+    if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value);
+    avatarPreviewUrl.value = null;
+    avatarBlob.value = null;
+    removeAvatar.value = true;
+}
+
+function submitEditProfile() {
+    const formData = new FormData();
+    formData.append('first_name', editFirstName.value);
+    formData.append('middle_name', editMiddleName.value);
+    formData.append('last_name', editLastName.value);
+    formData.append('name_extension', editNameExt.value);
+    formData.append('email', editEmail.value);
+    formData.append('_method', 'PUT');
+    if (removeAvatar.value) {
+        formData.append('remove_avatar', '1');
+    }
+    if (avatarBlob.value) {
+        formData.append('avatar', avatarBlob.value, 'avatar.jpg');
+    }
+    router.post(admin.profile.update.url(), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            editModalOpen.value = false;
+            avatarBlob.value = null;
+            if (avatarPreviewUrl.value) URL.revokeObjectURL(avatarPreviewUrl.value);
+            avatarPreviewUrl.value = null;
+            removeAvatar.value = false;
+        },
+    });
+}
+
+watch(
+    cropModalOpen,
+    (open) => {
+        if (open) {
+            setTimeout(drawCrop, 50);
+        }
+    },
+    { flush: 'post' }
+);
 
 watch(
     () => props.user,
@@ -88,6 +201,12 @@ watch(
     { immediate: true }
 );
 
+watch(editModalOpen, (open) => {
+    if (!open) {
+        clearAvatarSelection();
+    }
+});
+
 function memberSince(createdAt: string | null): string {
     if (!createdAt) return '—';
     try {
@@ -95,6 +214,16 @@ function memberSince(createdAt: string | null): string {
         return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     } catch {
         return '—';
+    }
+}
+
+function formatLogDate(iso: string | null): string {
+    if (!iso) return '';
+    try {
+        const d = new Date(iso);
+        return d.toLocaleString();
+    } catch {
+        return iso;
     }
 }
 </script>
@@ -114,8 +243,9 @@ function memberSince(createdAt: string | null): string {
             </div>
 
             <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_320px]">
-                <!-- Left: Info card -->
-                <Card>
+                <!-- Left column: Profile + Activity Logs (same width) -->
+                <div class="flex flex-col gap-8">
+                    <Card>
                     <CardHeader class="flex flex-col gap-6 sm:flex-row sm:items-start sm:space-y-0">
                         <Avatar class="h-20 w-20 shrink-0 overflow-hidden rounded-lg">
                             <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="fullName(user)" />
@@ -158,8 +288,35 @@ function memberSince(createdAt: string | null): string {
                     </CardContent>
                 </Card>
 
+                    <!-- Activity Logs card (same width as profile card) -->
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Activity logs</CardTitle>
+                            <p class="text-sm text-muted-foreground mt-0.5">Your recent activity.</p>
+                        </CardHeader>
+                        <CardContent>
+                            <ul v-if="user.activity_logs?.length" class="space-y-3 text-sm">
+                                <li
+                                    v-for="log in user.activity_logs"
+                                    :key="log.id"
+                                    class="flex items-start gap-3 border-b border-border pb-3 last:border-0 last:pb-0"
+                                >
+                                    <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                                    <div class="min-w-0 flex-1">
+                                        <p class="font-medium text-foreground">{{ log.action }}</p>
+                                        <p class="text-xs text-muted-foreground mt-0.5">
+                                            {{ log.subject_type || '' }} {{ log.created_at ? formatLogDate(log.created_at) : '' }}
+                                        </p>
+                                    </div>
+                                </li>
+                            </ul>
+                            <p v-else class="text-sm text-muted-foreground">No recent activity.</p>
+                        </CardContent>
+                    </Card>
+                </div>
+
                 <!-- Right: Actions -->
-                <div class="lg:order-last">
+                <div>
                     <Card>
                         <CardHeader>
                             <CardTitle>Actions</CardTitle>
@@ -167,14 +324,14 @@ function memberSince(createdAt: string | null): string {
                         <CardContent class="space-y-4">
                         <Button class="w-full" @click="editModalOpen = true">Edit profile</Button>
                         <Button class="w-full" variant="outline" @click="passwordModalOpen = true">Change password</Button>
-                        <Button class="w-full" variant="outline" @click="activityModalOpen = true">Activity logs</Button>
-                        <Button class="w-full text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20" variant="outline" @click="deleteModalOpen = true">
+                        <Button class="w-full text-red-600 hover:bg-red-50 hover:text-red-700 !important dark:text-red-400 dark:hover:bg-red-900/20" variant="outline" @click="deleteModalOpen = true">
                             Delete account
                         </Button>
                         </CardContent>
                     </Card>
                 </div>
             </div>
+
         </div>
 
         <!-- Edit profile modal -->
@@ -182,21 +339,53 @@ function memberSince(createdAt: string | null): string {
             <DialogContent class="max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Edit profile</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Update your personal profile details.
+                    </DialogDescription>
                     <p class="text-sm text-muted-foreground mt-0.5">Update your personal details.</p>
                 </DialogHeader>
-                <form
-                    class="flex flex-col gap-4"
-                    @submit.prevent="
-                        router.put(admin.profile.update.url(), {
-                            first_name: editFirstName,
-                            middle_name: editMiddleName,
-                            last_name: editLastName,
-                            name_extension: editNameExt,
-                            email: editEmail,
-                        }, { onSuccess: () => { editModalOpen = false; } });
-                    "
-                >
+                <form class="flex flex-col gap-4" @submit.prevent="submitEditProfile">
                     <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                        <div class="space-y-2">
+                            <Label>Profile photo</Label>
+                            <div class="flex items-center gap-4">
+                                <Avatar class="h-16 w-16 shrink-0 rounded-lg">
+                                    <AvatarImage
+                                        v-if="avatarPreviewUrl || (user.avatar && !removeAvatar)"
+                                        :src="avatarPreviewUrl || (removeAvatar ? null : user.avatar) || ''"
+                                        :alt="fullName(user)"
+                                    />
+                                    <AvatarFallback class="rounded-lg bg-muted text-lg">
+                                        {{ getInitials(fullName(user)) }}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div class="flex flex-col gap-2">
+                                    <input
+                                        ref="avatarInputRef"
+                                        type="file"
+                                        accept="image/*"
+                                        class="hidden"
+                                        @change="onAvatarFileChange"
+                                    />
+                                    <Button type="button" variant="outline" size="sm" @click="avatarInputRef?.click()">
+                                        <Upload class="size-4 mr-1.5" />
+                                        Upload photo
+                                    </Button>
+                                    <Button
+                                        v-if="user.avatar || avatarPreviewUrl"
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        class="text-red-600 hover:text-red-700 dark:text-red-400"
+                                        @click="clearAvatarSelection"
+                                    >
+                                        <X class="size-4 mr-1.5" />
+                                        Remove photo
+                                    </Button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-muted-foreground">Image will be cropped to 1:1. Max 2MB.</p>
+                        </div>
                         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div class="space-y-2">
                                 <Label for="edit-first_name">First name</Label>
@@ -228,11 +417,37 @@ function memberSince(createdAt: string | null): string {
             </DialogContent>
         </Dialog>
 
+        <!-- Crop avatar modal -->
+        <Dialog v-model:open="cropModalOpen" @update:open="(v: boolean) => !v && closeCropModal()">
+            <DialogContent class="max-w-md" :show-close-button="true">
+                <DialogHeader>
+                    <DialogTitle>Crop photo</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Crop your profile photo to a square.
+                    </DialogDescription>
+                    <p class="text-sm text-muted-foreground mt-0.5">Image will be cropped to a square (1:1).</p>
+                </DialogHeader>
+                <div class="flex justify-center bg-muted/50 rounded-lg p-4 min-h-[200px]">
+                    <canvas
+                        ref="cropCanvasRef"
+                        class="max-w-full max-h-[40vh] rounded-lg border border-border"
+                    />
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeCropModal">Cancel</Button>
+                    <Button type="button" @click="applyCrop">Apply</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
         <!-- Change password modal -->
         <Dialog v-model:open="passwordModalOpen">
             <DialogContent class="max-w-md">
                 <DialogHeader>
                     <DialogTitle>Change password</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Update your account password.
+                    </DialogDescription>
                     <p class="text-sm text-muted-foreground mt-0.5">Enter your current password and choose a new one.</p>
                 </DialogHeader>
                 <form
@@ -267,35 +482,14 @@ function memberSince(createdAt: string | null): string {
             </DialogContent>
         </Dialog>
 
-        <!-- Activity logs modal (placeholder) -->
-        <Dialog v-model:open="activityModalOpen">
-            <DialogContent class="max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Activity logs</DialogTitle>
-                    <p class="text-sm text-muted-foreground mt-0.5">Your recent activity.</p>
-                </DialogHeader>
-                <div class="max-h-[60vh] overflow-y-auto p-4">
-                    <ul class="space-y-4 text-sm">
-                        <li class="flex items-start gap-3 pb-4 border-b border-border last:border-0 last:pb-0">
-                            <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                            <div>
-                                <p class="font-medium text-foreground">Logged in</p>
-                                <p class="text-xs text-muted-foreground mt-0.5">Recent</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <DialogFooter>
-                    <Button @click="activityModalOpen = false">Close</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-
         <!-- Delete account modal -->
         <Dialog v-model:open="deleteModalOpen">
             <DialogContent class="max-w-md">
                 <DialogHeader>
                     <DialogTitle>Delete account</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Permanently delete your account.
+                    </DialogDescription>
                     <p class="text-sm text-muted-foreground mt-0.5">This action cannot be undone. All your data will be permanently removed.</p>
                 </DialogHeader>
                 <Form

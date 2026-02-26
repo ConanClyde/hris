@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Pds extends Model
@@ -42,6 +43,56 @@ class Pds extends Model
     public function personal(): HasOne
     {
         return $this->hasOne(PdsPersonal::class, 'pds_id');
+    }
+
+    public function family(): HasOne
+    {
+        return $this->hasOne(PdsFamily::class, 'pds_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(PdsChild::class, 'pds_id')->orderBy('id');
+    }
+
+    public function education(): HasMany
+    {
+        return $this->hasMany(PdsEducation::class, 'pds_id')->orderBy('id');
+    }
+
+    public function cscEligibility(): HasMany
+    {
+        return $this->hasMany(PdsCscEligibility::class, 'pds_id')->orderBy('sort_order');
+    }
+
+    public function workExperience(): HasMany
+    {
+        return $this->hasMany(PdsWorkExperience::class, 'pds_id')->orderBy('sort_order');
+    }
+
+    public function voluntaryWork(): HasMany
+    {
+        return $this->hasMany(PdsVoluntaryWork::class, 'pds_id')->orderBy('sort_order');
+    }
+
+    public function training(): HasMany
+    {
+        return $this->hasMany(PdsTraining::class, 'pds_id')->orderBy('sort_order');
+    }
+
+    public function otherInfo(): HasMany
+    {
+        return $this->hasMany(PdsOtherInfo::class, 'pds_id')->orderBy('sort_order');
+    }
+
+    public function references(): HasMany
+    {
+        return $this->hasMany(PdsReference::class, 'pds_id')->orderBy('sort_order');
+    }
+
+    public function backgroundInfo(): HasOne
+    {
+        return $this->hasOne(PdsBackgroundInfo::class, 'pds_id');
     }
 
     public function scopeForEmployee(Builder $query, int $employeeId): Builder

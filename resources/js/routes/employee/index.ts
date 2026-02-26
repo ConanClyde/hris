@@ -1,5 +1,6 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import calendarFa95d0 from './calendar'
+import notifications1ce82a from './notifications'
 import profile937a89 from './profile'
 import pds from './pds'
 import training from './training'
@@ -7,7 +8,7 @@ import leaveApplications from './leave-applications'
 import leaveAttachments from './leave-attachments'
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -22,7 +23,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -31,7 +32,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -40,7 +41,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -50,7 +51,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -60,7 +61,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -69,7 +70,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:54
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:82
  * @route '/employee/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -85,7 +86,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     dashboard.form = dashboardForm
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
 export const calendar = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -100,7 +101,7 @@ calendar.definition = {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
 calendar.url = (options?: RouteQueryOptions) => {
@@ -109,7 +110,7 @@ calendar.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
 calendar.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -118,7 +119,7 @@ calendar.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
 calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -128,7 +129,7 @@ calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
     const calendarForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -138,7 +139,7 @@ calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
         calendarForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -147,7 +148,7 @@ calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::calendar
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:18
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:19
  * @route '/employee/calendar'
  */
         calendarForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -163,7 +164,7 @@ calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     calendar.form = calendarForm
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
 export const notifications = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -178,7 +179,7 @@ notifications.definition = {
 
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
 notifications.url = (options?: RouteQueryOptions) => {
@@ -187,7 +188,7 @@ notifications.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
 notifications.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -196,7 +197,7 @@ notifications.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
 notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -206,7 +207,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
     /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
     const notificationsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -216,7 +217,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
             /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
         notificationsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -225,7 +226,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
         })
             /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:11
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
  * @route '/employee/notifications'
  */
         notificationsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -240,7 +241,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     
     notifications.form = notificationsForm
 /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
 export const settings = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -254,7 +255,7 @@ settings.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
 settings.url = (options?: RouteQueryOptions) => {
@@ -262,7 +263,7 @@ settings.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
 settings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -270,7 +271,7 @@ settings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
 settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +280,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
     const settingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -288,7 +289,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
         settingsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -296,7 +297,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web/employee.php:23
+ * @see routes/web/employee.php:25
  * @route '/employee/settings'
  */
         settingsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -312,7 +313,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     settings.form = settingsForm
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
 export const profile = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -327,7 +328,7 @@ profile.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
 profile.url = (options?: RouteQueryOptions) => {
@@ -336,7 +337,7 @@ profile.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
 profile.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -345,7 +346,7 @@ profile.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
 profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -355,7 +356,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
     const profileForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -365,7 +366,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
         profileForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -374,7 +375,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:14
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
  * @route '/employee/profile'
  */
         profileForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -391,7 +392,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 const employee = {
     dashboard: Object.assign(dashboard, dashboard),
 calendar: Object.assign(calendar, calendarFa95d0),
-notifications: Object.assign(notifications, notifications),
+notifications: Object.assign(notifications, notifications1ce82a),
 settings: Object.assign(settings, settings),
 profile: Object.assign(profile, profile937a89),
 pds: Object.assign(pds, pds),

@@ -10,12 +10,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class CalendarController extends Controller
 {
     use GoogleCalendarService;
 
-    public function index()
+    public function index(): Response
     {
         return Inertia::render('Employee/Calendar/Index');
     }
@@ -30,7 +31,7 @@ class CalendarController extends Controller
         $events = [];
 
         $user = Auth::user();
-        $employeeId = $user?->employee?->employee_id ?? null;
+        $employeeId = $user?->employee?->id ?? null;
 
         $holidays = $this->getGoogleCalendarHolidays($start, $end);
 

@@ -1,7 +1,6 @@
 <?php
 
 use App\Features\Dashboard\Http\Controllers\DashboardController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Role-specific dashboards

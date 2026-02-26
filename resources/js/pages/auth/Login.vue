@@ -8,8 +8,9 @@ import {
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import AlertError from '@/components/AlertError.vue';
-import TextLink from '@/components/TextLink.vue';
 import PasswordInput from '@/components/auth/PasswordInput.vue';
+import TextLink from '@/components/TextLink.vue';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -50,12 +51,12 @@ const errorsList = (errors: Record<string, string>) => {
     >
         <Head title="Log in" />
 
-        <div
+        <Alert
             v-if="status"
-            class="mb-4 text-center text-sm font-medium text-green-600"
+            class="mb-4 border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200"
         >
-            {{ status }}
-        </div>
+            <AlertDescription class="text-sm font-medium">{{ status }}</AlertDescription>
+        </Alert>
 
         <Form
             v-bind="store.form()"
@@ -89,7 +90,7 @@ const errorsList = (errors: Record<string, string>) => {
                         <TextLink
                             v-if="canResetPassword"
                             :href="request()"
-                            class="text-sm font-medium text-[#013CFC] hover:text-[#0031BC]"
+                            class="text-sm font-medium text-brand hover:text-brand-dark"
                             :tabindex="5"
                         >
                             Forgot password?
@@ -140,7 +141,7 @@ const errorsList = (errors: Record<string, string>) => {
                 Don't have an account?
                 <TextLink
                     :href="register().url"
-                    class="font-medium text-[#013CFC] hover:text-[#0031BC]"
+                    class="font-medium text-brand hover:text-brand-dark"
                     :tabindex="6"
                 >
                     Register here

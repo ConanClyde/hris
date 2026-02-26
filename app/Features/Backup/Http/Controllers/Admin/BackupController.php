@@ -11,9 +11,10 @@ class BackupController extends Controller
 {
     public function index(Request $request)
     {
+        $appendQuery = collect($request->query())->reject(fn ($v) => $v === 'all')->all();
         $backups = Backup::orderByDesc('created_at')
             ->paginate(10)
-            ->appends($request->query());
+            ->appends($appendQuery);
 
         return Inertia::render('Admin/Backup/Index', ['backups' => $backups]);
     }
@@ -27,7 +28,7 @@ class BackupController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|max:102400',
+            'backup_file' => 'required|file|max:102400',
         ]);
 
         return redirect()->route('admin.backup.index')->with('success', 'Backup uploaded.');
@@ -37,7 +38,7 @@ class BackupController extends Controller
     {
         $backup = Backup::findOrFail($id);
 
-        return response()->download(storage_path('app/backups/' . $backup->filename));
+        return response()->download(storage_path('app/backups/'.$backup->filename));
     }
 
     public function restore($id)

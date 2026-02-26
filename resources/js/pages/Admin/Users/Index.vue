@@ -1,24 +1,21 @@
 <script setup lang="ts">
-import { Head, Link, Form, router } from '@inertiajs/vue3';
-import { ref, watch, computed } from 'vue';
-import { Eye, Pencil, Trash2, UserCheck, UserX } from 'lucide-vue-next';
+import { Head, Link, router } from '@inertiajs/vue3';
+import { CheckCircle2, ChevronDown, Eye, Pencil, Trash2, XCircle, Briefcase, Shield, User as UserIcon, ChevronRight } from 'lucide-vue-next';
+import { ref, watch, computed, onMounted } from 'vue';
+import TableUserCell from '@/components/TableUserCell.vue';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogScrollContent,
 } from '@/components/ui/dialog';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -26,9 +23,17 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import AlertError from '@/components/AlertError.vue';
+import PasswordInput from '@/components/auth/PasswordInput.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import TableUserCell from '@/components/TableUserCell.vue';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import admin from '@/routes/admin';
 import type { BreadcrumbItem } from '@/types';
 
@@ -36,11 +41,25 @@ type UserItem = {
     id: number;
     name: string;
     email: string;
+    username?: string;
     role: string;
     is_active: boolean;
+    status: string;
     first_name?: string;
     middle_name?: string;
     last_name?: string;
+    name_extension?: string;
+    sex?: string;
+    date_of_birth?: string;
+    position?: string;
+    classification?: string;
+    date_hired?: string;
+    division?: string;
+    subdivision?: string;
+    section?: string;
+    division_id?: number;
+    subdivision_id?: number;
+    section_id?: number;
     created_at: string;
 };
 
@@ -56,70 +75,453 @@ const props = withDefaults(
         users: PaginatedData;
         filters?: { search?: string; role?: string; status?: string };
         pendingCount?: number;
+        rejectedCount?: number;
     }>(),
-    { filters: () => ({}), pendingCount: 0 }
+    { filters: () => ({}), pendingCount: 0, rejectedCount: 0 }
+);
+
+const { usersPendingCount } = useBroadcasting();
+const { lastUserManagementEvent } = useBroadcasting();
+if (usersPendingCount.value === null) {
+    usersPendingCount.value = props.pendingCount ?? 0;
+}
+
+const pendingCountComputed = computed(
+    () => usersPendingCount.value ?? (props.pendingCount ?? 0),
+);
+
+const realtimeUsers = ref<UserItem[]>([...props.users.data]);
+watch(
+    () => props.users.data,
+    (next) => {
+        realtimeUsers.value = [...next];
+    },
+    { immediate: true }
+);
+
+function upsertUserRow(u: Partial<UserItem> & { id: number }) {
+    const idx = realtimeUsers.value.findIndex((x) => x.id === u.id);
+    if (idx === -1) {
+        realtimeUsers.value = [u as UserItem, ...realtimeUsers.value];
+        return;
+    }
+    realtimeUsers.value[idx] = { ...realtimeUsers.value[idx], ...u } as UserItem;
+}
+
+function removeUserRow(id: number) {
+    realtimeUsers.value = realtimeUsers.value.filter((x) => x.id !== id);
+}
+
+watch(
+    () => lastUserManagementEvent.value,
+    (evt) => {
+        if (!evt) return;
+
+        const user: any = evt.user || {};
+        if (typeof user.id !== 'number') return;
+
+        if (evt.type === 'registered') {
+            if (filterStatus.value !== 'pending') return;
+            if (user.status && user.status !== 'pending') return;
+            upsertUserRow(user);
+            return;
+        }
+
+        if (evt.type === 'approved') {
+            if (filterStatus.value === 'pending') {
+                removeUserRow(user.id);
+                return;
+            }
+            if (filterStatus.value === 'rejected') {
+                removeUserRow(user.id);
+                return;
+            }
+            upsertUserRow({ id: user.id, status: 'approved', is_active: true });
+            return;
+        }
+
+        if (evt.type === 'rejected') {
+            if (filterStatus.value === 'pending') {
+                removeUserRow(user.id);
+                return;
+            }
+            if (filterStatus.value === 'rejected') {
+                upsertUserRow({ ...user, status: 'rejected', is_active: false });
+                return;
+            }
+            upsertUserRow({ id: user.id, status: 'rejected', is_active: false });
+        }
+    }
 );
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Manage Users' },
 ];
 
-const searchInput = ref(props.filters?.search ?? '');
-const filterRole = ref(props.filters?.role || 'all');
-const filterStatus = ref(props.filters?.status || 'all');
+// Separate filter states for each tab
+const allUsersFilters = ref({
+    search: props.filters?.search ?? '',
+    role: props.filters?.role || 'all',
+    status: props.filters?.status || 'all'
+});
 
-const addModalOpen = ref(false);
-const editModalOpen = ref(false);
+const pendingFilters = ref({
+    search: props.filters?.search ?? '',
+    role: props.filters?.role || 'all'
+});
+
+const rejectedFilters = ref({
+    search: props.filters?.search ?? '',
+    role: props.filters?.role || 'all'
+});
+
+const activeTab = computed(() => {
+    if (props.filters?.status === 'pending') return 'pending';
+    if (props.filters?.status === 'rejected') return 'rejected';
+    return 'all';
+});
+
+const searchInput = computed({
+    get: () => {
+        if (activeTab.value === 'pending') return pendingFilters.value.search;
+        if (activeTab.value === 'rejected') return rejectedFilters.value.search;
+        return allUsersFilters.value.search;
+    },
+    set: (value) => {
+        if (activeTab.value === 'pending') pendingFilters.value.search = value;
+        else if (activeTab.value === 'rejected') rejectedFilters.value.search = value;
+        else allUsersFilters.value.search = value;
+    }
+});
+
+const filterRole = computed({
+    get: () => {
+        if (activeTab.value === 'pending') return pendingFilters.value.role;
+        if (activeTab.value === 'rejected') return rejectedFilters.value.role;
+        return allUsersFilters.value.role;
+    },
+    set: (value) => {
+        if (activeTab.value === 'pending') pendingFilters.value.role = value;
+        else if (activeTab.value === 'rejected') rejectedFilters.value.role = value;
+        else allUsersFilters.value.role = value;
+    }
+});
+
+const filterStatus = computed({
+    get: () => {
+        if (activeTab.value === 'pending') return 'pending';
+        if (activeTab.value === 'rejected') return 'rejected';
+        return allUsersFilters.value.status;
+    },
+    set: (value) => {
+        if (activeTab.value === 'all') allUsersFilters.value.status = value;
+    }
+});
+
+const roleOptions = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'hr', label: 'HR' },
+    { value: 'employee', label: 'Employee' },
+];
+
+watch(
+    () => [props.filters?.search, props.filters?.role, props.filters?.status],
+    ([search, role, status]) => {
+        const statusValue = (status as string) || 'all';
+        const searchValue = (search as string) ?? '';
+        const roleValue = (role as string) || 'all';
+        if (statusValue === 'pending') {
+            pendingFilters.value.search = searchValue;
+            pendingFilters.value.role = roleValue;
+        } else if (statusValue === 'rejected') {
+            rejectedFilters.value.search = searchValue;
+            rejectedFilters.value.role = roleValue;
+        } else {
+            allUsersFilters.value.search = searchValue;
+            allUsersFilters.value.role = roleValue;
+            allUsersFilters.value.status = statusValue;
+        }
+    },
+    { immediate: true }
+);
+
+let debounce: ReturnType<typeof setTimeout> | null = null;
+watch([searchInput, filterRole, filterStatus], () => {
+    if (debounce) clearTimeout(debounce);
+    debounce = setTimeout(() => {
+        const query: Record<string, string> = {};
+        if (searchInput.value) query.search = searchInput.value;
+        if (filterRole.value && filterRole.value !== 'all') query.role = filterRole.value;
+        if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
+        const url = admin.users.url(undefined, { query });
+        router.get(url, {}, { preserveState: true });
+    }, 300);
+});
+
+function clearFilters() {
+    if (activeTab.value === 'pending') {
+        pendingFilters.value.search = '';
+        pendingFilters.value.role = 'all';
+    } else if (activeTab.value === 'rejected') {
+        rejectedFilters.value.search = '';
+        rejectedFilters.value.role = 'all';
+    } else {
+        allUsersFilters.value.search = '';
+        allUsersFilters.value.role = 'all';
+        allUsersFilters.value.status = 'all';
+    }
+    const query = activeTab.value !== 'all' ? { status: activeTab.value } : {};
+    router.get(admin.users.url(undefined, { query }));
+}
+
+function getStatusLabel(user: UserItem) {
+    if (user.status === 'approved') {
+        return user.is_active ? 'Active' : 'Inactive';
+    }
+    if (user.status) return user.status.charAt(0).toUpperCase() + user.status.slice(1);
+    return user.is_active ? 'Active' : 'Inactive';
+}
+
+function getStatusVariant(user: UserItem): 'default' | 'secondary' | 'destructive' | 'outline' {
+    if (user.status === 'pending') return 'secondary';
+    if (user.status === 'rejected') return 'destructive';
+    if (user.status === 'approved') return 'default';
+    return user.is_active ? 'default' : 'secondary';
+}
+
+const currentQuery = computed(() => {
+    const q: Record<string, string> = {};
+    if (searchInput.value) q.search = searchInput.value;
+    if (filterRole.value && filterRole.value !== 'all') q.role = filterRole.value;
+    return q;
+});
+
 const viewModalOpen = ref(false);
+const editModalOpen = ref(false);
 const deleteModalOpen = ref(false);
-const editingUser = ref<UserItem | null>(null);
+const addModalOpen = ref(false);
 const viewingUser = ref<UserItem | null>(null);
+const editingUser = ref<UserItem | null>(null);
 const deletingUser = ref<UserItem | null>(null);
-const selectedUserIds = ref<number[]>([]);
 
-const editName = ref('');
 const editFirstName = ref('');
 const editMiddleName = ref('');
 const editLastName = ref('');
+const editNameExtension = ref('');
+const editUsername = ref('');
 const editEmail = ref('');
 const editRole = ref('employee');
-const editIsActive = ref(true);
+const editIsActive = ref('true');
+const editSex = ref('');
+const editDateOfBirth = ref('');
+const editPosition = ref('');
+const editClassification = ref('');
+const editDateHired = ref('');
+const editDivisionId = ref<number | null>(null);
+const editSubdivisionId = ref<number | null>(null);
+const editSectionId = ref<number | null>(null);
 
 const addFirstName = ref('');
 const addMiddleName = ref('');
 const addLastName = ref('');
+const addNameExtension = ref('');
+const addUsername = ref('');
 const addEmail = ref('');
 const addPassword = ref('');
 const addRole = ref('employee');
+const addStep = ref<1 | 2 | 3 | 4>(1);
+const addErrors = ref<Record<string, string>>({});
+
+// Employee-specific fields for Add User
+const addSex = ref('');
+const addDateOfBirth = ref('');
+const addDateHired = ref('');
+const addDivisionId = ref<number | null>(null);
+const addSubdivisionId = ref<number | null>(null);
+const addSectionId = ref<number | null>(null);
+const addPosition = ref('');
+const addClassification = ref('');
+
+const isAddEmployee = computed(() => addRole.value === 'employee');
+
+const addSubdivisionOptions = computed(() => {
+    if (!addDivisionId.value) return [];
+    return subdivisions.value.filter((s) => s.division_id === addDivisionId.value);
+});
+
+const addSectionOptions = computed(() => {
+    if (!addDivisionId.value) return [];
+    if (addSubdivisionId.value) {
+        return sections.value.filter((s) => s.subdivision_id === addSubdivisionId.value);
+    }
+    // If no subdivision selected or no subdivisions available, return sections with no subdivision
+    if (addSubdivisionOptions.value.length === 0) {
+        return sections.value.filter((s) => s.division_id === addDivisionId.value && s.subdivision_id === null);
+    }
+    return [];
+});
+
+watch(addDivisionId, (newVal, oldVal) => {
+    if (newVal === oldVal) return;
+    addSubdivisionId.value = null;
+    addSectionId.value = null;
+});
+
+watch(addSubdivisionId, (newVal, oldVal) => {
+    if (newVal === oldVal) return;
+    addSectionId.value = null;
+});
 
 const addNameComputed = computed(() =>
     [addFirstName.value, addLastName.value].filter(Boolean).join(' ')
 );
 
+const divisions = ref<{ id: number; name: string }[]>([]);
+const subdivisions = ref<{ id: number; name: string; division_id: number }[]>([]);
+const sections = ref<{ id: number; name: string; division_id: number; subdivision_id: number | null }[]>([]);
+
+const filteredSubdivisions = computed(() => {
+    if (!editDivisionId.value) return [];
+    return subdivisions.value.filter((s) => s.division_id === editDivisionId.value);
+});
+
+const filteredSections = computed(() => {
+    if (editSubdivisionId.value) {
+        return sections.value.filter((s) => s.subdivision_id === editSubdivisionId.value);
+    }
+
+    if (editDivisionId.value) {
+        return sections.value.filter(
+            (s: any) => (s as any).division_id === editDivisionId.value && s.subdivision_id === null
+        );
+    }
+
+    return [];
+});
+
+onMounted(() => {
+    divisions.value = [
+        { id: 1, name: 'Chief of Hospital Offices Division' },
+        { id: 2, name: 'Treatment and Rehabilitation Division' },
+        { id: 3, name: 'Finance and Administrative Division' }
+    ];
+    subdivisions.value = [
+        { id: 1, name: 'Non-Residential Treatment & Rehabilitation', division_id: 2 },
+        { id: 2, name: 'Residential Treatment & Rehabilitation', division_id: 2 }
+    ];
+    sections.value = [
+        { id: 1, name: 'Legal Unit', subdivision_id: null, division_id: 1 },
+        { id: 2, name: 'Planning Unit', subdivision_id: null, division_id: 1 },
+        { id: 3, name: 'Information and Communications Technology Unit', subdivision_id: null, division_id: 1 },
+        { id: 4, name: 'Medical Section', subdivision_id: 1, division_id: 2 },
+        { id: 5, name: 'Nursing Section', subdivision_id: 1, division_id: 2 },
+        { id: 6, name: 'Medical Section', subdivision_id: 2, division_id: 2 },
+        { id: 7, name: 'Nursing Section', subdivision_id: 2, division_id: 2 },
+        { id: 8, name: 'Human Resource Management Section', subdivision_id: null, division_id: 3 },
+        { id: 9, name: 'Procurement Section', subdivision_id: null, division_id: 3 },
+        { id: 10, name: 'Accounting Section', subdivision_id: null, division_id: 3 }
+    ];
+});
+
 watch(editingUser, (u) => {
     if (u) {
-        editName.value = u.name || '';
-        editFirstName.value = u.first_name || '';
-        editMiddleName.value = u.middle_name || '';
-        editLastName.value = u.last_name || '';
-        editEmail.value = u.email || '';
+        editFirstName.value = u.first_name ?? '';
+        editMiddleName.value = u.middle_name ?? '';
+        editLastName.value = u.last_name ?? '';
+        editNameExtension.value = u.name_extension ?? '';
+        editUsername.value = u.username ?? '';
+        editEmail.value = u.email ?? '';
         editRole.value = u.role || 'employee';
-        editIsActive.value = u.is_active ?? true;
+        editIsActive.value = u.is_active !== undefined ? (u.is_active ? 'true' : 'false') : 'true';
+        editSex.value = u.sex ?? '';
+        editDateOfBirth.value = u.date_of_birth ?? '';
+        editPosition.value = u.position ?? '';
+        editClassification.value = u.classification ?? '';
+        editDateHired.value = u.date_hired ?? '';
+        editDivisionId.value = u.division_id ?? null;
+        editSubdivisionId.value = u.subdivision_id ?? null;
+        editSectionId.value = u.section_id ?? null;
+
+        if (editDivisionId.value) {
+            const subdivisionOk = !editSubdivisionId.value || filteredSubdivisions.value.some((s) => s.id === editSubdivisionId.value);
+            if (!subdivisionOk) editSubdivisionId.value = null;
+        } else {
+            editSubdivisionId.value = null;
+        }
+
+        const sectionOk = !editSectionId.value || filteredSections.value.some((s) => s.id === editSectionId.value);
+        if (!sectionOk) editSectionId.value = null;
     }
 }, { immediate: true });
 
-const allSelected = computed(() => props.users.data.length > 0 && selectedUserIds.value.length === props.users.data.length);
-function toggleSelectAll() {
-    if (allSelected.value) {
-        selectedUserIds.value = [];
-    } else {
-        selectedUserIds.value = props.users.data.map((u) => u.id);
+watch(editDivisionId, (newDivisionId, oldDivisionId) => {
+    if (newDivisionId === oldDivisionId) return;
+
+    if (!newDivisionId) {
+        editSubdivisionId.value = null;
+        editSectionId.value = null;
+        return;
     }
+
+    const subdivisionOk = !editSubdivisionId.value || filteredSubdivisions.value.some((s) => s.id === editSubdivisionId.value);
+    if (!subdivisionOk) editSubdivisionId.value = null;
+    editSectionId.value = null;
+});
+
+watch(editSubdivisionId, (newSubdivisionId, oldSubdivisionId) => {
+    if (newSubdivisionId === oldSubdivisionId) return;
+
+    const sectionOk = !editSectionId.value || filteredSections.value.some((s) => s.id === editSectionId.value);
+    if (!sectionOk) editSectionId.value = null;
+});
+
+function userName(u: UserItem): string {
+    return u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—';
 }
-function toggleSelect(id: number) {
-    const idx = selectedUserIds.value.indexOf(id);
-    if (idx >= 0) selectedUserIds.value = selectedUserIds.value.filter((i) => i !== id);
-    else selectedUserIds.value = [...selectedUserIds.value, id];
+
+function openView(u: UserItem) {
+    viewingUser.value = u;
+    viewModalOpen.value = true;
+}
+function closeView() {
+    viewModalOpen.value = false;
+    viewingUser.value = null;
+}
+
+const approvalProcessing = ref<'approve' | 'reject' | null>(null);
+
+function approveViewingUser() {
+    if (!viewingUser.value) return;
+
+    approvalProcessing.value = 'approve';
+    router.patch(
+        admin.users.approve.url(viewingUser.value.id),
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => closeView(),
+            onFinish: () => {
+                approvalProcessing.value = null;
+            },
+        }
+    );
+}
+
+function rejectViewingUser() {
+    if (!viewingUser.value) return;
+
+    approvalProcessing.value = 'reject';
+    router.patch(
+        admin.users.reject.url(viewingUser.value.id),
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => closeView(),
+            onFinish: () => {
+                approvalProcessing.value = null;
+            },
+        }
+    );
 }
 
 function openEdit(u: UserItem) {
@@ -130,15 +532,6 @@ function openEdit(u: UserItem) {
 function closeEdit() {
     editModalOpen.value = false;
     editingUser.value = null;
-}
-
-function openView(u: UserItem) {
-    viewingUser.value = u;
-    viewModalOpen.value = true;
-}
-function closeView() {
-    viewModalOpen.value = false;
-    viewingUser.value = null;
 }
 
 function openDelete(u: UserItem) {
@@ -154,42 +547,162 @@ function resetAddForm() {
     addFirstName.value = '';
     addMiddleName.value = '';
     addLastName.value = '';
+    addNameExtension.value = '';
+    addUsername.value = '';
     addEmail.value = '';
     addPassword.value = '';
     addRole.value = 'employee';
+    addStep.value = 1;
+    addErrors.value = {};
+    // Reset employee fields
+    addSex.value = '';
+    addDateOfBirth.value = '';
+    addDateHired.value = '';
+    addDivisionId.value = null;
+    addSubdivisionId.value = null;
+    addSectionId.value = null;
+    addPosition.value = '';
+    addClassification.value = '';
 }
 
-function runBulkAction(action: string) {
-    if (selectedUserIds.value.length === 0) return;
-    const form = document.getElementById('bulk-action-form') as HTMLFormElement;
-    if (form) {
-        (document.getElementById('bulk-action-type') as HTMLInputElement).value = action;
-        const container = document.getElementById('bulk-action-ids');
-        if (container) {
-            container.innerHTML = '';
-            selectedUserIds.value.forEach((id) => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'user_ids[]';
-                input.value = String(id);
-                container.appendChild(input);
-            });
-        }
-        form.submit();
+const addErrorsList = computed(() => Object.values(addErrors.value));
+
+const canProceedAddStep2 = computed(() => {
+    return Boolean(addRole.value);
+});
+
+const canProceedAddStep3 = computed(() => {
+    const baseOk = Boolean(addFirstName.value.trim())
+        && Boolean(addLastName.value.trim());
+    if (!baseOk) return false;
+    // Employee requires sex and dob
+    if (isAddEmployee.value) {
+        return Boolean(addSex.value) && Boolean(addDateOfBirth.value);
     }
+    return true;
+});
+
+const canProceedAddStep4 = computed(() => {
+    if (!isAddEmployee.value) return true; // HR/Admin skip employment step
+    const dateHiredOk = Boolean(addDateHired.value);
+    if (!dateHiredOk) return false;
+    const divisionOk = Boolean(addDivisionId.value);
+    if (!divisionOk) return false;
+    if (addSubdivisionOptions.value.length && !addSubdivisionId.value) return false;
+    if (addSectionOptions.value.length && !addSectionId.value) return false;
+    const classificationOk = Boolean(addClassification.value);
+    if (!classificationOk) return false;
+    const positionOk = Boolean(addPosition.value.trim());
+    if (!positionOk) return false;
+    return true;
+});
+
+const canSubmitAdd = computed(() => {
+    return Boolean(addUsername.value.trim())
+        && Boolean(addEmail.value.trim())
+        && Boolean(addPassword.value);
+});
+
+const addLayoutTitle = computed(() => {
+    if (addStep.value === 1) return 'Add New User';
+    if (addStep.value === 2) return 'Personal Information';
+    if (addStep.value === 3) return isAddEmployee.value ? 'Employment Details' : 'Set up login credentials';
+    return 'Set up login credentials';
+});
+
+const addStepLabel = computed(() => {
+    const totalSteps = isAddEmployee.value ? 4 : 3;
+    const displayStep = isAddEmployee.value
+        ? (addStep.value <= 1 ? 0 : addStep.value - 1)
+        : (addStep.value <= 1 ? 0 : addStep.value - 1);
+    return addStep.value === 1 ? '' : `Step ${displayStep} of ${totalSteps}`;
+});
+
+const addLayoutDescription = computed(() => {
+    if (addStep.value === 1) return 'Select a role to get started.';
+    if (addStep.value === 2) return 'Enter personal details.';
+    if (addStep.value === 3 && isAddEmployee.value) return 'Enter employment and organizational details.';
+    return 'Set up username, email, and password.';
+});
+
+const addRoleOptions = [
+    {
+        value: 'employee',
+        title: 'Employee',
+        description: 'Standard employee access with leave and training',
+        icon: UserIcon,
+    },
+    {
+        value: 'hr',
+        title: 'HR',
+        description: 'HR personnel with approval and management access',
+        icon: Briefcase,
+    },
+    {
+        value: 'admin',
+        title: 'Admin',
+        description: 'Full system access with complete administrative control',
+        icon: Shield,
+    },
+];
+
+function selectAddRole(role: string) {
+    addRole.value = role;
+    addStep.value = 2;
+}
+
+function nextAddStep() {
+    if (addStep.value === 1 && canProceedAddStep2.value) addStep.value = 2;
+    else if (addStep.value === 2 && canProceedAddStep3.value) {
+        // Employee goes to employment step, HR/Admin skip to credentials
+        addStep.value = isAddEmployee.value ? 3 : 4;
+    }
+    else if (addStep.value === 3 && canProceedAddStep4.value) addStep.value = 4;
+}
+
+function prevAddStep() {
+    if (addStep.value === 4) addStep.value = isAddEmployee.value ? 3 : 2;
+    else if (addStep.value === 3) addStep.value = 2;
+    else if (addStep.value === 2) addStep.value = 1;
 }
 
 function submitAddUser(e: Event) {
     e.preventDefault();
-    router.post(admin.users.store.url(), {
+    addErrors.value = {};
+
+    const payload: any = {
         name: addNameComputed.value,
         first_name: addFirstName.value,
-        middle_name: addMiddleName.value,
+        middle_name: addMiddleName.value || null,
         last_name: addLastName.value,
+        name_extension: addNameExtension.value || null,
+        username: addUsername.value,
         email: addEmail.value,
         password: addPassword.value,
         role: addRole.value,
-    }, {
+    };
+
+    // Add employee-specific fields if employee
+    if (isAddEmployee.value) {
+        payload.sex = addSex.value;
+        payload.date_of_birth = addDateOfBirth.value;
+        payload.date_hired = addDateHired.value;
+        payload.division_id = addDivisionId.value;
+        payload.subdivision_id = addSubdivisionId.value;
+        payload.section_id = addSectionId.value;
+        payload.position = addPosition.value;
+        payload.classification = addClassification.value;
+    }
+
+    router.post(admin.users.store.url(), payload, {
+        onError: (errors) => {
+            addErrors.value = errors;
+            // Navigate to correct step based on error
+            if (errors.role) addStep.value = 1;
+            else if (errors.first_name || errors.middle_name || errors.last_name || errors.name_extension || errors.sex || errors.date_of_birth) addStep.value = 2;
+            else if (errors.date_hired || errors.division_id || errors.subdivision_id || errors.section_id || errors.position || errors.classification) addStep.value = 3;
+            else if (errors.username || errors.email || errors.password) addStep.value = isAddEmployee.value ? 4 : 3;
+        },
         onSuccess: () => { addModalOpen.value = false; resetAddForm(); },
     });
 }
@@ -200,110 +713,60 @@ function submitEditUser(e: Event) {
     router.put(admin.users.update.url(editingUser.value.id), {
         name: [editFirstName.value, editLastName.value].filter(Boolean).join(' '),
         first_name: editFirstName.value,
-        middle_name: editMiddleName.value,
+        middle_name: editMiddleName.value || null,
         last_name: editLastName.value,
+        username: editUsername.value,
         email: editEmail.value,
-        role: editRole.value,
-        is_active: editIsActive.value,
+        is_active: editIsActive.value === 'true',
     }, {
         onSuccess: () => closeEdit(),
     });
 }
-
-const roleOptions = [
-    { value: 'admin', label: 'Admin' },
-    { value: 'hr', label: 'HR' },
-    { value: 'employee', label: 'Employee' },
-];
-
-watch(
-    () => [props.filters?.search, props.filters?.role, props.filters?.status],
-    ([search, role, status]) => {
-        searchInput.value = (search as string) ?? '';
-        filterRole.value = (role as string) || 'all';
-        filterStatus.value = (status as string) || 'all';
-
-    },
-    { immediate: true }
-);
-
-let debounce: ReturnType<typeof setTimeout> | null = null;
-watch([searchInput, filterRole, filterStatus], () => {
-    if (debounce) clearTimeout(debounce);
-    debounce = setTimeout(() => {
-        const query: Record<string, string> = {};
-        if (searchInput.value) query.search = searchInput.value;
-        if (filterRole.value && filterRole.value !== 'all') query.role = filterRole.value;
-        if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
-
-        router.get(admin.users.url(), query, { preserveState: true });
-    }, 300);
-});
-
-function clearFilters() {
-    searchInput.value = '';
-    filterRole.value = 'all';
-    filterStatus.value = 'all';
-    router.get(admin.users.url());
-
-}
-
-function userName(u: UserItem): string {
-    return u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—';
-}
-
-const currentQuery = computed(() => {
-    const q: Record<string, string> = {};
-    if (searchInput.value) q.search = searchInput.value;
-    if (filterRole.value && filterRole.value !== 'all') q.role = filterRole.value;
-    if (filterStatus.value && filterStatus.value !== 'all') q.status = filterStatus.value;
-    return q;
-});
 </script>
 
 <template>
     <Head title="Manage Users" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-4 p-4">
+        <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
                         Manage Users
                     </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        View and manage system users and their roles.
+                        View and manage user accounts. Approve or toggle status.
                     </p>
                 </div>
-                <Button type="button" @click="addModalOpen = true">Add New User</Button>
+                <Button type="button" @click="addModalOpen = true">Add User</Button>
             </div>
 
             <!-- Tabs -->
             <nav class="flex gap-1 border-b border-gray-200 dark:border-neutral-700" aria-label="Tabs">
                 <Link
-                    :href="admin.users.url({ query: { ...currentQuery, status: 'all' } })"
+                    :href="admin.users.url(undefined, Object.keys(currentQuery).length ? { query: currentQuery } : undefined)"
                     class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors"
-                    :class="(!filterStatus || filterStatus === 'all') ? 'border-[#013CFC] text-[#013CFC] dark:border-[#60C8FC] dark:text-[#60C8FC]' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="(!filterStatus || filterStatus === 'all') ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                 >
-                    All Users
+                    All Approved
                 </Link>
                 <Link
-                    :href="admin.users.url({ query: { ...currentQuery, status: 'pending' } })"
+                    :href="admin.users.url(undefined, { query: { ...currentQuery, status: 'pending' } })"
                     class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors"
-                    :class="filterStatus === 'pending' ? 'border-[#013CFC] text-[#013CFC] dark:border-[#60C8FC] dark:text-[#60C8FC]' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="filterStatus === 'pending' ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                 >
-                    Pending Approvals
+                    Pending
                     <span
-                        v-if="(pendingCount ?? 0) > 0"
+                        v-if="(pendingCountComputed ?? 0) > 0"
                         class="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                     >
-                        {{ pendingCount }}
+                        {{ pendingCountComputed }}
                     </span>
                 </Link>
                 <Link
-                    :href="admin.users.url({ query: { ...currentQuery, status: 'rejected' } })"
+                    :href="admin.users.url(undefined, { query: { ...currentQuery, status: 'rejected' } })"
                     class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors"
-                    :class="filterStatus === 'rejected' ? 'border-[#013CFC] text-[#013CFC] dark:border-[#60C8FC] dark:text-[#60C8FC]' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="filterStatus === 'rejected' ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
                 >
                     Rejected
                 </Link>
@@ -318,102 +781,44 @@ const currentQuery = computed(() => {
                         v-model="searchInput"
                         type="search"
                         placeholder="Search name, email..."
-                        class="h-9"
+                        class="h-10"
                     />
                 </div>
                 <div class="w-[130px]">
                     <Label for="filter-role" class="sr-only">Role</Label>
                     <Select v-model="filterRole">
-                        <SelectTrigger id="filter-role" class="h-9">
+                        <SelectTrigger id="filter-role" class="h-10">
                             <SelectValue placeholder="Role" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Roles</SelectItem>
-                            <SelectItem
-                                v-for="opt in roleOptions"
-                                :key="opt.value"
-                                :value="opt.value"
-                            >
+                            <SelectItem v-for="opt in roleOptions" :key="opt.value" :value="opt.value">
                                 {{ opt.label }}
                             </SelectItem>
                         </SelectContent>
-
                     </Select>
                 </div>
-                <div class="w-[130px]">
+                <div v-if="activeTab === 'all'" class="w-[130px]">
                     <Label for="filter-status" class="sr-only">Status</Label>
                     <Select v-model="filterStatus">
-                        <SelectTrigger id="filter-status" class="h-9">
+                        <SelectTrigger id="filter-status" class="h-10">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All</SelectItem>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="rejected">Rejected</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
-                <Button type="button" variant="outline" size="sm" class="h-9" @click="clearFilters">
-                    Clear filters
-                </Button>
+                <Button type="button" variant="outline" @click="clearFilters">Clear filters</Button>
             </div>
 
             <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                <!-- Bulk action toolbar -->
-                <Form
-                    id="bulk-action-form"
-                    :action="admin.users.bulk_action.url()"
-                    method="post"
-                    class="hidden"
-                >
-                    <input id="bulk-action-type" type="hidden" name="action" value="" />
-                    <div id="bulk-action-ids" />
-                </Form>
-                <div
-                    v-if="selectedUserIds.length > 0"
-                    class="flex items-center gap-3 border-b border-gray-200 bg-gray-100 px-4 py-2 dark:border-neutral-700 dark:bg-neutral-800"
-                >
-                    <span class="text-sm text-gray-700 dark:text-gray-300">
-                        {{ selectedUserIds.length }} selected
-                    </span>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger as-child>
-                            <Button type="button" variant="outline" size="sm">
-                                Bulk action
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                            <DropdownMenuItem @click="runBulkAction('activate')">
-                                Activate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem @click="runBulkAction('deactivate')">
-                                Deactivate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                                class="text-red-600 dark:text-red-400"
-                                @click="runBulkAction('delete')"
-                            >
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Button type="button" variant="ghost" size="sm" @click="selectedUserIds = []">
-                        Clear selection
-                    </Button>
-                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[560px] border-collapse text-sm">
                         <thead class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
                             <tr>
-                                <th class="w-10 px-4 py-3">
-                                    <Checkbox
-                                        :checked="allSelected"
-                                        :aria-label="allSelected ? 'Deselect all' : 'Select all'"
-                                        @update:checked="toggleSelectAll"
-                                    />
-                                </th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Name</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Email</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Role</th>
@@ -423,31 +828,22 @@ const currentQuery = computed(() => {
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
                             <tr
-                                v-for="u in users.data"
+                                v-for="u in realtimeUsers"
                                 :key="u.id"
                                 class="hover:bg-gray-50 dark:hover:bg-neutral-800/50"
                             >
                                 <td class="px-4 py-3">
-                                    <Checkbox
-                                        :checked="selectedUserIds.includes(u.id)"
-                                        :aria-label="`Select ${userName(u)}`"
-                                        @update:checked="toggleSelect(u.id)"
-                                    />
-                                </td>
-                                <td class="px-4 py-3">
                                     <TableUserCell
-                                        :name="userName(u)"
-                                        :subtitle="`#${u.id}`"
+                                        :name="u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—'"
+                                        :subtitle="u.username || u.email"
                                     />
                                 </td>
-                                <td class="px-4 py-3 text-muted-foreground">{{ u.email }}</td>
-                                <td class="px-4 py-3 capitalize">
+                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ u.email }}</td>
+                                <td class="px-4 py-3">
                                     <Badge variant="outline">{{ u.role }}</Badge>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <Badge :variant="u.is_active ? 'default' : 'secondary'">
-                                        {{ u.is_active ? 'Active' : 'Inactive' }}
-                                    </Badge>
+                                    <Badge :variant="getStatusVariant(u)">{{ getStatusLabel(u) }}</Badge>
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="flex items-center justify-end gap-1">
@@ -455,8 +851,7 @@ const currentQuery = computed(() => {
                                             <Button
                                                 type="button"
                                                 variant="ghost"
-                                                size="icon"
-                                                class="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                size="icon-sm"
                                                 title="View"
                                                 @click="openView(u)"
                                             >
@@ -467,9 +862,9 @@ const currentQuery = computed(() => {
                                             <Button
                                                 type="button"
                                                 variant="ghost"
-                                                size="icon"
-                                                class="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                size="icon-sm"
                                                 title="Delete"
+                                                class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                                 @click="openDelete(u)"
                                             >
                                                 <Trash2 class="size-4" />
@@ -479,8 +874,7 @@ const currentQuery = computed(() => {
                                             <Button
                                                 type="button"
                                                 variant="ghost"
-                                                size="icon"
-                                                class="h-8 w-8 text-muted-foreground hover:text-primary"
+                                                size="icon-sm"
                                                 title="View"
                                                 @click="openView(u)"
                                             >
@@ -489,36 +883,19 @@ const currentQuery = computed(() => {
                                             <Button
                                                 type="button"
                                                 variant="ghost"
-                                                size="icon"
-                                                class="h-8 w-8 text-muted-foreground hover:text-amber-600"
+                                                size="icon-sm"
                                                 title="Edit"
+                                                class="hover:text-primary"
                                                 @click="openEdit(u)"
                                             >
                                                 <Pencil class="size-4" />
                                             </Button>
-                                            <Form
-                                                :action="admin.users.toggleStatus.url(u.id)"
-                                                method="post"
-                                                class="inline"
-                                            >
-                                                <input type="hidden" name="_method" value="PATCH" />
-                                                <Button
-                                                    type="submit"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    class="h-8 w-8 text-muted-foreground"
-                                                    :class="u.is_active ? 'hover:text-destructive' : 'hover:text-primary'"
-                                                    :title="u.is_active ? 'Deactivate' : 'Activate'"
-                                                >
-                                                    <component :is="u.is_active ? UserX : UserCheck" class="size-4" />
-                                                </Button>
-                                            </Form>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
-                                                size="icon"
-                                                class="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                size="icon-sm"
                                                 title="Delete"
+                                                class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                                 @click="openDelete(u)"
                                             >
                                                 <Trash2 class="size-4" />
@@ -530,20 +907,22 @@ const currentQuery = computed(() => {
                         </tbody>
                     </table>
                 </div>
-
                 <div
                     v-if="!users.data.length"
                     class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
                 >
                     No users found.
+                    <button
+                        type="button"
+                        class="ml-1 text-brand hover:underline dark:text-brand-light"
+                        @click="clearFilters"
+                    >
+                        Clear filters
+                    </button>
                 </div>
             </div>
 
-            <!-- Pagination -->
-            <div
-                v-if="users.last_page > 1"
-                class="flex flex-wrap items-center justify-center gap-2"
-            >
+            <div v-if="users.last_page > 1" class="flex flex-wrap items-center justify-center gap-2">
                 <template v-for="(link, i) in users.links" :key="i">
                     <span
                         v-if="!link.url"
@@ -554,9 +933,7 @@ const currentQuery = computed(() => {
                         v-else
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active
-                            ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900'
-                            : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
+                        :class="link.active ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
                     </Link>
@@ -564,125 +941,497 @@ const currentQuery = computed(() => {
             </div>
         </div>
 
-        <!-- Add User modal -->
-        <Dialog v-model:open="addModalOpen" @update:open="(v: boolean) => v && resetAddForm()">
-            <DialogContent class="max-w-md">
+        <!-- View User modal -->
+        <Dialog v-model:open="viewModalOpen">
+            <DialogScrollContent v-if="viewingUser" class="w-[95vw] max-w-3xl sm:w-[90vw]">
                 <DialogHeader>
-                    <DialogTitle>Add New User</DialogTitle>
+                    <DialogTitle>View User</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        View user profile details.
+                    </DialogDescription>
                 </DialogHeader>
-                <form
-                    class="flex flex-col gap-4"
-                    @submit.prevent="submitAddUser"
-                >
-                    <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-2">
-                                <Label for="add-first_name">First name</Label>
-                                <Input id="add-first_name" v-model="addFirstName" name="first_name" required />
-                            </div>
-                            <div class="space-y-2">
-                                <Label for="add-middle_name">Middle name</Label>
-                                <Input id="add-middle_name" v-model="addMiddleName" name="middle_name" />
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="add-last_name">Last name</Label>
-                            <Input id="add-last_name" v-model="addLastName" name="last_name" required />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="add-email">Email</Label>
-                            <Input id="add-email" v-model="addEmail" name="email" type="email" required />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="add-password">Password</Label>
-                            <Input id="add-password" v-model="addPassword" name="password" type="password" required />
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="add-role">Role</Label>
-                            <Select v-model="addRole" name="role">
-                                <SelectTrigger id="add-role">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem
-                                        v-for="opt in roleOptions"
-                                        :key="opt.value"
-                                        :value="opt.value"
-                                    >
-                                        {{ opt.label }}
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                <div class="max-h-[75vh] overflow-y-auto space-y-4 p-2 sm:p-4">
+                    <div class="flex items-center gap-3">
+                        <TableUserCell
+                            :name="userName(viewingUser)"
+                            :subtitle="viewingUser.username || viewingUser.email"
+                        />
                     </div>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="addModalOpen = false">
-                            Cancel
-                        </Button>
-                        <Button type="submit">Create User</Button>
-                    </DialogFooter>
-                </form>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Username</dt>
+                            <dd class="mt-0.5">{{ viewingUser.username || viewingUser.email }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Name</dt>
+                            <dd class="mt-0.5">
+                                {{ userName(viewingUser) }}{{ viewingUser.name_extension ? `, ${viewingUser.name_extension}` : '' }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</dt>
+                            <dd class="mt-0.5">{{ viewingUser.email }}</dd>
+                        </div>
+
+                            </div>
+
+                            <div v-if="viewingUser.division || viewingUser.subdivision || viewingUser.section" class="border-t pt-3 mt-3 space-y-2 sm:col-span-2">
+                                <h4 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                    Organizational Unit
+                                </h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <div v-if="viewingUser.division">
+                                        <span class="text-xs font-medium text-muted-foreground">Division:</span>
+                                        <div class="mt-0.5">{{ viewingUser.division }}</div>
+                                    </div>
+                                    <div v-if="viewingUser.subdivision">
+                                        <span class="text-xs font-medium text-muted-foreground">Subdivision:</span>
+                                        <div class="mt-0.5">{{ viewingUser.subdivision }}</div>
+                                    </div>
+                                    <div v-if="viewingUser.section">
+                                        <span class="text-xs font-medium text-muted-foreground">Section:</span>
+                                        <div class="mt-0.5">{{ viewingUser.section }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Role</dt>
+                            <dd class="mt-0.5 capitalize">{{ viewingUser.role }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</dt>
+                            <dd class="mt-0.5">
+                                <Badge :variant="getStatusVariant(viewingUser)">{{ getStatusLabel(viewingUser) }}</Badge>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+                <DialogFooter>
+                    <DropdownMenu v-if="viewingUser.status === 'pending'">
+                        <DropdownMenuTrigger :as-child="true">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                :disabled="approvalProcessing !== null"
+                                class="gap-2"
+                            >
+                                Approve / Reject
+                                <ChevronDown class="size-4 opacity-70" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-52">
+                            <DropdownMenuItem
+                                :disabled="approvalProcessing !== null"
+                                @select="approveViewingUser"
+                            >
+                                <CheckCircle2 class="mr-2 size-4" />
+                                Approve
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                variant="destructive"
+                                :disabled="approvalProcessing !== null"
+                                @select="rejectViewingUser"
+                            >
+                                <XCircle class="mr-2 size-4" />
+                                Reject
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button type="button" variant="outline" @click="closeView()">Close</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
 
         <!-- Edit User modal -->
         <Dialog v-model:open="editModalOpen">
-            <DialogContent v-if="editingUser" class="max-w-md">
+            <DialogScrollContent v-if="editingUser" class="w-[95vw] max-w-3xl sm:w-[90vw]">
                 <DialogHeader>
                     <DialogTitle>Edit User</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Edit user profile information.
+                    </DialogDescription>
                 </DialogHeader>
-                <form
-                    class="flex flex-col gap-4"
-                    @submit.prevent="submitEditUser"
-                >
-                    <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                <form class="flex flex-col gap-4" @submit.prevent="submitEditUser">
+                    <div class="max-h-[75vh] overflow-y-auto space-y-4 p-2 sm:p-4">
+                        <div class="space-y-2">
+                            <Label for="edit-username">Username</Label>
+                            <Input id="edit-username" v-model="editUsername" disabled class="bg-gray-50/50 dark:bg-neutral-800/50 text-muted-foreground cursor-not-allowed" />
+                        </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-2">
                                 <Label for="edit-first_name">First name</Label>
-                                <Input id="edit-first_name" v-model="editFirstName" name="first_name" />
+                                <Input id="edit-first_name" v-model="editFirstName" required />
                             </div>
                             <div class="space-y-2">
                                 <Label for="edit-middle_name">Middle name</Label>
-                                <Input id="edit-middle_name" v-model="editMiddleName" name="middle_name" />
+                                <Input id="edit-middle_name" v-model="editMiddleName" />
                             </div>
                         </div>
                         <div class="space-y-2">
                             <Label for="edit-last_name">Last name</Label>
-                            <Input id="edit-last_name" v-model="editLastName" name="last_name" />
+                            <Input id="edit-last_name" v-model="editLastName" required />
+                        </div>
+                        <div class="space-y-2">
+                            <Label for="edit-name_extension">Name Extension</Label>
+                            <Input id="edit-name_extension" v-model="editNameExtension" placeholder="e.g. Jr., Sr." />
                         </div>
                         <div class="space-y-2">
                             <Label for="edit-email">Email</Label>
-                            <Input id="edit-email" v-model="editEmail" name="email" type="email" required />
+                            <Input id="edit-email" v-model="editEmail" type="email" required />
                         </div>
+                        <template v-if="editingUser?.role === 'employee'">
+                            <div class="border-t pt-4 mt-2">
+                                <h4 class="text-sm font-medium mb-3 text-muted-foreground">Employee Details</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <Label for="edit-sex">Sex</Label>
+                                        <Select v-model="editSex">
+                                            <SelectTrigger id="edit-sex">
+                                                <SelectValue placeholder="Select Sex" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="male">Male</SelectItem>
+                                                <SelectItem value="female">Female</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <Label for="edit-date_of_birth">Date of Birth</Label>
+                                        <Input id="edit-date_of_birth" v-model="editDateOfBirth" type="date" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <Label for="edit-position">Position</Label>
+                                        <Input id="edit-position" v-model="editPosition" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <Label for="edit-classification">Classification</Label>
+                                        <Input id="edit-classification" v-model="editClassification" />
+                                    </div>
+                                    <div class="space-y-2">
+                                        <Label for="edit-date_hired">Date Hired</Label>
+                                        <Input id="edit-date_hired" v-model="editDateHired" type="date" />
+                                    </div>
+                                </div>
+                                <div class="border-t pt-4 mt-6">
+                                    <h5 class="text-sm font-medium mb-3">Organizational Unit</h5>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <div class="space-y-2">
+                                            <Label for="edit-division">Division</Label>
+                                            <Select v-model="editDivisionId">
+                                                <SelectTrigger id="edit-division">
+                                                    <SelectValue placeholder="Select Division" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem :value="null">None</SelectItem>
+                                                    <SelectItem v-for="division in divisions" :key="division.id" :value="division.id">
+                                                        {{ division.name }}
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div v-if="editDivisionId && filteredSubdivisions.length" class="space-y-2">
+                                            <Label for="edit-subdivision">Subdivision</Label>
+                                            <Select v-model="editSubdivisionId">
+                                                <SelectTrigger id="edit-subdivision">
+                                                    <SelectValue placeholder="Select Subdivision" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem :value="null">None</SelectItem>
+                                                    <SelectItem v-for="subdivision in filteredSubdivisions" :key="subdivision.id" :value="subdivision.id">
+                                                        {{ subdivision.name }}
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div v-if="editDivisionId && filteredSections.length" class="space-y-2">
+                                            <Label for="edit-section">Section</Label>
+                                            <Select v-model="editSectionId">
+                                                <SelectTrigger id="edit-section">
+                                                    <SelectValue placeholder="Select Section" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem :value="null">None</SelectItem>
+                                                    <SelectItem v-for="section in filteredSections" :key="section.id" :value="section.id">
+                                                        {{ section.name }}
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                         <div class="space-y-2">
-                            <Label for="edit-role">Role</Label>
-                            <Select v-model="editRole" name="role">
-                                <SelectTrigger id="edit-role">
+                            <Label for="edit-status">Status</Label>
+                            <Select v-model="editIsActive">
+                                <SelectTrigger id="edit-status">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem
-                                        v-for="opt in roleOptions"
-                                        :key="opt.value"
-                                        :value="opt.value"
-                                    >
-                                        {{ opt.label }}
-                                    </SelectItem>
+                                    <SelectItem value="true">Active</SelectItem>
+                                    <SelectItem value="false">Inactive</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <Checkbox id="edit-is_active" v-model:checked="editIsActive" name="is_active" value="1" />
-                            <Label for="edit-is_active">Active</Label>
-                        </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="closeEdit()">
-                            Cancel
-                        </Button>
+                        <Button type="button" variant="outline" @click="closeEdit()">Cancel</Button>
                         <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
+            </DialogScrollContent>
+        </Dialog>
+
+        <!-- Add User modal -->
+        <Dialog v-model:open="addModalOpen" @update:open="(v: boolean) => v && resetAddForm()">
+            <DialogScrollContent class="w-[98vw] sm:w-[95vw] md:max-w-2xl lg:max-w-4xl max-h-[90vh]">
+                <DialogHeader class="sr-only">
+                    <DialogTitle>Add User</DialogTitle>
+                    <DialogDescription>
+                        Create a new user account.
+                    </DialogDescription>
+                </DialogHeader>
+                <form class="flex flex-col flex-1 h-full min-h-[50vh] sm:min-h-[600px] justify-between p-2 sm:p-4" @submit.prevent="submitAddUser">
+                    <div class="w-full sm:max-w-2xl min-w-0 mx-auto flex flex-col flex-1">
+                        <h1 class="mb-2 text-center text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                            {{ addLayoutTitle }}
+                        </h1>
+                        <p v-if="addStepLabel" class="mb-2 text-center text-base font-medium text-gray-500 dark:text-gray-400">
+                            {{ addStepLabel }}
+                        </p>
+                        <div v-if="addStep > 1" class="mb-4 flex gap-1">
+                            <div
+                                v-for="i in (isAddEmployee ? 3 : 2)"
+                                :key="i"
+                                class="h-1.5 flex-1 rounded-sm transition-colors"
+                                :class="i <= (addStep - 1) ? 'bg-gray-900 dark:bg-gray-100' : 'bg-gray-200 dark:bg-neutral-700'"
+                            />
+                        </div>
+                        <p class="mb-6 text-center text-base text-gray-600 dark:text-gray-400">
+                            {{ addLayoutDescription }}
+                        </p>
+
+                        <AlertError
+                            v-if="addErrorsList.length"
+                            :errors="addErrorsList"
+                            class="mb-4 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"
+                        />
+
+                        <div class="space-y-6 p-1">
+                            <!-- Step 1: Role Selection -->
+                            <div v-show="addStep === 1" class="flex flex-col gap-6 min-w-0">
+                                <div class="space-y-3">
+                                    <button
+                                        v-for="role in addRoleOptions"
+                                        :key="role.value"
+                                        type="button"
+                                        class="flex w-full items-center gap-3 rounded-lg border p-4 text-left cursor-pointer transition-colors hover:border-gray-300 dark:hover:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-800/50"
+                                        :class="addRole === role.value ? 'border-brand bg-brand/5' : 'border-gray-200 dark:border-neutral-700'"
+                                        @click="selectAddRole(role.value)"
+                                    >
+                                        <div
+                                            class="flex size-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800"
+                                            :class="addRole === role.value ? 'border-brand bg-brand/10' : ''"
+                                        >
+                                            <component
+                                                :is="role.icon"
+                                                class="size-5 text-gray-600 dark:text-gray-400"
+                                                :class="addRole === role.value ? 'text-brand' : ''"
+                                            />
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                                {{ role.title }}
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ role.description }}
+                                            </p>
+                                        </div>
+                                        <ChevronRight
+                                            class="size-5 shrink-0 text-gray-400"
+                                            :class="addRole === role.value ? 'text-brand' : ''"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Personal Information -->
+                            <div v-show="addStep === 2" class="flex flex-col gap-6 min-w-0">
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="grid gap-2">
+                                        <Label for="add-first_name">First name</Label>
+                                        <Input id="add-first_name" v-model="addFirstName" placeholder="Juan" required />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-middle_name">Middle name</Label>
+                                        <Input id="add-middle_name" v-model="addMiddleName" placeholder="Andrade" />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-last_name">Last name</Label>
+                                        <Input id="add-last_name" v-model="addLastName" placeholder="Dela Cruz" required />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-name_extension">Name extension</Label>
+                                        <Input id="add-name_extension" v-model="addNameExtension" placeholder="Jr., Sr., III" />
+                                    </div>
+                                </div>
+                                <!-- Employee-only fields -->
+                                <div v-if="isAddEmployee" class="grid gap-4 sm:grid-cols-2">
+                                    <div class="grid gap-2">
+                                        <Label for="add-sex">Sex</Label>
+                                        <Select v-model="addSex">
+                                            <SelectTrigger id="add-sex">
+                                                <SelectValue placeholder="Select sex" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="male">Male</SelectItem>
+                                                <SelectItem value="female">Female</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div class="grid gap-2 min-w-0">
+                                        <Label for="add-dob">Date of birth</Label>
+                                        <Input id="add-dob" v-model="addDateOfBirth" type="date" class="w-full min-w-0" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Employment Details (Employee only) -->
+                            <div v-if="isAddEmployee" v-show="addStep === 3" class="flex flex-col gap-6 min-w-0">
+                                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                    <div class="grid gap-2">
+                                        <Label for="add-date_hired">Date hired</Label>
+                                        <Input id="add-date_hired" v-model="addDateHired" type="date" class="w-full" />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-division">Division</Label>
+                                        <Select v-model="addDivisionId">
+                                            <SelectTrigger id="add-division">
+                                                <SelectValue placeholder="Select division" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem v-for="d in divisions" :key="d.id" :value="d.id">
+                                                    {{ d.name }}
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div v-if="addSubdivisionOptions.length" class="grid gap-2">
+                                        <Label for="add-subdivision">Subdivision</Label>
+                                        <Select v-model="addSubdivisionId">
+                                            <SelectTrigger id="add-subdivision">
+                                                <SelectValue placeholder="Select subdivision" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem v-for="s in addSubdivisionOptions" :key="s.id" :value="s.id">
+                                                    {{ s.name }}
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div v-if="addSectionOptions.length" class="grid gap-2">
+                                        <Label for="add-section">Section</Label>
+                                        <Select v-model="addSectionId">
+                                            <SelectTrigger id="add-section">
+                                                <SelectValue placeholder="Select section" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem v-for="s in addSectionOptions" :key="s.id" :value="s.id">
+                                                    {{ s.name }}
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-position">Position</Label>
+                                        <Input id="add-position" v-model="addPosition" placeholder="e.g. Administrative Assistant" />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-classification">Classification</Label>
+                                        <Select v-model="addClassification">
+                                            <SelectTrigger id="add-classification">
+                                                <SelectValue placeholder="Select classification" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Regular">Regular</SelectItem>
+                                                <SelectItem value="Detailed">Detailed</SelectItem>
+                                                <SelectItem value="COS">COS</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 (HR/Admin) or Step 4 (Employee): Credentials -->
+                            <div v-show="(isAddEmployee && addStep === 4) || (!isAddEmployee && addStep === 3)" class="flex flex-col gap-6 min-w-0">
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="grid gap-2">
+                                        <Label for="add-username">Username</Label>
+                                        <Input id="add-username" v-model="addUsername" placeholder="juandelacruz" required />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-email">Email</Label>
+                                        <Input id="add-email" v-model="addEmail" type="email" placeholder="name@example.com" required />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label for="add-password">Password</Label>
+                                        <PasswordInput id="add-password" v-model="addPassword" name="password" autocomplete="new-password" placeholder="Enter password" required />
+                                    </div>
+                                    <div class="grid gap-2">
+                                        <Label>Role</Label>
+                                        <Input :model-value="addRoleOptions.find((r) => r.value === addRole)?.title ?? 'Employee'" disabled />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-auto pt-8 flex justify-between gap-4">
+                            <Button type="button" variant="outline" @click="addStep === 1 ? (addModalOpen = false) : prevAddStep()">
+                                {{ addStep === 1 ? 'Cancel' : 'Back' }}
+                            </Button>
+                            <Button v-if="addStep === 1" type="button" @click="nextAddStep" :disabled="!canProceedAddStep2">
+                                Next
+                            </Button>
+                            <Button v-else-if="addStep === 2" type="button" @click="nextAddStep" :disabled="!canProceedAddStep3">
+                                Next
+                            </Button>
+                            <Button v-else-if="isAddEmployee && addStep === 3" type="button" @click="nextAddStep" :disabled="!canProceedAddStep4">
+                                Next
+                            </Button>
+                            <Button v-else type="submit" :disabled="!canSubmitAdd">
+                                Create account
+                            </Button>
+                        </div>
+                    </div>
+                </form>
+            </DialogScrollContent>
+        </Dialog>
+
+        <!-- Delete User modal -->
+        <Dialog v-model:open="deleteModalOpen">
+            <DialogContent v-if="deletingUser" :show-close-button="true" class="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Delete User</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Confirm user account deletion.
+                    </DialogDescription>
+                    <p class="text-sm text-muted-foreground mt-0.5">
+                        Are you sure you want to delete <strong>{{ userName(deletingUser) }}</strong>? This action cannot be undone.
+                    </p>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeDelete()">Cancel</Button>
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        @click="router.delete(admin.users.destroy.url(deletingUser.id), { onSuccess: () => closeDelete() })"
+                    >
+                        Delete User
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </AppLayout>

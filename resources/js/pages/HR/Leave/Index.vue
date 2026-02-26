@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { Head, Link, Form, router } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import { Eye, Pencil, Trash2 } from 'lucide-vue-next';
+import { ref, computed, watch, onMounted } from 'vue';
+import TableUserCell from '@/components/TableUserCell.vue';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,9 +24,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { useBroadcasting } from '@/composables/useBroadcasting';
+import { useEcho } from '@laravel/echo-vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import TableUserCell from '@/components/TableUserCell.vue';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
@@ -29,6 +34,8 @@ type Application = {
     id: number;
     employee_id: string;
     employee_name: string;
+    user_email?: string;
+    user_name?: string;
     type: string;
     date_from: string;
     total_days: number;
@@ -60,9 +67,21 @@ const props = withDefaults(
     { filters: () => ({}) }
 );
 
+const applications = ref(props.applications);
+
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Leave Applications' },
 ];
+
+const page = usePage();
+const { leavesPendingCount } = useBroadcasting();
+
+if (leavesPendingCount.value === null) {
+    const base = (page.props.auth?.counts || {}) as Record<string, any>;
+    leavesPendingCount.value = typeof base.leaves_pending === 'number' ? base.leaves_pending : 0;
+}
+
+const pendingCountComputed = computed(() => leavesPendingCount.value ?? 0);
 
 const searchInput = ref(props.filters?.search ?? '');
 const filterType = ref(props.filters?.type ?? '');
@@ -70,6 +89,8 @@ const filterStatus = ref(props.filters?.status ?? '');
 
 const viewDialogOpen = ref(false);
 const viewApplication = ref<Application | null>(null);
+const deleteModalOpen = ref(false);
+const deletingApplication = ref<Application | null>(null);
 
 const addDialogOpen = ref(false);
 const addEmployeeId = ref('');
@@ -91,9 +112,76 @@ const statusOptionsEntries = computed(() => Object.entries(props.statusOptions))
 const exportUrl = computed(() => {
     const q: Record<string, string> = {};
     if (props.filters?.search) q.search = props.filters.search;
-    if (props.filters?.type) q.type = props.filters.type;
-    if (props.filters?.status) q.status = props.filters.status;
+    if (props.filters?.type && props.filters.type !== 'all') q.type = props.filters.type;
+    if (props.filters?.status && props.filters.status !== 'all') q.status = props.filters.status;
     return hr.leaveApplications.export.url(Object.keys(q).length ? { query: q } : undefined);
+});
+
+type LeaveStatusUpdatedPayload = {
+    id: number;
+    employee_id: string;
+    employee_name?: string | null;
+    status: string;
+    type: string;
+    date_from: string;
+    total_days: number;
+};
+
+function matchesCurrentFilters(payload: LeaveStatusUpdatedPayload) {
+    const search = (searchInput.value || '').trim().toLowerCase();
+    const type = (filterType.value || '').trim();
+    const status = (filterStatus.value || '').trim();
+
+    if (type && payload.type !== type) return false;
+    if (status && payload.status !== status) return false;
+
+    if (!search) return true;
+    const hay = [payload.employee_name, payload.employee_id, payload.type]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+    return hay.includes(search);
+}
+
+function upsertOrRemoveFromTable(payload: LeaveStatusUpdatedPayload) {
+    const table = applications.value.data;
+
+    const idx = table.findIndex((a: Application) => a.id === payload.id);
+    const shouldInclude = matchesCurrentFilters(payload);
+
+    if (!shouldInclude) {
+        if (idx !== -1) table.splice(idx, 1);
+        return;
+    }
+
+    const row: Application = {
+        id: payload.id,
+        employee_id: payload.employee_id,
+        employee_name: payload.employee_name || payload.employee_id,
+        type: payload.type,
+        date_from: payload.date_from,
+        total_days: payload.total_days,
+        reason: null,
+        status: payload.status,
+        created_at: new Date().toISOString(),
+        attachments: null,
+    };
+
+    if (idx === -1) {
+        table.unshift(row);
+        return;
+    }
+
+    table[idx] = {
+        ...table[idx],
+        ...row,
+    };
+}
+
+onMounted(() => {
+    useEcho('leave.management', '.LeaveStatusUpdated', (e: LeaveStatusUpdatedPayload) => {
+        upsertOrRemoveFromTable(e);
+    });
 });
 
 let searchDebounce: ReturnType<typeof setTimeout> | null = null;
@@ -149,11 +237,6 @@ function openEdit(app: Application) {
     editDialogOpen.value = true;
 }
 
-function closeView() {
-    viewDialogOpen.value = false;
-    viewApplication.value = null;
-}
-
 function closeEdit() {
     editDialogOpen.value = false;
     editApplication.value = null;
@@ -174,8 +257,17 @@ function formatDate(value: string | null) {
     }
 }
 
-function confirmDelete(message: string) {
-    return window.confirm(message);
+function openDeleteApplication(app: Application) {
+    deletingApplication.value = app;
+    deleteModalOpen.value = true;
+}
+function closeDeleteApplication() {
+    deleteModalOpen.value = false;
+    deletingApplication.value = null;
+}
+function confirmDeleteApplication() {
+    if (!deletingApplication.value) return;
+    router.delete(hr.leaveApplications.destroy.url(deletingApplication.value.id), { onSuccess: () => closeDeleteApplication() });
 }
 </script>
 
@@ -196,7 +288,7 @@ function confirmDelete(message: string) {
                 <div class="flex flex-wrap items-center gap-2">
                     <Link
                         :href="exportUrl"
-                        class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-neutral-800 dark:text-gray-200 dark:hover:bg-neutral-700"
+                        class="inline-flex h-10 items-center justify-center rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-neutral-800 dark:text-gray-200 dark:hover:bg-neutral-700"
                     >
                         Export CSV
                     </Link>
@@ -210,6 +302,24 @@ function confirmDelete(message: string) {
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card class="border border-gray-200 dark:border-neutral-800">
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            Pending Applications
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                            {{ pendingCountComputed }}
+                        </p>
+                        <p class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400">
+                            Review required
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
             <!-- Filters -->
             <div class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50">
                 <div class="min-w-[180px] flex-1">
@@ -219,13 +329,13 @@ function confirmDelete(message: string) {
                         v-model="searchInput"
                         type="search"
                         placeholder="Search by name, type, reason..."
-                        class="h-9"
+                        class="h-10"
                     />
                 </div>
                 <div class="w-[140px]">
                     <Label for="filter-type" class="sr-only">Type</Label>
                     <Select v-model="filterType">
-                        <SelectTrigger id="filter-type" class="h-9">
+                        <SelectTrigger id="filter-type" class="h-10">
                             <SelectValue placeholder="Type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -242,7 +352,7 @@ function confirmDelete(message: string) {
                 <div class="w-[140px]">
                     <Label for="filter-status" class="sr-only">Status</Label>
                     <Select v-model="filterStatus">
-                        <SelectTrigger id="filter-status" class="h-9">
+                        <SelectTrigger id="filter-status" class="h-10">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -259,8 +369,7 @@ function confirmDelete(message: string) {
                 <Button
                     type="button"
                     variant="outline"
-                    size="sm"
-                    class="h-9"
+                    class="h-10"
                     @click="clearFilters"
                 >
                     Clear filters
@@ -307,8 +416,8 @@ function confirmDelete(message: string) {
                             >
                                 <td class="px-4 py-3">
                                     <TableUserCell
-                                        :name="app.employee_name || app.employee_id || '—'"
-                                        :subtitle="String(app.employee_id)"
+                                        :name="app.employee_name || app.user_name || app.employee_id || '—'"
+                                        :subtitle="app.user_email || String(app.employee_id)"
                                     />
                                 </td>
                                 <td class="px-4 py-3 text-gray-700 dark:text-gray-300">
@@ -337,7 +446,6 @@ function confirmDelete(message: string) {
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
-                                            class="h-8 w-8 p-0"
                                             @click="openView(app)"
                                         >
                                             <span class="sr-only">View</span>
@@ -347,29 +455,22 @@ function confirmDelete(message: string) {
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
-                                            class="h-8 w-8 p-0"
                                             @click="openEdit(app)"
                                         >
                                             <span class="sr-only">Edit</span>
                                             <Pencil class="size-4" />
                                         </Button>
-                                        <Form
-                                            :action="hr.leaveApplications.destroy.url(app.id)"
-                                            method="post"
-                                            class="inline"
-                                            @submit="(e: Event) => !confirmDelete('Delete this leave application?') && e.preventDefault()"
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                            title="Delete"
+                                            @click="openDeleteApplication(app)"
                                         >
-                                            <input type="hidden" name="_method" value="DELETE" />
-                                            <Button
-                                                type="submit"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                class="h-8 w-8 p-0 text-red-600 hover:text-red-700 dark:text-red-400"
-                                            >
-                                                <span class="sr-only">Delete</span>
-                                                <Trash2 class="size-4" />
-                                            </Button>
-                                        </Form>
+                                            <span class="sr-only">Delete</span>
+                                            <Trash2 class="size-4" />
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -384,7 +485,7 @@ function confirmDelete(message: string) {
                     No leave applications found.
                     <button
                         type="button"
-                        class="ml-1 text-[#013CFC] hover:underline dark:text-[#60C8FC]"
+                        class="ml-1 text-brand hover:underline dark:text-brand-light"
                         @click="clearFilters"
                     >
                         Clear filters
@@ -408,7 +509,7 @@ function confirmDelete(message: string) {
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
                         :class="link.active
-                            ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900'
+                            ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900'
                             : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
@@ -422,6 +523,9 @@ function confirmDelete(message: string) {
             <DialogContent :show-close-button="true" class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Leave application details</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        View details of the leave application.
+                    </DialogDescription>
                 </DialogHeader>
                 <template v-if="viewApplication">
                     <div class="max-h-[60vh] overflow-y-auto pr-1">
@@ -499,6 +603,9 @@ function confirmDelete(message: string) {
             <DialogContent :show-close-button="true" class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Apply for leave</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Submit a new leave application for an employee.
+                    </DialogDescription>
                 </DialogHeader>
                 <Form
                     v-bind="hr.leaveApplications.store.form()"
@@ -589,6 +696,9 @@ function confirmDelete(message: string) {
             <DialogContent :show-close-button="true" class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Edit leave application</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Edit an existing leave application.
+                    </DialogDescription>
                 </DialogHeader>
                 <Form
                     v-if="editApplication"
@@ -679,6 +789,25 @@ function confirmDelete(message: string) {
                         <Button type="submit">Save</Button>
                     </DialogFooter>
                 </Form>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Delete Leave Application Modal -->
+        <Dialog v-model:open="deleteModalOpen" @update:open="(v: boolean) => !v && closeDeleteApplication()">
+            <DialogContent v-if="deletingApplication" :show-close-button="true" class="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Delete Leave Application</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Confirm deletion of the leave application.
+                    </DialogDescription>
+                    <p class="text-sm text-muted-foreground mt-0.5">
+                        Are you sure you want to delete this leave application for <strong>{{ deletingApplication.employee_name }}</strong>? This action cannot be undone.
+                    </p>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeDeleteApplication">Cancel</Button>
+                    <Button type="button" variant="destructive" @click="confirmDeleteApplication">Delete</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </AppLayout>

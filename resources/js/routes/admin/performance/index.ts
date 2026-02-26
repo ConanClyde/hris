@@ -1,6 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -14,7 +15,8 @@ index.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -22,7 +24,8 @@ index.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -30,7 +33,8 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -39,7 +43,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -48,7 +53,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -56,7 +62,8 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web/admin.php:43
+* @see \App\Features\Dashboard\Http\Controllers\PerformanceController::index
+ * @see app/Features/Dashboard/Http/Controllers/PerformanceController.php:11
  * @route '/admin/performance'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

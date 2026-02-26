@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Component } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { Moon, Sun } from 'lucide-vue-next';
+import type { Component } from 'vue';
 import { useAppearance } from '@/composables/useAppearance';
 
 export type AuthFeature = {
@@ -35,7 +35,7 @@ const toggleDark = () => {
 <template>
     <div class="flex min-h-dvh flex-col lg:flex-row">
         <aside
-            class="relative hidden flex-1 flex-col justify-between border-r border-gray-200 bg-gradient-to-br from-[#013CFC] via-[#0031BC] to-[#60C8FC] p-6 lg:flex lg:p-10"
+            class="relative hidden flex-1 flex-col justify-between border-r border-gray-200 bg-gradient-to-br from-brand via-brand-dark to-brand-light p-6 lg:flex lg:p-10"
         >
             <div class="flex items-center gap-3">
                 <div
@@ -43,7 +43,9 @@ const toggleDark = () => {
                 >
                     <span class="text-xl font-bold text-white">H</span>
                 </div>
-                <span class="text-xl font-semibold text-white">{{ appName }}</span>
+                <span class="text-xl font-semibold text-white">{{
+                    appName
+                }}</span>
             </div>
 
             <div class="mt-auto">
@@ -72,25 +74,31 @@ const toggleDark = () => {
                     </li>
                 </ul>
             </div>
-
         </aside>
 
         <main
-            class="relative flex min-h-0 w-full flex-1 flex-col justify-center overflow-y-auto pt-20 lg:w-1/2 lg:pt-0 lg:overflow-visible items-center px-6 pb-[env(safe-area-inset-bottom)] sm:px-12 lg:px-16 xl:px-24 bg-white dark:bg-[#0a0a0a] transition-colors duration-300"
+            class="relative flex min-h-0 w-full flex-1 flex-col items-center justify-center overflow-y-auto bg-white px-6 pt-20 pb-[env(safe-area-inset-bottom)] transition-colors duration-300 sm:px-12 lg:w-1/2 lg:overflow-visible lg:px-16 lg:pt-0 xl:px-24 dark:bg-neutral-950"
         >
             <!-- Mobile header (visible only on small screens) -->
-            <div class="absolute left-6 right-6 top-[max(1.5rem,env(safe-area-inset-top))] flex items-center justify-between lg:hidden">
+            <div
+                class="absolute top-[max(1.5rem,env(safe-area-inset-top))] right-6 left-6 flex items-center justify-between lg:hidden"
+            >
                 <div class="flex items-center gap-3">
-                    <div class="flex size-8 items-center justify-center rounded-lg bg-[#013CFC]">
+                    <div
+                        class="flex size-8 items-center justify-center rounded-lg bg-brand"
+                    >
                         <span class="text-sm font-bold text-white">H</span>
                     </div>
-                    <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ appName }}</span>
+                    <span
+                        class="text-lg font-semibold text-gray-900 dark:text-gray-100"
+                        >{{ appName }}</span
+                    >
                 </div>
                 <div class="flex items-center gap-2">
                     <Link
                         v-if="headerLink"
                         :href="headerLink.href"
-                        class="cursor-pointer text-sm font-medium text-[#013CFC] transition-colors hover:text-[#0031BC] dark:text-blue-400 dark:hover:text-blue-300"
+                        class="cursor-pointer text-sm font-medium text-brand transition-colors hover:text-brand-dark dark:text-blue-400 dark:hover:text-blue-300"
                     >
                         {{ headerLink.label }}
                     </Link>
@@ -108,12 +116,12 @@ const toggleDark = () => {
 
             <!-- Desktop header (visible only on large screens) -->
             <div
-                class="absolute right-6 top-6 lg:right-10 lg:top-10 hidden lg:flex items-center gap-2"
+                class="absolute top-6 right-6 hidden items-center gap-2 lg:top-10 lg:right-10 lg:flex"
             >
                 <Link
                     v-if="headerLink"
                     :href="headerLink.href"
-                    class="cursor-pointer text-sm font-medium text-[#013CFC] transition-colors hover:text-[#0031BC] dark:text-blue-400 dark:hover:text-blue-300"
+                    class="cursor-pointer text-sm font-medium text-brand transition-colors hover:text-brand-dark dark:text-blue-400 dark:hover:text-blue-300"
                 >
                     {{ headerLink.label }}
                 </Link>
@@ -146,7 +154,7 @@ const toggleDark = () => {
                     class="mb-4 flex gap-1"
                 >
                     <div
-                        v-for="i in (totalSteps ?? 4)"
+                        v-for="i in totalSteps ?? 4"
                         :key="i"
                         class="h-1.5 flex-1 rounded-sm transition-colors"
                         :class="
@@ -162,7 +170,9 @@ const toggleDark = () => {
                 >
                     {{ description }}
                 </p>
-                <slot />
+                <div class="py-1">
+                    <slot />
+                </div>
             </div>
         </main>
     </div>

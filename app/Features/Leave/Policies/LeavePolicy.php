@@ -9,7 +9,7 @@ class LeavePolicy
 {
     public function view(User $user, LeaveApplication $leave): bool
     {
-        if (in_array($user->role ?? '', ['admin', 'hr'], true)) {
+        if ($user->isAdminOrHr()) {
             return true;
         }
 
@@ -20,7 +20,7 @@ class LeavePolicy
 
     public function update(User $user, LeaveApplication $leave): bool
     {
-        if (in_array($user->role ?? '', ['admin', 'hr'], true)) {
+        if ($user->isAdminOrHr()) {
             return true;
         }
 

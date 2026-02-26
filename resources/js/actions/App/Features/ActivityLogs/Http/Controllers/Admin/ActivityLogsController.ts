@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:31
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:32
  * @route '/admin/activity-logs/export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

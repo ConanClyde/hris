@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Eye } from 'lucide-vue-next';
+import TableUserCell from '@/components/TableUserCell.vue';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import TableUserCell from '@/components/TableUserCell.vue';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
@@ -132,11 +133,11 @@ function closeViewModal() {
                                     <Button
                                         type="button"
                                         variant="ghost"
-                                        size="icon-sm"
-                                        class="h-8 w-8 p-0"
+                                        size="icon"
+                                        class="h-8 w-8 text-muted-foreground hover:text-primary"
+                                        title="View"
                                         @click="openView(item)"
                                     >
-                                        <span class="sr-only">View</span>
                                         <Eye class="size-4" />
                                     </Button>
                                 </td>
@@ -168,7 +169,7 @@ function closeViewModal() {
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
                         :class="link.active
-                            ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900'
+                            ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900'
                             : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
@@ -185,6 +186,9 @@ function closeViewModal() {
             <DialogContent :show-close-button="true" class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Leave credit</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        View leave credit details and adjustment history.
+                    </DialogDescription>
                 </DialogHeader>
                 <template v-if="creditDetail">
                     <div class="max-h-[60vh] overflow-y-auto p-1 space-y-4">

@@ -10,8 +10,7 @@ class ProfileUpdated implements ShouldBroadcastNow
     public function __construct(
         public int $userId,
         public array $profile
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

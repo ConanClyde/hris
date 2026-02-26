@@ -18,14 +18,16 @@ class EnsureRole
     {
         $isAuthenticated = Auth::check() || session('user_id');
 
-        $currentRole = Auth::user()?->role;
+        $user = Auth::user();
+        $currentRole = $user?->role;
+
         if (! $currentRole) {
             $currentRole = (string) session('role', '');
         }
 
         if ((string) $currentRole !== $role) {
             // Admin can bypass role checks
-            if ($currentRole === 'admin') {
+            if ($user?->isAdmin()) {
                 return $next($request);
             }
 

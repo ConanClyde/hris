@@ -9,21 +9,21 @@ class NoticePolicy
 {
     public function viewAny(User $user): bool
     {
-        return in_array($user->role ?? '', ['admin', 'hr'], true);
+        return $user->isAdminOrHr();
     }
 
     public function create(User $user): bool
     {
-        return in_array($user->role ?? '', ['admin', 'hr'], true);
+        return $user->isAdminOrHr();
     }
 
     public function update(User $user, Notice $notice): bool
     {
-        return in_array($user->role ?? '', ['admin', 'hr'], true);
+        return $user->isAdminOrHr();
     }
 
     public function delete(User $user, Notice $notice): bool
     {
-        return in_array($user->role ?? '', ['admin', 'hr'], true);
+        return $user->isAdminOrHr();
     }
 }

@@ -1,19 +1,40 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { Users, BookOpen, FileText, DatabaseBackup } from 'lucide-vue-next';
+import { computed } from 'vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import admin from '@/routes/admin';
+import hr from '@/routes/hr';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import type { BreadcrumbItem } from '@/types';
 
 type Props = {
     totalUsers?: number;
     pendingCount?: number;
+    leavePendingCount?: number;
     usersByRole?: Record<string, number>;
     usersByStatus?: Record<string, number>;
     user?: { first_name?: string } | null;
 };
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+const { usersPendingCount, leavesPendingCount } = useBroadcasting();
+
+if (usersPendingCount.value === null) {
+    usersPendingCount.value = props.pendingCount ?? 0;
+}
+if (leavesPendingCount.value === null) {
+    leavesPendingCount.value = props.leavePendingCount ?? 0;
+}
+
+const pendingCountComputed = computed(
+    () => usersPendingCount.value ?? (props.pendingCount ?? 0),
+);
+
+const leavePendingCountComputed = computed(
+    () => leavesPendingCount.value ?? (props.leavePendingCount ?? 0),
+);
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: admin.dashboard().url },
@@ -48,7 +69,7 @@ const quickActions = [
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Admin, HR &amp; Employee</p>
                     <Link
                         :href="admin.users().url"
-                        class="mt-1 block text-xs text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80 cursor-pointer"
+                        class="mt-1 block text-xs text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80 cursor-pointer"
                     >
                         Manage Users →
                     </Link>
@@ -56,10 +77,10 @@ const quickActions = [
 
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
                     <p class="text-sm text-gray-500 dark:text-gray-400">Pending User Approvals</p>
-                    <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{{ pendingCount ?? '—' }}</p>
+                    <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{{ pendingCountComputed }}</p>
                     <div class="flex items-center gap-1.5 mt-2">
                         <span
-                            v-if="(pendingCount ?? 0) > 0"
+                            v-if="(pendingCountComputed ?? 0) > 0"
                             class="text-sm font-medium text-amber-600 dark:text-amber-400"
                         >
                             Action required
@@ -69,20 +90,20 @@ const quickActions = [
                         </span>
                     </div>
                     <Link
-                        :href="admin.users.url({ query: { status: 'pending' } })"
-                        class="mt-1 block text-xs text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80 cursor-pointer"
+                        :href="admin.users.url(undefined, { query: { status: 'pending' } })"
+                        class="mt-1 block text-xs text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80 cursor-pointer"
                     >
                         Review →
                     </Link>
                 </div>
 
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 p-4">
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Leave Overview</p>
-                    <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">View</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Pending Leave (org)</p>
+                    <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-1">{{ leavePendingCountComputed }}</p>
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Managed by HR</p>
                     <Link
-                        :href="admin.leave().url"
-                        class="mt-1 block text-xs text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80 cursor-pointer"
+                        :href="hr.leaveApplications.index().url"
+                        class="mt-1 block text-xs text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80 cursor-pointer"
                     >
                         View Leave →
                     </Link>
@@ -94,7 +115,7 @@ const quickActions = [
                     <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">System audit trail</p>
                     <Link
                         :href="admin.activityLogs.index().url"
-                        class="mt-1 block text-xs text-[#013CFC] hover:text-[#0031BC] dark:text-[#60C8FC] dark:hover:text-[#60C8FC]/80 cursor-pointer"
+                        class="mt-1 block text-xs text-brand hover:text-brand-dark dark:text-brand-light dark:hover:text-brand-light/80 cursor-pointer"
                     >
                         View Logs →
                     </Link>
@@ -114,8 +135,8 @@ const quickActions = [
                             :href="action.href"
                             class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-800/60 transition-colors cursor-pointer"
                         >
-                            <div class="w-10 h-10 rounded-md bg-[#013CFC]/[0.08] flex items-center justify-center shrink-0">
-                                <component :is="action.icon" class="w-5 h-5 text-[#013CFC]" />
+                            <div class="w-10 h-10 rounded-md bg-brand/[0.08] flex items-center justify-center shrink-0">
+                                <component :is="action.icon" class="w-5 h-5 text-brand" />
                             </div>
                             <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ action.title }}</span>
                         </Link>

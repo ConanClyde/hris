@@ -17,6 +17,19 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-sm: calc(var(--radius) - 4px);
 
+    /* Brand colors */
+    --color-brand: #013cfc;
+    --color-brand-dark: #0031bc;
+    --color-brand-light: #60c8fc;
+
+    /* Welcome page colors */
+    --color-welcome-bg: #fdfdfc;
+    --color-welcome-text: #1b1b18;
+    --color-welcome-muted: #706f6c;
+    --color-welcome-border: #e3e3e0;
+    --color-welcome-border-dark: #3e3e3a;
+    --color-welcome-accent: #f53003;
+
     --color-background: hsl(var(--background));
     --color-foreground: hsl(var(--foreground));
 
@@ -190,9 +203,9 @@
     body {
         @apply bg-background text-foreground;
     }
-    
+
     /* Fix native date input calendar icon alignment */
-    input[type="date"]::-webkit-calendar-picker-indicator {
+    input[type='date']::-webkit-calendar-picker-indicator {
         @apply ml-auto cursor-pointer;
     }
 }

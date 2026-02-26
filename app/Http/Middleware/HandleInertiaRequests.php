@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\BadgeMetrics;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,11 +36,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $sharedUser = null;
+
+        if ($user) {
+            $sharedUser = $user->toArray();
+            $sharedUser['avatar'] = $user->avatar ? asset('storage/'.$user->avatar) : null;
+        }
+
         return [
             ...parent::share($request),
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $sharedUser,
+                'counts' => BadgeMetrics::forUser($user),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

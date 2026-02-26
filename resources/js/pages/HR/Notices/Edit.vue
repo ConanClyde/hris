@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
 import { Form } from '@inertiajs/vue3';
+import { ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -62,7 +62,7 @@ function expiresAtValue(): string {
     <Head title="Edit Notice" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-6 p-4">
+        <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
@@ -102,7 +102,7 @@ function expiresAtValue(): string {
                         rows="6"
                         required
                         :value="notice.message"
-                        class="flex min-h-[120px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-[#013CFC] focus:outline-none focus:ring-1 focus:ring-[#013CFC] dark:border-gray-700 dark:bg-neutral-800 dark:placeholder:text-gray-500"
+                        class="flex min-h-[120px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-700 dark:bg-neutral-800 dark:placeholder:text-gray-500"
                         placeholder="Notice content"
                     />
                 </div>
@@ -141,7 +141,7 @@ function expiresAtValue(): string {
                         type="checkbox"
                         v-model="isActive"
                         value="1"
-                        class="h-4 w-4 rounded border-gray-300 text-[#013CFC] focus:ring-[#013CFC] dark:border-gray-600 dark:bg-neutral-800"
+                        class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand dark:border-gray-600 dark:bg-neutral-800"
                     />
                     <Label for="is_active" class="cursor-pointer">Active</Label>
                 </div>

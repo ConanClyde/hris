@@ -8,6 +8,7 @@ use App\Features\Employees\Models\Section;
 use App\Features\Employees\Models\Subdivision;
 use App\Features\Pds\Models\Pds;
 use App\Features\Pds\Models\PdsPersonal;
+use App\Features\Users\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +26,7 @@ class RegisterNewUser
     {
         $input = $this->prepareInput($input);
         $validated = $this->validate($input);
-        $isEmployee = $validated['role'] === 'employee';
+        $isEmployee = $validated['role'] === UserRole::Employee->value;
 
         return DB::transaction(function () use ($validated, $isEmployee) {
             $name = trim(
@@ -129,7 +130,7 @@ class RegisterNewUser
      */
     private function validate(array $input): array
     {
-        $isEmployee = ($input['role'] ?? '') === 'employee';
+        $isEmployee = ($input['role'] ?? '') === UserRole::Employee->value;
 
         $rules = [
             'role' => ['required', 'string', 'in:employee,hr,admin'],

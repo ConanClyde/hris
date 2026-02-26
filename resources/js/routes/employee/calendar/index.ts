@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
 export const events = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ events.definition = {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
 events.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ events.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
 events.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ events.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
 events.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ events.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
     const eventsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ events.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
         eventsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ events.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Calendar\Http\Controllers\Employee\CalendarController::events
- * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:23
+ * @see app/Features/Calendar/Http/Controllers/Employee/CalendarController.php:24
  * @route '/employee/calendar/events'
  */
         eventsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

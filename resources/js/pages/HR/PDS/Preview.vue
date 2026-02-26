@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, Form } from '@inertiajs/vue3';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';

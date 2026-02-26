@@ -21,9 +21,10 @@ class ActivityLogsController extends Controller
             });
         }
 
+        $appendQuery = collect($request->query())->reject(fn ($v) => $v === 'all')->all();
         $logs = $query->orderByDesc('created_at')
-            ->paginate(20)
-            ->appends($request->query());
+            ->paginate(10)
+            ->appends($appendQuery);
 
         return Inertia::render('Admin/ActivityLogs/Index', ['logs' => $logs]);
     }

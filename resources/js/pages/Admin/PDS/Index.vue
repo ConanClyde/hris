@@ -7,7 +7,6 @@ import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: admin.dashboard().url },
     { title: 'PDS' },
 ];
 </script>

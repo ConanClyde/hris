@@ -1,0 +1,76 @@
+{{-- C2: Civil Service Eligibility, Work Experience --}}
+<div id="tab-c2" class="tab-panel hidden">
+    {{-- Section IV: Civil Service Eligibility --}}
+    <form method="POST" action="{{ route('employee.pds.store') }}" class="mb-6">
+        @csrf
+        <input type="hidden" name="section" value="csc">
+        <div class="rounded-md border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm overflow-hidden" data-card="c2-csc">
+            <div class="p-6 border-b border-gray-100 dark:border-neutral-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">IV. Civil Service Eligibility</h3>
+                    <button type="button" onclick="toggleCard('c2-csc')" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors" aria-label="Toggle card">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 chevron-down hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 chevron-up" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="card-content p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700 rounded-md border border-gray-200 dark:border-neutral-700">
+                        <thead class="bg-gray-50 dark:bg-neutral-800"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">License/Career Service</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Rating</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date of Exam</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Place</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">License No.</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Date of Validity</th><th class="px-4 py-2 w-10"></th></tr></thead>
+                        <tbody data-rows="csc">
+                            @forelse($csc_eligibility as $i => $c)
+                            <tr><td class="px-4 py-2"><input type="text" name="csc[{{ $i }}][license_name]" value="{{ $c->license_name ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="csc[{{ $i }}][rating]" value="{{ $c->rating ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="date" name="csc[{{ $i }}][date_of_examination]" value="{{ $c->date_of_examination ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td class="px-4 py-2"><input type="text" name="csc[{{ $i }}][place_of_examination]" value="{{ $c->place_of_examination ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="csc[{{ $i }}][license_no]" value="{{ $c->license_no ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="date" name="csc[{{ $i }}][date_of_validity]" value="{{ $c->date_of_validity ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td><button type="button" onclick="removeRow(this)" class="text-red-600 dark:text-red-400 hover:text-red-700 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></td></tr>
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <template id="tpl-csc">
+                    <tr><td class="px-4 py-2"><input type="text" name="csc[INDEX][license_name]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="csc[INDEX][rating]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="date" name="csc[INDEX][date_of_examination]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td class="px-4 py-2"><input type="text" name="csc[INDEX][place_of_examination]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="csc[INDEX][license_no]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="date" name="csc[INDEX][date_of_validity]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td><button type="button" onclick="removeRow(this)" class="text-red-600 dark:text-red-400 hover:text-red-700 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></td></tr>
+                </template>
+                <div class="mt-4 flex justify-between items-center">
+                    <button type="button" onclick="addRow('csc')" class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md border border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800">Add Entry</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#013CFC] rounded-md hover:bg-[#0031BC] focus:outline-none focus:ring-2 focus:ring-[#013CFC] focus:ring-offset-2 dark:focus:ring-offset-neutral-950">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    {{-- Section V: Work Experience --}}
+    <form method="POST" action="{{ route('employee.pds.store') }}">
+        @csrf
+        <input type="hidden" name="section" value="work">
+        <div class="rounded-md border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm overflow-hidden" data-card="c2-work">
+            <div class="p-6 border-b border-gray-100 dark:border-neutral-800">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100">V. Work Experience</h3>
+                    <button type="button" onclick="toggleCard('c2-work')" class="p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors" aria-label="Toggle card">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 chevron-down hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 chevron-up" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="card-content p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-neutral-700 rounded-md border border-gray-200 dark:border-neutral-700">
+                        <thead class="bg-gray-50 dark:bg-neutral-800"><tr><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">From</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">To</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Position Title</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Department</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Salary</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">SG</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th><th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Gov't</th><th class="px-4 py-2 w-10"></th></tr></thead>
+                        <tbody data-rows="work">
+                            @forelse($work_experience as $i => $w)
+                            <tr><td class="px-4 py-2"><input type="date" name="work[{{ $i }}][employed_from]" value="{{ $w->employed_from ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td class="px-4 py-2"><input type="date" name="work[{{ $i }}][employed_to]" value="{{ $w->employed_to ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td class="px-4 py-2"><input type="text" name="work[{{ $i }}][position_title]" value="{{ $w->position_title ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="work[{{ $i }}][department]" value="{{ $w->department ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="number" name="work[{{ $i }}][salary]" value="{{ $w->salary ?? '' }}" min="0" step="0.01" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="number" name="work[{{ $i }}][salary_grade]" value="{{ $w->salary_grade ?? '' }}" min="1" class="h-9 w-16 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="work[{{ $i }}][appointment_status]" value="{{ $w->appointment_status ?? '' }}" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><select name="work[{{ $i }}][is_government]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"><option value="">-</option><option value="Y" {{ ($w->is_government ?? '') == 'Y' ? 'selected' : '' }}>Y</option><option value="N" {{ ($w->is_government ?? '') == 'N' ? 'selected' : '' }}>N</option></select></td><td><button type="button" onclick="removeRow(this)" class="text-red-600 dark:text-red-400 hover:text-red-700 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></td></tr>
+                            @empty
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                <template id="tpl-work">
+                    <tr><td class="px-4 py-2"><input type="date" name="work[INDEX][employed_from]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td class="px-4 py-2"><input type="date" name="work[INDEX][employed_to]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm dark:[color-scheme:dark]"></td><td class="px-4 py-2"><input type="text" name="work[INDEX][position_title]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="work[INDEX][department]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="number" name="work[INDEX][salary]" min="0" step="0.01" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="number" name="work[INDEX][salary_grade]" min="1" class="h-9 w-16 rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><input type="text" name="work[INDEX][appointment_status]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"></td><td class="px-4 py-2"><select name="work[INDEX][is_government]" class="h-9 w-full rounded-md border border-gray-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"><option value="">-</option><option value="Y">Y</option><option value="N">N</option></select></td><td><button type="button" onclick="removeRow(this)" class="text-red-600 dark:text-red-400 hover:text-red-700 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button></td></tr>
+                </template>
+                <div class="mt-4 flex justify-between items-center">
+                    <button type="button" onclick="addRow('work')" class="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md border border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-neutral-800">Add Entry</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#013CFC] rounded-md hover:bg-[#0031BC] focus:outline-none focus:ring-2 focus:ring-[#013CFC] focus:ring-offset-2 dark:focus:ring-offset-neutral-950">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

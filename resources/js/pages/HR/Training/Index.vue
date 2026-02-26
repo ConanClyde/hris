@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { Head, Link, Form, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3';
+import { Eye, Pencil, Trash2 } from 'lucide-vue-next';
+import { ref, watch, computed, onMounted } from 'vue';
+import TableUserCell from '@/components/TableUserCell.vue';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,9 +24,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { useBroadcasting } from '@/composables/useBroadcasting';
+import { useEcho } from '@laravel/echo-vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import TableUserCell from '@/components/TableUserCell.vue';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
@@ -52,19 +57,108 @@ const props = withDefaults(
         trainings: PaginatedData;
         employees: EmployeeOption[];
         statusOptions: Record<string, string>;
-        filters?: { search?: string; status?: string };
+        filters?: { search?: string; status?: string; type?: string; category?: string };
     }>(),
     { filters: () => ({}) }
 );
+
+const trainings = ref(props.trainings);
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Learning & Development' },
 ];
 
+const page = usePage();
+const { trainingsAssignedCount } = useBroadcasting();
+
+if (trainingsAssignedCount.value === null) {
+    const base = (page.props.auth?.counts || {}) as Record<string, any>;
+    trainingsAssignedCount.value = typeof base.trainings_assigned === 'number' ? base.trainings_assigned : 0;
+}
+
+const assignedCountComputed = computed(() => trainingsAssignedCount.value ?? 0);
+
+type TrainingStatusUpdatedPayload = {
+    id: number;
+    employee_id: string;
+    employee_name?: string | null;
+    status: string;
+    title: string;
+    date_from: string;
+    hours: number;
+};
+
+function matchesCurrentFilters(payload: TrainingStatusUpdatedPayload) {
+    const search = (searchInput.value || '').trim().toLowerCase();
+    const status = (filterStatus.value || '').trim();
+    const type = (filterType.value || '').trim();
+    const category = (filterCategory.value || '').trim();
+
+    if (status && status !== 'all' && payload.status !== status) return false;
+    if (type && !(payload as any).type) {
+        // If payload doesn't include type/category, don't try to force-match.
+    }
+    if (category && !(payload as any).category) {
+        // same
+    }
+
+    if (!search) return true;
+    const hay = [payload.employee_name, payload.employee_id, payload.title]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+    return hay.includes(search);
+}
+
+function upsertOrRemoveFromTable(payload: TrainingStatusUpdatedPayload) {
+    const table = trainings.value.data;
+
+    const idx = table.findIndex((t: TrainingItem) => t.id === payload.id);
+    const shouldInclude = matchesCurrentFilters(payload);
+
+    if (!shouldInclude) {
+        if (idx !== -1) table.splice(idx, 1);
+        return;
+    }
+
+    const row: TrainingItem = {
+        id: payload.id,
+        employee_id: payload.employee_id,
+        employee_name: payload.employee_name || payload.employee_id,
+        title: payload.title,
+        provider: null,
+        date_from: payload.date_from,
+        date_to: null,
+        hours: payload.hours,
+        status: payload.status,
+        created_at: new Date().toISOString(),
+    };
+
+    if (idx === -1) {
+        table.unshift(row);
+        return;
+    }
+
+    table[idx] = {
+        ...table[idx],
+        ...row,
+    };
+}
+
+onMounted(() => {
+    useEcho('training.management', '.TrainingStatusUpdated', (e: TrainingStatusUpdatedPayload) => {
+        upsertOrRemoveFromTable(e);
+    });
+});
+
 const searchInput = ref(props.filters?.search ?? '');
 const filterStatus = ref(props.filters?.status || 'all');
+const filterType = ref(props.filters?.type ?? '');
+const filterCategory = ref(props.filters?.category ?? '');
 
 
+const viewDialogOpen = ref(false);
+const viewingTraining = ref<TrainingItem | null>(null);
 const addDialogOpen = ref(false);
 const addEmployeeId = ref('');
 const addTitle = ref('');
@@ -76,6 +170,8 @@ const addStatus = ref('pending');
 
 const editDialogOpen = ref(false);
 const editTraining = ref<TrainingItem | null>(null);
+const deleteModalOpen = ref(false);
+const deletingTraining = ref<TrainingItem | null>(null);
 const editEmployeeId = ref('');
 const editTitle = ref('');
 const editProvider = ref('');
@@ -87,24 +183,26 @@ const editStatus = ref('');
 const statusOptionsEntries = Object.entries(props.statusOptions);
 
 watch(
-    () => [props.filters?.search, props.filters?.status],
-    ([search, status]) => {
+    () => [props.filters?.search, props.filters?.status, props.filters?.type, props.filters?.category],
+    ([search, status, type, category]) => {
         searchInput.value = (search as string) ?? '';
         filterStatus.value = (status as string) || 'all';
+        filterType.value = (type as string) ?? '';
+        filterCategory.value = (category as string) ?? '';
     },
     { immediate: true }
 );
 
-
 let searchDebounce: ReturnType<typeof setTimeout> | null = null;
-watch([searchInput, filterStatus], () => {
+watch([searchInput, filterStatus, filterType, filterCategory], () => {
     if (searchDebounce) clearTimeout(searchDebounce);
     searchDebounce = setTimeout(() => {
         const query: Record<string, string> = {};
         if (searchInput.value) query.search = searchInput.value;
         if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
+        if (filterType.value) query.type = filterType.value;
+        if (filterCategory.value) query.category = filterCategory.value;
         router.get(hr.training.index.url(), query, { preserveState: true });
-
     }, 300);
 });
 
@@ -117,6 +215,15 @@ function openAdd() {
     addHours.value = '';
     addStatus.value = 'pending';
     addDialogOpen.value = true;
+}
+
+function openView(t: TrainingItem) {
+    viewingTraining.value = t;
+    viewDialogOpen.value = true;
+}
+function closeView() {
+    viewDialogOpen.value = false;
+    viewingTraining.value = null;
 }
 
 function openEdit(t: TrainingItem) {
@@ -154,12 +261,23 @@ function statusVariant(status: string) {
 function clearFilters() {
     searchInput.value = '';
     filterStatus.value = 'all';
+    filterType.value = '';
+    filterCategory.value = '';
     router.get(hr.training.index.url());
 }
 
 
-function confirmDelete(message: string) {
-    return window.confirm(message);
+function openDeleteTraining(t: TrainingItem) {
+    deletingTraining.value = t;
+    deleteModalOpen.value = true;
+}
+function closeDeleteTraining() {
+    deleteModalOpen.value = false;
+    deletingTraining.value = null;
+}
+function confirmDeleteTraining() {
+    if (!deletingTraining.value) return;
+    router.delete(hr.training.destroy.url(deletingTraining.value.id), { onSuccess: () => closeDeleteTraining() });
 }
 </script>
 
@@ -180,6 +298,24 @@ function confirmDelete(message: string) {
                 <Button @click="openAdd">Add training</Button>
             </div>
 
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card class="border border-gray-200 dark:border-neutral-800">
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            Assigned / Pending Review
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                            {{ assignedCountComputed }}
+                        </p>
+                        <p class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400">
+                            Action required
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
             <!-- Filters -->
             <div class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50">
                 <div class="min-w-[180px] flex-1">
@@ -189,13 +325,13 @@ function confirmDelete(message: string) {
                         v-model="searchInput"
                         type="search"
                         placeholder="Search title, provider..."
-                        class="h-9"
+                        class="h-10"
                     />
                 </div>
                 <div class="w-[140px]">
                     <Label for="filter-status" class="sr-only">Status</Label>
                     <Select v-model="filterStatus">
-                        <SelectTrigger id="filter-status" class="h-9">
+                        <SelectTrigger id="filter-status" class="h-10">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -208,10 +344,29 @@ function confirmDelete(message: string) {
                                 {{ label }}
                             </SelectItem>
                         </SelectContent>
-
                     </Select>
                 </div>
-                <Button type="button" variant="outline" size="sm" class="h-9" @click="clearFilters">
+                <div class="min-w-[120px]">
+                    <Label for="filter-type" class="sr-only">Type</Label>
+                    <Input
+                        id="filter-type"
+                        v-model="filterType"
+                        type="text"
+                        placeholder="Type"
+                        class="h-10"
+                    />
+                </div>
+                <div class="min-w-[120px]">
+                    <Label for="filter-category" class="sr-only">Category</Label>
+                    <Input
+                        id="filter-category"
+                        v-model="filterCategory"
+                        type="text"
+                        placeholder="Category"
+                        class="h-10"
+                    />
+                </div>
+                <Button type="button" variant="outline" @click="clearFilters">
                     Clear filters
                 </Button>
             </div>
@@ -261,29 +416,32 @@ function confirmDelete(message: string) {
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
-                                            class="h-8 w-8 p-0"
+                                            title="View"
+                                            @click="openView(t)"
+                                        >
+                                            <Eye class="size-4" />
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            title="Edit"
+                                            class="hover:text-primary"
                                             @click="openEdit(t)"
                                         >
-                                            <span class="sr-only">Edit</span>
                                             <Pencil class="size-4" />
                                         </Button>
-                                        <Form
-                                            :action="hr.training.destroy.url(t.id)"
-                                            method="post"
-                                            class="inline"
-                                            @submit="(e: Event) => !confirmDelete('Delete this training record?') && e.preventDefault()"
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                            title="Delete"
+                                            @click="openDeleteTraining(t)"
                                         >
-                                            <input type="hidden" name="_method" value="DELETE" />
-                                            <Button
-                                                type="submit"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                class="h-8 w-8 p-0 text-red-600 hover:text-red-700 dark:text-red-400"
-                                            >
-                                                <span class="sr-only">Delete</span>
-                                                <Trash2 class="size-4" />
-                                            </Button>
-                                        </Form>
+                                            <span class="sr-only">Delete</span>
+                                            <Trash2 class="size-4" />
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -295,7 +453,7 @@ function confirmDelete(message: string) {
                     class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
                 >
                     No training records found.
-                    <button type="button" class="ml-1 text-[#013CFC] hover:underline dark:text-[#60C8FC]" @click="clearFilters">
+                    <button type="button" class="ml-1 text-brand hover:underline dark:text-brand-light" @click="clearFilters">
                         Clear filters
                     </button>
                 </div>
@@ -312,7 +470,7 @@ function confirmDelete(message: string) {
                         v-else
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
+                        :class="link.active ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
                     </Link>
@@ -320,16 +478,63 @@ function confirmDelete(message: string) {
             </div>
         </div>
 
+        <!-- View training dialog -->
+        <Dialog v-model:open="viewDialogOpen">
+            <DialogContent v-if="viewingTraining" class="max-w-3xl">
+                <DialogHeader>
+                    <DialogTitle>View training</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        View training record details.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="max-h-[80vh] overflow-y-auto space-y-4 p-1">
+                    <dl class="grid grid-cols-1 gap-3 text-sm">
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Employee</dt>
+                            <dd class="mt-0.5">{{ viewingTraining.employee_name || viewingTraining.employee_id || '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Title</dt>
+                            <dd class="mt-0.5">{{ viewingTraining.title || '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Provider</dt>
+                            <dd class="mt-0.5">{{ viewingTraining.provider || '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Inclusive dates</dt>
+                            <dd class="mt-0.5">{{ formatDate(viewingTraining.date_from) }}{{ viewingTraining.date_to ? ` – ${formatDate(viewingTraining.date_to)}` : '' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Hours</dt>
+                            <dd class="mt-0.5">{{ viewingTraining.hours ?? '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</dt>
+                            <dd class="mt-0.5"><Badge :variant="statusVariant(viewingTraining.status)">{{ statusOptions[viewingTraining.status] ?? viewingTraining.status }}</Badge></dd>
+                        </div>
+                    </dl>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeView()">Close</Button>
+                    <Button type="button" @click="closeView(); openEdit(viewingTraining!)">Edit</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
         <!-- Add dialog -->
         <Dialog v-model:open="addDialogOpen">
-            <DialogContent :show-close-button="true" class="sm:max-w-md">
+            <DialogContent :show-close-button="true" class="max-w-3xl">
                 <DialogHeader>
                     <DialogTitle>Add training</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Add a new training record for an employee.
+                    </DialogDescription>
                 </DialogHeader>
                 <Form v-bind="hr.training.store.form()" class="flex flex-col gap-4" @submit="addDialogOpen = false">
                     <input type="hidden" name="employee_id" :value="addEmployeeId" />
                     <input type="hidden" name="status" :value="addStatus" />
-                    <div class="max-h-[60vh] overflow-y-auto p-1 space-y-4">
+                    <div class="max-h-[80vh] overflow-y-auto p-1 space-y-4">
                     <div class="grid gap-2">
                         <Label for="add-employee">Employee</Label>
                         <Select v-model="addEmployeeId" required>
@@ -372,9 +577,12 @@ function confirmDelete(message: string) {
 
         <!-- Edit dialog -->
         <Dialog v-model:open="editDialogOpen">
-            <DialogContent :show-close-button="true" class="sm:max-w-md">
+            <DialogContent :show-close-button="true" class="max-w-3xl">
                 <DialogHeader>
                     <DialogTitle>Edit training</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Edit an existing training record.
+                    </DialogDescription>
                 </DialogHeader>
                 <Form
                     v-if="editTraining"
@@ -386,7 +594,7 @@ function confirmDelete(message: string) {
                     <input type="hidden" name="_method" value="PUT" />
                     <input type="hidden" name="employee_id" :value="editEmployeeId" />
                     <input type="hidden" name="status" :value="editStatus" />
-                    <div class="max-h-[60vh] overflow-y-auto p-1 space-y-4">
+                    <div class="max-h-[80vh] overflow-y-auto p-1 space-y-4">
                     <div class="grid gap-2">
                         <Label for="edit-title">Title</Label>
                         <Input id="edit-title" v-model="editTitle" name="title" type="text" required />
@@ -424,6 +632,25 @@ function confirmDelete(message: string) {
                         <Button type="submit">Save</Button>
                     </DialogFooter>
                 </Form>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Delete Training Modal -->
+        <Dialog v-model:open="deleteModalOpen" @update:open="(v: boolean) => !v && closeDeleteTraining()">
+            <DialogContent v-if="deletingTraining" :show-close-button="true" class="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Delete Training Record</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Confirm deletion of the training record.
+                    </DialogDescription>
+                    <p class="text-sm text-muted-foreground mt-0.5">
+                        Are you sure you want to delete <strong>{{ deletingTraining.title }}</strong>? This action cannot be undone.
+                    </p>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeDeleteTraining">Cancel</Button>
+                    <Button type="button" variant="destructive" @click="confirmDeleteTraining">Delete</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </AppLayout>

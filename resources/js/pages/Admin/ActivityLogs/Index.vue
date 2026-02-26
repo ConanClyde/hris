@@ -1,7 +1,18 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
+import { Eye } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
+import TableUserCell from '@/components/TableUserCell.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -11,9 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import AppLayout from '@/layouts/AppLayout.vue';
-import TableUserCell from '@/components/TableUserCell.vue';
+import admin from '@/routes/admin';
 import type { BreadcrumbItem } from '@/types';
 
 type ActivityLogItem = {
@@ -66,14 +76,26 @@ watch([searchInput, filterAction], () => {
         const query: Record<string, string> = {};
         if (searchInput.value) query.search = searchInput.value;
         if (filterAction.value && filterAction.value !== 'all') query.action = filterAction.value;
-        router.get(window.location.pathname, query, { preserveState: true });
+        router.get(admin.activityLogs.index.url(), query, { preserveState: true });
     }, 300);
 });
 
 function clearFilters() {
     searchInput.value = '';
     filterAction.value = 'all';
-    router.get(window.location.pathname);
+    router.get(admin.activityLogs.index.url());
+}
+
+const viewLogModalOpen = ref(false);
+const viewingLog = ref<ActivityLogItem | null>(null);
+
+function openViewLog(log: ActivityLogItem) {
+    viewingLog.value = log;
+    viewLogModalOpen.value = true;
+}
+function closeViewLog() {
+    viewLogModalOpen.value = false;
+    viewingLog.value = null;
 }
 
 const actionOptions = [
@@ -118,13 +140,13 @@ function formatDate(value: string) {
                         v-model="searchInput"
                         type="search"
                         placeholder="Search user..."
-                        class="h-9"
+                        class="h-10"
                     />
                 </div>
                 <div class="w-[160px]">
                     <Label for="filter-action" class="sr-only">Action</Label>
                     <Select v-model="filterAction">
-                        <SelectTrigger id="filter-action" class="h-9">
+                        <SelectTrigger id="filter-action" class="h-10">
                             <SelectValue placeholder="All actions" />
                         </SelectTrigger>
                         <SelectContent>
@@ -139,7 +161,7 @@ function formatDate(value: string) {
                         </SelectContent>
                     </Select>
                 </div>
-                <Button type="button" variant="outline" size="sm" class="h-9" @click="clearFilters">
+                <Button type="button" variant="outline" @click="clearFilters">
                     Clear filters
                 </Button>
             </div>
@@ -155,6 +177,7 @@ function formatDate(value: string) {
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Description</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">IP Address</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Date &amp; Time</th>
+                                <th class="text-right font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
@@ -180,6 +203,17 @@ function formatDate(value: string) {
                                 </td>
                                 <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
                                     {{ formatDate(log.created_at) }}
+                                </td>
+                                <td class="px-4 py-3 text-right">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        title="View"
+                                        @click="openViewLog(log)"
+                                    >
+                                        <Eye class="size-4" />
+                                    </Button>
                                 </td>
                             </tr>
                         </tbody>
@@ -210,7 +244,7 @@ function formatDate(value: string) {
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
                         :class="link.active
-                            ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900'
+                            ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900'
                             : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
@@ -218,5 +252,44 @@ function formatDate(value: string) {
                 </template>
             </div>
         </div>
+
+        <!-- View log modal -->
+        <Dialog v-model:open="viewLogModalOpen">
+            <DialogContent v-if="viewingLog" class="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Activity log</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        View details of the selected activity log entry.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                    <dl class="grid grid-cols-1 gap-3 text-sm">
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">User</dt>
+                            <dd class="mt-0.5">{{ viewingLog.user_name ?? `User #${viewingLog.user_id}` }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Action</dt>
+                            <dd class="mt-0.5"><Badge variant="outline">{{ viewingLog.action }}</Badge></dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Description</dt>
+                            <dd class="mt-0.5">{{ viewingLog.description ?? '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">IP Address</dt>
+                            <dd class="mt-0.5">{{ viewingLog.ip_address ?? '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Date &amp; Time</dt>
+                            <dd class="mt-0.5">{{ formatDate(viewingLog.created_at) }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                <DialogFooter>
+                    <Button @click="closeViewLog()">Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </AppLayout>
 </template>

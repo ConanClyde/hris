@@ -10,8 +10,7 @@ class NoticePublished implements ShouldBroadcastNow
 {
     public function __construct(
         public Notice $notice
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

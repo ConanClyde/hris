@@ -1,0 +1,18 @@
+---
+description: Eloquent relationship access and validation standards
+globs: ["app/**/*.php"]
+---
+
+# Eloquent Relationship Standards
+
+When working with Eloquent models and relationships:
+
+1. **Define relationships on both models** – Always implement the inverse relationship (e.g. User hasOne Employee, Employee belongsTo User).
+
+2. **Use null-safe access for optional relationships** – When a relationship may not exist, use:
+   - `optional($model->relationship)` for bulk access
+   - `$model->relationship?->field` for single property access
+
+3. **Eager load in controllers** – Use `with(['relationship'])` when listing records that will display related data to avoid N+1 queries.
+
+4. **Add tests for relationship behavior** – Include unit tests for relationships and feature tests for pages that display related data, including users with and without the relationship.

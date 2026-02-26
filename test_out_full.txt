@@ -1,0 +1,103 @@
+﻿
+   PASS  Tests\Unit\ExampleTest
+  Γ£ô that true is true                                                                                               0.07s  
+
+   PASS  Tests\Feature\Api\LeaveApiTest
+  Γ£ô leave api index requires integration key                                                                        4.52s  
+  Γ£ô leave api index returns paginated leave applications                                                            0.20s  
+  Γ£ô leave api store creates leave application                                                                       0.14s  
+  Γ£ô leave api update status changes status                                                                          0.09s  
+
+   PASS  Tests\Feature\Api\OrganizationalStructureApiTest
+  Γ£ô organizational structure api requires integration key                                                           0.13s  
+  Γ£ô organizational structure api returns divisions with subdivisions and sections                                   0.28s  
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  Γ£ô login screen can be rendered                                                                                    0.75s  
+  Γ£ô users can authenticate using the login screen                                                                   0.14s  
+  Γ£ô users with two factor enabled are redirected to two factor challenge                                            0.16s  
+  Γ£ô users can not authenticate with invalid password                                                                0.12s  
+  Γ£ô users can logout                                                                                                0.13s  
+  Γ£ô users are rate limited                                                                                          0.13s  
+
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  Γ£ô email verification screen can be rendered                                                                       0.74s  
+  Γ£ô email can be verified                                                                                           0.12s  
+  Γ£ô email is not verified with invalid hash                                                                         0.15s  
+  Γ£ô email is not verified with invalid user id                                                                      0.11s  
+  Γ£ô verified user is redirected to dashboard from verification prompt                                               0.08s  
+  Γ£ô already verified user visiting verification link is redirected without firing event again                       0.08s  
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  Γ£ô confirm password screen can be rendered                                                                         0.09s  
+  Γ£ô password confirmation requires authentication                                                                   0.10s  
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  Γ£ô reset password link screen can be rendered                                                                      0.07s  
+  Γ£ô reset password link can be requested                                                                            0.43s  
+  Γ£ô reset password screen can be rendered                                                                           0.44s  
+  Γ£ô password can be reset with valid token                                                                          0.33s  
+  Γ£ô password cannot be reset with invalid token                                                                     0.36s  
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  Γ£ô registration screen can be rendered by guest                                                                    0.09s  
+  Γ£ô guest can register new user and is redirected to login                                                          0.17s  
+  Γ£ô inactive user cannot log in                                                                                     0.07s  
+
+   PASS  Tests\Feature\Auth\TwoFactorChallengeTest
+  Γ£ô two factor challenge redirects to login when not authenticated                                                  0.37s  
+  Γ£ô two factor challenge can be rendered                                                                            0.17s  
+
+   PASS  Tests\Feature\Auth\VerificationNotificationTest
+  Γ£ô sends verification notification                                                                                 0.09s  
+  Γ£ô does not send verification notification if email is verified                                                    0.18s  
+
+   PASS  Tests\Feature\DashboardTest
+  Γ£ô guests are redirected to the login page                                                                         0.20s  
+  Γ£ô authenticated users can visit the dashboard                                                                     0.16s  
+
+   PASS  Tests\Feature\EmployeeModuleTest
+  Γ£ô employee can view leave applications                                                                            0.11s  
+  Γ£ô employee can view pds                                                                                           0.10s  
+  Γ£ô employee can view training                                                                                      0.12s  
+  Γ£ô employee can create leave application                                                                           0.11s  
+  Γ£ô leave credits deducted on approval                                                                              0.12s  
+
+   FAIL  Tests\Feature\ExampleTest
+  Γ¿» returns a successful response                                                                                   0.11s  
+
+   PASS  Tests\Feature\Settings\PasswordUpdateTest
+  Γ£ô password update page is displayed                                                                               0.12s  
+  Γ£ô password can be updated                                                                                         0.09s  
+  Γ£ô correct password must be provided to update password                                                            0.10s  
+
+   PASS  Tests\Feature\Settings\ProfileUpdateTest
+  Γ£ô profile page is displayed                                                                                       0.08s  
+  Γ£ô profile information can be updated                                                                              0.16s  
+  Γ£ô email verification status is unchanged when the email address is unchanged                                      0.12s  
+  Γ£ô user can delete their account                                                                                   0.09s  
+  Γ£ô correct password must be provided to delete account                                                             0.11s  
+
+   PASS  Tests\Feature\Settings\TwoFactorAuthenticationTest
+  Γ£ô two factor settings page can be rendered                                                                        0.15s  
+  Γ£ô two factor settings page requires password confirmation when enabled                                            0.08s  
+  Γ£ô two factor settings page does not requires password confirmation when disabled                                  0.08s  
+  Γ£ô two factor settings page returns forbidden response when two factor is disabled                                 0.12s  
+  ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ  
+   FAILED  Tests\Feature\ExampleTest > returns a successful response                                                       
+  Expected response status code [200] but received 302.
+Failed asserting that 302 is identical to 200.
+
+  at tests\Feature\ExampleTest.php:6
+      2Γûò 
+      3Γûò test('returns a successful response', function () {
+      4Γûò     $response = $this->get(route('home'));
+      5Γûò 
+  Γ₧£   6Γûò     $response->assertOk();
+      7Γûò });
+
+
+  Tests:    1 failed, 52 passed (168 assertions)
+  Duration: 14.34s
+
+

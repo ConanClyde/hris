@@ -2,11 +2,13 @@
 
 namespace App\Features\Leave\Models;
 
+use App\Features\Employees\Models\Employee;
 use App\Features\Leave\Enums\LeaveStatus;
 use Database\Factories\LeaveApplicationFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class LeaveApplication extends Model
 {
@@ -16,6 +18,7 @@ class LeaveApplication extends Model
     {
         return LeaveApplicationFactory::new();
     }
+
     protected $fillable = [
         'employee_id',
         'employee_name',
@@ -36,6 +39,11 @@ class LeaveApplication extends Model
         'attachments' => 'array',
         'legacy_attachment' => 'array',
     ];
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
+    }
 
     public function scopePending(Builder $query): Builder
     {

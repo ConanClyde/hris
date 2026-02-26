@@ -52,10 +52,10 @@ Thumbs.db
 *.temp
 
 # Project-specific exclusions
-/sample_project/
-/docs/
-/*.md
-!.gitignore
-!.env.example
-!.README.md
-!README.md
+# /sample_project/
+# /docs/
+# /*.md
+# !.gitignore
+# !.env.example
+# !.README.md
+# !README.md

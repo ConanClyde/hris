@@ -15,13 +15,42 @@ Broadcast::channel('role.{role}', function ($user, string $role) {
 });
 
 Broadcast::channel('leave.management', function ($user) {
-    return ($user->role ?? '') === 'hr';
+    return $user->isAdminOrHr();
 });
 
 Broadcast::channel('training.management', function ($user) {
-    return ($user->role ?? '') === 'hr';
+    return $user->isAdminOrHr();
+});
+
+Broadcast::channel('pds.management', function ($user) {
+    return $user->isAdminOrHr();
 });
 
 Broadcast::channel('calendar.holidays', function ($user) {
-    return in_array($user->role ?? '', ['admin', 'hr'], true);
+    return $user->isAdminOrHr();
+});
+
+// Admin dashboard channel
+Broadcast::channel('admin.dashboard', function ($user) {
+    return $user->isAdmin();
+});
+
+// HR dashboard channel
+Broadcast::channel('hr.dashboard', function ($user) {
+    return $user->isAdminOrHr();
+});
+
+// Employee-wide channel
+Broadcast::channel('employees', function ($user) {
+    return auth()->check();
+});
+
+// Calendar updates channel
+Broadcast::channel('calendar', function ($user) {
+    return auth()->check();
+});
+
+// Avatar updates channel (public - for real-time avatar sync)
+Broadcast::channel('avatar-updates', function ($user) {
+    return true; // Public channel, anyone can listen
 });

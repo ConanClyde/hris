@@ -15,8 +15,7 @@ class TrainingStatusUpdated implements ShouldBroadcastNow
         public string $title,
         public string $dateFrom,
         public float $hours,
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {

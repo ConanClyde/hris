@@ -26,6 +26,8 @@ Route::prefix('hr')->group(function () {
 
         // Notifications
         Route::get('/notifications', [NotificationController::class, 'index'])->name('hr.notifications');
+        Route::post('/notifications/{noticeId}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('hr.notifications.mark-as-read');
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('hr.notifications.unread-count');
 
         // Settings & profile
         Route::get('/settings', function () {
@@ -45,10 +47,14 @@ Route::prefix('hr')->group(function () {
         Route::post('/pds/status', [HrPdsController::class, 'updateStatus'])->name('hr.pds.status');
 
         // User management (reuse Admin UserController)
-        Route::get('/users', [UserController::class, 'index'])->name('hr.users.index');
+        Route::get('/users/{status?}', [UserController::class, 'index'])
+            ->where('status', 'pending|rejected|active|inactive')
+            ->name('hr.users.index');
         Route::post('/users', [UserController::class, 'store'])->name('hr.users.store');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('hr.users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('hr.users.destroy');
+        Route::patch('/users/{id}/approve', [UserController::class, 'approve'])->name('hr.users.approve');
+        Route::patch('/users/{id}/reject', [UserController::class, 'reject'])->name('hr.users.reject');
         Route::patch('/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('hr.users.toggle-status');
         Route::post('/users/bulk-action', [UserController::class, 'bulkAction'])->name('hr.users.bulk_action');
 

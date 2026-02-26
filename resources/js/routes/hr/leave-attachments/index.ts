@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveController::destroy
- * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:119
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:236
  * @route '/hr/leave-attachments/{id}'
  */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -16,7 +16,7 @@ destroy.definition = {
 
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveController::destroy
- * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:119
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:236
  * @route '/hr/leave-attachments/{id}'
  */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveController::destroy
- * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:119
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:236
  * @route '/hr/leave-attachments/{id}'
  */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -54,7 +54,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
     /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveController::destroy
- * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:119
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:236
  * @route '/hr/leave-attachments/{id}'
  */
     const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
             /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveController::destroy
- * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:119
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveController.php:236
  * @route '/hr/leave-attachments/{id}'
  */
         destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

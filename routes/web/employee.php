@@ -18,6 +18,8 @@ Route::prefix('employee')->group(function () {
 
         // Notifications
         Route::get('/notifications', [NotificationController::class, 'index'])->name('employee.notifications');
+        Route::post('/notifications/{noticeId}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('employee.notifications.mark-as-read');
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('employee.notifications.unread-count');
 
         // Settings & profile
         Route::get('/settings', function () {

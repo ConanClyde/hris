@@ -12,11 +12,19 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { useBroadcasting } from '@/composables/useBroadcasting';
+import { getRoleMenu, type AppRole } from '@/navigation/roleMenus';
 import type { NavItem } from '@/types';
 import AppLogo from './AppLogo.vue';
-import { getRoleMenu, type AppRole } from '@/navigation/roleMenus';
 
 const page = usePage();
+const {
+    usersPendingCount,
+    noticesUnreadCount,
+    leavesPendingCount,
+    trainingsAssignedCount,
+    pdsPendingCount,
+} = useBroadcasting();
 
 const role = computed<AppRole>(() => {
     const raw = (page.props.auth?.user as { role?: string } | undefined)?.role;
@@ -24,7 +32,35 @@ const role = computed<AppRole>(() => {
     return 'employee';
 });
 
-const menu = computed(() => getRoleMenu(role.value));
+const counts = computed(() => {
+    const base = (page.props.auth?.counts || {}) as Record<string, any>;
+
+    return {
+        ...base,
+        users_pending:
+            typeof usersPendingCount.value === 'number'
+                ? usersPendingCount.value
+                : base.users_pending,
+        notices_unread:
+            typeof noticesUnreadCount.value === 'number'
+                ? noticesUnreadCount.value
+                : base.notices_unread,
+        leaves_pending:
+            typeof leavesPendingCount.value === 'number'
+                ? leavesPendingCount.value
+                : base.leaves_pending,
+        trainings_assigned:
+            typeof trainingsAssignedCount.value === 'number'
+                ? trainingsAssignedCount.value
+                : base.trainings_assigned,
+        pds_pending:
+            typeof pdsPendingCount.value === 'number'
+                ? pdsPendingCount.value
+                : base.pds_pending,
+    };
+});
+
+const menu = computed(() => getRoleMenu(role.value, counts.value));
 
 const mainNavItems = computed<NavItem[]>(() => menu.value.main);
 
@@ -44,8 +80,8 @@ const mainNavItems = computed<NavItem[]>(() => menu.value.main);
             </SidebarMenu>
         </SidebarHeader>
 
-        <SidebarContent>
-            <NavMain :items="mainNavItems" />
+        <SidebarContent class="flex flex-col items-center">
+            <NavMain :items="mainNavItems" class="w-full" />
         </SidebarContent>
 
         <SidebarFooter>

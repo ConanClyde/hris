@@ -10,19 +10,21 @@ class CustomHolidayUpdated implements ShouldBroadcastNow
 {
     public function __construct(
         public CustomHoliday $holiday,
-    ) {
-    }
+    ) {}
 
     public function broadcastOn(): array
     {
         return [
             new PrivateChannel('calendar.holidays'),
+            new PrivateChannel('employees'),
+            new PrivateChannel('admin.dashboard'),
+            new PrivateChannel('hr.dashboard'),
         ];
     }
 
     public function broadcastAs(): string
     {
-        return 'CustomHolidayUpdated';
+        return 'holiday.updated';
     }
 
     public function broadcastWith(): array

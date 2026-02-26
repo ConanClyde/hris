@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Features\Users\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -26,10 +28,12 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'status',
         'first_name',
         'middle_name',
         'last_name',
         'name_extension',
+        'avatar',
     ];
 
     /**
@@ -62,5 +66,52 @@ class User extends Authenticatable
     public function employee(): HasOne
     {
         return $this->hasOne(\App\Features\Employees\Models\Employee::class);
+    }
+
+    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Models\Attendance::class);
+    }
+
+    /**
+     * Notices that have been read by this user.
+     */
+    public function readNotices(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Features\Notices\Models\Notice::class, 'notice_reads')
+            ->withPivot('read_at');
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        $middle = $this->middle_name ? ' '.$this->middle_name : '';
+        $ext = $this->name_extension ? ' '.$this->name_extension : '';
+
+        return trim($this->first_name.$middle.' '.$this->last_name.$ext) ?: $this->name;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin->value;
+    }
+
+    public function isHr(): bool
+    {
+        return $this->role === UserRole::Hr->value;
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->role === UserRole::Employee->value;
+    }
+
+    public function isAdminOrHr(): bool
+    {
+        return in_array($this->role, [UserRole::Admin->value, UserRole::Hr->value], true);
+    }
+
+    public function getRoleEnum(): ?UserRole
+    {
+        return UserRole::tryFrom($this->role ?? '');
     }
 }

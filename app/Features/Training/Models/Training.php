@@ -2,7 +2,9 @@
 
 namespace App\Features\Training\Models;
 
+use App\Features\Employees\Models\Employee;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Training extends Model
 {
@@ -33,5 +35,10 @@ class Training extends Model
             'hours' => 'float',
             'fee' => 'float',
         ];
+    }
+
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class);
     }
 }

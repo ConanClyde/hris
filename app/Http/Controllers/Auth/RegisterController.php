@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Features\Auth\Actions\RegisterNewUser;
 use App\Features\Employees\Models\Division;
 use App\Http\Controllers\Controller;
+use App\Mail\UserRegisteredMail;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -53,6 +55,17 @@ class RegisterController extends Controller
         $user = $this->registerNewUser->create($request->all());
 
         event(new Registered($user));
+
+        // Email HR / Admin users about the new self-registration
+        $hrRecipients = \App\Models\User::query()
+            ->whereIn('role', ['admin', 'hr'])
+            ->where('is_active', true)
+            ->pluck('email')
+            ->all();
+
+        if ($hrRecipients !== []) {
+            Mail::to($hrRecipients)->queue(new UserRegisteredMail($user, $request->ip()));
+        }
 
         return redirect()
             ->route('login')

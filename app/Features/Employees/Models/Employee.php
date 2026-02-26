@@ -18,6 +18,7 @@ class Employee extends Model
     {
         return EmployeeFactory::new();
     }
+
     protected $fillable = [
         'user_id',
         'division_id',

@@ -17,6 +17,7 @@ class Notice extends Model
     {
         return NoticeFactory::new();
     }
+
     protected $fillable = [
         'title',
         'message',

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -16,7 +16,7 @@ update.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
 update.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
 update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -34,7 +34,7 @@ update.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
 update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -44,7 +44,7 @@ update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
     const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -59,7 +59,7 @@ update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
         updateForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -73,7 +73,7 @@ update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:43
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
  * @route '/hr/profile'
  */
         updateForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -89,7 +89,7 @@ update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     update.form = updateForm
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::password
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:82
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
  * @route '/hr/profile/password'
  */
 export const password = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -104,7 +104,7 @@ password.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::password
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:82
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
  * @route '/hr/profile/password'
  */
 password.url = (options?: RouteQueryOptions) => {
@@ -113,7 +113,7 @@ password.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::password
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:82
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
  * @route '/hr/profile/password'
  */
 password.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -123,7 +123,7 @@ password.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::password
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:82
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
  * @route '/hr/profile/password'
  */
     const passwordForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -133,7 +133,7 @@ password.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::password
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:82
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
  * @route '/hr/profile/password'
  */
         passwordForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -144,7 +144,7 @@ password.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     password.form = passwordForm
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::deleteMethod
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:100
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
  * @route '/hr/profile'
  */
 export const deleteMethod = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -159,7 +159,7 @@ deleteMethod.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::deleteMethod
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:100
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
  * @route '/hr/profile'
  */
 deleteMethod.url = (options?: RouteQueryOptions) => {
@@ -168,7 +168,7 @@ deleteMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::deleteMethod
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:100
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
  * @route '/hr/profile'
  */
 deleteMethod.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -178,7 +178,7 @@ deleteMethod.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> =
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::deleteMethod
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:100
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
  * @route '/hr/profile'
  */
     const deleteMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -193,7 +193,7 @@ deleteMethod.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> =
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::deleteMethod
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:100
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
  * @route '/hr/profile'
  */
         deleteMethodForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

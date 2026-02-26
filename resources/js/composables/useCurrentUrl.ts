@@ -31,7 +31,12 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         const urlString = toUrl(urlToCheck);
 
         if (!urlString.startsWith('http')) {
-            return urlString === urlToCompare;
+            try {
+                const relativeUrl = new URL(urlString, window?.location.origin);
+                return relativeUrl.pathname === urlToCompare;
+            } catch {
+                return urlString === urlToCompare;
+            }
         }
 
         try {

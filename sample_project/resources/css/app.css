@@ -1,0 +1,174 @@
+@import 'tailwindcss';
+
+/* Class-based dark mode (toggle via .dark on html) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Brand palette */
+    --color-primary: #013CFC;
+    --color-primary-hover: #0031BC;
+    --color-vivid-sky: #60C8FC;
+}
+
+/* ── Frappe Charts — shadcn/ui overrides ───────────────────────── */
+
+/* Wrapper resets */
+.frappe-chart-wrapper .frappe-chart {
+    overflow: visible;
+}
+
+/* Typography — system font, muted axes */
+.frappe-chart .title {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    fill: #374151; /* text-gray-700 */
+    letter-spacing: -0.01em;
+}
+
+.frappe-chart .chart-legend {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: #6b7280; /* text-gray-500 */
+}
+
+.frappe-chart .chart-legend .legend-dataset-text {
+    fill: #6b7280;
+    font-weight: 400;
+}
+
+.frappe-chart text {
+    font-family: var(--font-sans);
+    fill: #9ca3af; /* text-gray-400 */
+    font-size: 11px;
+}
+
+/* Grid — near-invisible, shadcn-subtle */
+.frappe-chart .axis line,
+.frappe-chart .chart-grid line {
+    stroke: #f3f4f6; /* gray-100 */
+    stroke-dasharray: none;
+}
+
+.frappe-chart .axis .tick-text {
+    fill: #9ca3af; /* text-gray-400 */
+}
+
+.frappe-chart .dataset-path {
+    transition: stroke-opacity 0.2s ease;
+}
+
+/* Data line — slightly thinner for elegance */
+.frappe-chart .dataset-path {
+    stroke-width: 1.75;
+}
+
+/* Region fill — lighter for subtlety */
+.frappe-chart .region-fill {
+    opacity: 0.08;
+}
+
+/* Dots — small, clean */
+.frappe-chart .data-point-list circle {
+    stroke-width: 1.5;
+    r: 2.5;
+    transition: r 0.15s ease;
+}
+
+.frappe-chart .data-point-list circle:hover {
+    r: 4;
+}
+
+/* Bar charts — slight rounding */
+.frappe-chart .bar rect,
+.frappe-chart .dataset-units .bar {
+    rx: 3;
+    ry: 3;
+}
+
+/* Tooltip — clean, minimal card */
+.graph-svg-tip {
+    font-family: var(--font-sans) !important;
+    font-size: 0.75rem !important;
+    line-height: 1.4 !important;
+    background: #fff !important;
+    color: #374151 !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06) !important;
+}
+
+.graph-svg-tip::after {
+    border-top-color: #fff !important;
+}
+
+.graph-svg-tip .title {
+    font-weight: 500 !important;
+    color: #111827 !important;
+    fill: #111827 !important;
+}
+
+.graph-svg-tip .data-point-list {
+    color: #6b7280 !important;
+}
+
+/* Percentage bar — rounded, clean */
+.frappe-chart .percentage-graph .progress {
+    border-radius: 4px;
+}
+
+.frappe-chart .percentage-graph {
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Pie/donut — no heavy stroke */
+.frappe-chart .pie-graph path {
+    stroke: #fff;
+    stroke-width: 2;
+}
+
+/* Hover cross-hair — subtle */
+.frappe-chart .data-point-list .heatline,
+.frappe-chart .indicator {
+    stroke: #d1d5db; /* gray-300 */
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+}
+
+:where(
+        input:not([type='checkbox']):not([type='radio']):not([type='range']),
+        textarea,
+        select
+    ):focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgb(1 60 252 / 35%);
+}
+
+/* Sidebar nav: loading state for instant feedback (target 100–200ms response) */
+.sidebar-nav-link--loading {
+    position: relative;
+    opacity: 0.85;
+    pointer-events: none;
+}
+.sidebar-nav-link--loading::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    animation: sidebar-nav-pulse 0.8s ease-in-out infinite;
+}
+@keyframes sidebar-nav-pulse {
+    0%, 100% { background: transparent; }
+    50% { background: rgb(1 60 252 / 0.06); }
+}

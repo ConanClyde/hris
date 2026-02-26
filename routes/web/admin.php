@@ -5,6 +5,8 @@ use App\Features\Auth\Http\Controllers\ProfileController;
 use App\Features\Backup\Http\Controllers\Admin\BackupController;
 use App\Features\Calendar\Http\Controllers\Admin\CalendarController as AdminCalendarController;
 use App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController;
+use App\Features\Dashboard\Http\Controllers\PerformanceController as AdminPerformanceController;
+use App\Features\Dashboard\Http\Controllers\ReportsController as AdminReportsController;
 use App\Features\Notices\Http\Controllers\Admin\NoticeController;
 use App\Features\Notifications\Http\Controllers\NotificationController;
 use App\Features\Users\Http\Controllers\Admin\UserController;
@@ -28,10 +30,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     ])->except(['create', 'show', 'edit']);
 
     // User management
-    Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
+    Route::get('/admin/users/{status?}', [UserController::class, 'index'])
+        ->where('status', 'pending|rejected|active|inactive')
+        ->name('admin.users');
     Route::post('/admin/users', [UserController::class, 'store'])->name('admin.users.store');
     Route::put('/admin/users/{id}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::patch('/admin/users/{id}/approve', [UserController::class, 'approve'])->name('admin.users.approve');
+    Route::patch('/admin/users/{id}/reject', [UserController::class, 'reject'])->name('admin.users.reject');
     Route::patch('/admin/users/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('admin.users.toggle-status');
     Route::post('/admin/users/bulk-action', [UserController::class, 'bulkAction'])->name('admin.users.bulk_action');
 
@@ -40,9 +46,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/activity-logs/export', [ActivityLogsController::class, 'export'])->name('admin.activity-logs.export');
 
     // Performance metrics
-    Route::get('/admin/performance', function () {
-        return Inertia::render('Admin/Performance/Index');
-    })->name('admin.performance.index');
+    Route::get('/admin/performance', [AdminPerformanceController::class, 'index'])->name('admin.performance.index');
 
     // Backup management
     Route::prefix('admin/backup')->group(function () {
@@ -65,6 +69,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Notifications
     Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
+    Route::post('/admin/notifications/{noticeId}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('admin.notifications.mark-as-read');
+    Route::get('/admin/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('admin.notifications.unread-count');
 
     // Settings & Profile
     Route::get('/admin/settings', function () {
@@ -77,19 +83,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/admin/profile/password', [ProfileController::class, 'changePassword'])->name('admin.profile.password');
     Route::delete('/admin/profile', [ProfileController::class, 'destroy'])->name('admin.profile.delete');
 
-    // Leave stub
-    Route::get('/admin/leave', function () {
-        return Inertia::render('Admin/Leave/Index');
-    })->name('admin.leave');
-
-    // Reports stub
-    Route::get('/admin/reports', function () {
-        return Inertia::render('Admin/Reports/Index');
-    })->name('admin.reports');
-
-    // PDS proxies
-    Route::redirect('/admin/employees', '/admin/pds');
-    Route::get('/admin/pds', function () {
-        return Inertia::render('Admin/PDS/Index');
-    })->name('admin.pds');
+    // Reports
+    Route::get('/admin/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
 });

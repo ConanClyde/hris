@@ -2,10 +2,13 @@
 
 namespace App\Features\Auth\Http\Controllers;
 
+use App\Events\AvatarUpdated;
+use App\Features\ActivityLogs\Models\ActivityLog;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,7 +31,23 @@ class ProfileController extends Controller
             'role' => $user->role,
             'is_active' => $user->is_active,
             'created_at' => $user->created_at?->toISOString(),
+            'avatar' => $user->avatar ? asset('storage/'.$user->avatar) : null,
         ];
+
+        $activityLogs = ActivityLog::query()
+            ->where('actor_user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->limit(15)
+            ->get()
+            ->map(fn (ActivityLog $log) => [
+                'id' => $log->id,
+                'action' => $log->action,
+                'subject_type' => $log->subject_type,
+                'subject_id' => $log->subject_id,
+                'created_at' => $log->created_at?->toISOString(),
+            ]);
+
+        $userData['activity_logs'] = $activityLogs;
 
         if (str_starts_with($routeName, 'admin.')) {
             return Inertia::render('Admin/Profile/Index', ['user' => $userData]);
@@ -49,12 +68,14 @@ class ProfileController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'name_extension' => 'nullable|string|max:50',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
+            'avatar' => 'nullable|image|max:2048',
+            'remove_avatar' => 'nullable|boolean',
         ]);
 
         $firstName = $validated['first_name'] ?? '';
         $lastName = $validated['last_name'] ?? '';
-        $name = trim($firstName . ' ' . $lastName) ?: $user->name;
+        $name = trim($firstName.' '.$lastName) ?: $user->name;
 
         $user->update([
             'first_name' => $validated['first_name'] ?? null,
@@ -64,6 +85,22 @@ class ProfileController extends Controller
             'email' => $validated['email'],
             'name' => $name,
         ]);
+
+        if (! empty($validated['remove_avatar']) && $user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+            $user->update(['avatar' => null]);
+            broadcast(new AvatarUpdated($user, null, 'removed'));
+        }
+
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->update(['avatar' => $path]);
+            $avatarUrl = asset('storage/'.$path);
+            broadcast(new AvatarUpdated($user, $avatarUrl, 'updated'));
+        }
 
         $employee = $user->employee;
         if ($employee) {

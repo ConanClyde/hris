@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { Head, Link, Form, router } from '@inertiajs/vue3';
-import { ref, computed, watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 import { Eye, Check, X } from 'lucide-vue-next';
+import { ref, computed, watch } from 'vue';
+import TableUserCell from '@/components/TableUserCell.vue';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
     Select,
     SelectContent,
@@ -18,8 +22,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import AppLayout from '@/layouts/AppLayout.vue';
-import TableUserCell from '@/components/TableUserCell.vue';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
@@ -73,6 +77,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'PDS Management' },
 ];
 
+const page = usePage();
+const { pdsPendingCount } = useBroadcasting();
+
+if (pdsPendingCount.value === null) {
+    const base = (page.props.auth?.counts || {}) as Record<string, any>;
+    pdsPendingCount.value = typeof base.pds_pending === 'number' ? base.pds_pending : 0;
+}
+
+const pendingCountComputed = computed(() => pdsPendingCount.value ?? 0);
+
 const filterStatus = ref(props.filters?.status ?? 'all');
 
 watch(
@@ -115,7 +129,7 @@ const statusOptionsEntries = computed(() => Object.entries(props.statusOptions))
 
 function openPreview(item: PdsItem) {
     const query: Record<string, string> = {};
-    if (props.filters?.status) query.status = props.filters.status;
+    if (props.filters?.status && props.filters.status !== 'all') query.status = props.filters.status;
     if (props.pdsList.current_page > 1) query.page = String(props.pdsList.current_page);
     query.preview_id = String(item.id);
     router.get(hr.pds.index.url(), query);
@@ -123,7 +137,7 @@ function openPreview(item: PdsItem) {
 
 function closePreviewModal() {
     const query: Record<string, string> = {};
-    if (props.filters?.status) query.status = props.filters.status;
+    if (props.filters?.status && props.filters.status !== 'all') query.status = props.filters.status;
     if (props.pdsList.current_page > 1) query.page = String(props.pdsList.current_page);
     router.get(hr.pds.index.url(), Object.keys(query).length ? query : undefined);
 }
@@ -149,12 +163,30 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
                 </p>
             </div>
 
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card class="border border-gray-200 dark:border-neutral-800">
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            Pending Review
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                            {{ pendingCountComputed }}
+                        </p>
+                        <p class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400">
+                            Action required
+                        </p>
+                    </CardContent>
+                </Card>
+            </div>
+
             <!-- Status filter -->
             <div class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50">
                 <div class="w-[160px]">
                     <label for="filter-status" class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Status</label>
                     <Select v-model="filterStatus">
-                        <SelectTrigger id="filter-status" class="h-9">
+                        <SelectTrigger id="filter-status" class="h-10">
                             <SelectValue placeholder="All statuses" />
                         </SelectTrigger>
                         <SelectContent>
@@ -173,8 +205,6 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
                     v-if="filterStatus && filterStatus !== 'all'"
                     type="button"
                     variant="outline"
-                    size="sm"
-                    class="h-9"
                     @click="filterStatus = 'all'; router.get(hr.pds.index.url())"
                 >
                     Clear filter
@@ -227,10 +257,9 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
-                                            class="h-8 w-8 p-0"
+                                            title="Preview"
                                             @click="openPreview(item)"
                                         >
-                                            <span class="sr-only">Preview</span>
                                             <Eye class="size-4" />
                                         </Button>
                                         <Form
@@ -245,7 +274,7 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
                                                 type="submit"
                                                 variant="ghost"
                                                 size="icon-sm"
-                                                class="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700"
+                                                class="text-emerald-600 hover:text-emerald-700"
                                             >
                                                 <span class="sr-only">Approve</span>
                                                 <Check class="size-4" />
@@ -263,7 +292,7 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
                                                 type="submit"
                                                 variant="ghost"
                                                 size="icon-sm"
-                                                class="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                                class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                             >
                                                 <span class="sr-only">Reject</span>
                                                 <X class="size-4" />
@@ -300,7 +329,7 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
                         :class="link.active
-                            ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900'
+                            ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900'
                             : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
@@ -317,6 +346,9 @@ function pdsDetailEmployeeName(pds: PdsDetail): string {
             <DialogContent :show-close-button="true" class="sm:max-w-lg max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>PDS Preview</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Preview of the selected employee Personal Data Sheet.
+                    </DialogDescription>
                 </DialogHeader>
                 <template v-if="pdsDetail">
                     <div class="max-h-[60vh] overflow-y-auto p-1 space-y-4">

@@ -1,6 +1,18 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import { Bell, Sun, Moon, Check, Trash2 } from 'lucide-vue-next';
+import { computed, onMounted } from 'vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useAppearance } from '@/composables/useAppearance';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import type { BreadcrumbItem } from '@/types';
 
 withDefaults(
@@ -11,6 +23,79 @@ withDefaults(
         breadcrumbs: () => [],
     },
 );
+
+const page = usePage();
+const user = computed(() => page.props.auth.user as unknown as { id: number; role: string } | null);
+
+// Theme toggle
+const { appearance, updateAppearance } = useAppearance();
+
+function toggleTheme() {
+    const newTheme = appearance.value === 'dark' ? 'light' : 'dark';
+    updateAppearance(newTheme);
+}
+
+// Notifications with WebSocket
+const {
+    notifications,
+    unreadCount,
+    setupUserListeners,
+    setupAdminListeners,
+    setupHrListeners,
+    setupEmployeeListeners,
+} = useBroadcasting();
+
+onMounted(() => {
+    if (user.value) {
+        // Always setup user-specific listeners
+        setupUserListeners(user.value.id);
+
+        // Setup role-based listeners
+        if (user.value.role === 'admin') {
+            setupAdminListeners();
+        }
+
+        if (user.value.role === 'hr' || user.value.role === 'admin') {
+            setupHrListeners();
+        }
+
+        // All employees get these
+        setupEmployeeListeners();
+    }
+});
+
+function markAsRead(id: number) {
+    const notif = notifications.value.find(n => n.id === id);
+    if (notif) notif.read = true;
+}
+
+function markAllAsRead() {
+    notifications.value.forEach(n => n.read = true);
+}
+
+function deleteNotification(id: number) {
+    notifications.value = notifications.value.filter(n => n.id !== id);
+}
+
+function formatTime(dateStr: string) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diff < 60) return 'Just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    return `${Math.floor(diff / 86400)}d ago`;
+}
+
+function getNotificationColor(type: string) {
+    switch (type) {
+        case 'success': return 'bg-emerald-500';
+        case 'warning': return 'bg-amber-500';
+        case 'error': return 'bg-red-500';
+        default: return 'bg-blue-500';
+    }
+}
 </script>
 
 <template>
@@ -22,6 +107,89 @@ withDefaults(
             <template v-if="breadcrumbs && breadcrumbs.length > 0">
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
+        </div>
+
+        <!-- Right side: Notifications + Theme Toggle -->
+        <div class="ml-auto flex items-center gap-2">
+            <!-- Notifications -->
+            <Popover>
+                <PopoverTrigger as-child>
+                    <Button variant="ghost" size="icon" class="relative">
+                        <Bell class="h-5 w-5" />
+                        <Badge
+                            v-if="unreadCount > 0"
+                            class="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                        >
+                            {{ unreadCount }}
+                        </Badge>
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-80 p-0" align="end">
+                    <div class="flex items-center justify-between p-3 border-b">
+                        <h4 class="font-semibold text-sm">Notifications</h4>
+                        <Button
+                            v-if="unreadCount > 0"
+                            variant="ghost"
+                            size="sm"
+                            class="h-auto py-1 px-2 text-xs"
+                            @click="markAllAsRead"
+                        >
+                            Mark all read
+                        </Button>
+                    </div>
+                    <div class="max-h-80 overflow-y-auto">
+                        <div
+                            v-for="notif in notifications"
+                            :key="notif.id"
+                            class="flex items-start gap-3 p-3 border-b last:border-0 hover:bg-muted/50 transition-colors"
+                            :class="{ 'opacity-60': notif.read }"
+                        >
+                            <div
+                                class="mt-1 h-2 w-2 rounded-full shrink-0"
+                                :class="getNotificationColor(notif.type)"
+                            />
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium truncate">{{ notif.title }}</p>
+                                <p class="text-xs text-muted-foreground line-clamp-2">{{ notif.message }}</p>
+                                <p class="text-xs text-muted-foreground mt-1">{{ formatTime(notif.created_at) }}</p>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <Button
+                                    v-if="!notif.read"
+                                    variant="ghost"
+                                    size="icon"
+                                    class="h-6 w-6"
+                                    @click="markAsRead(notif.id)"
+                                >
+                                    <Check class="h-3 w-3" />
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    class="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                    @click="deleteNotification(notif.id)"
+                                >
+                                    <Trash2 class="h-3 w-3" />
+                                </Button>
+                            </div>
+                        </div>
+                        <div v-if="notifications.length === 0" class="p-8 text-center text-muted-foreground text-sm">
+                            No notifications
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+
+            <!-- Theme Toggle -->
+            <Button
+                variant="ghost"
+                size="icon"
+                :title="appearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+                @click="toggleTheme"
+            >
+                <Sun v-if="appearance === 'dark'" class="h-5 w-5" />
+                <Moon v-else class="h-5 w-5" />
+            </Button>
         </div>
     </header>
 </template>

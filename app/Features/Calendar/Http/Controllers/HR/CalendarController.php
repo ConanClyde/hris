@@ -9,12 +9,13 @@ use App\Features\Training\Models\Training;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class CalendarController extends Controller
 {
     use GoogleCalendarService;
 
-    public function index()
+    public function index(): Response
     {
         return Inertia::render('HR/Calendar/Index');
     }
@@ -41,6 +42,12 @@ class CalendarController extends Controller
         // Leave
         if ($category === 'all' || $category === 'leave') {
             $leaveQuery = LeaveApplication::query();
+
+            // HR users cannot see leave events for admin accounts
+            $leaveQuery->whereHas('employee.user', function ($q) {
+                $q->where('role', '!=', 'admin');
+            });
+
             if ($start && $end) {
                 $leaveQuery->whereBetween('date_from', [$start, $end]);
             }
@@ -53,6 +60,12 @@ class CalendarController extends Controller
         // Training
         if ($category === 'all' || $category === 'training') {
             $trainingQuery = Training::query();
+
+            // HR users cannot see training events for admin accounts
+            $trainingQuery->whereHas('employee.user', function ($q) {
+                $q->where('role', '!=', 'admin');
+            });
+
             if ($start && $end) {
                 $trainingQuery->whereBetween('date_from', [$start, $end]);
             }

@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { Head, Link, Form } from '@inertiajs/vue3';
+import { Head, Link, Form, router } from '@inertiajs/vue3';
+import { Eye, Pencil, Trash2 } from 'lucide-vue-next';
 import { ref, watch } from 'vue';
-import { Pencil, Trash2 } from 'lucide-vue-next';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -44,13 +45,16 @@ type PaginatedData = {
 defineProps<{ notices: PaginatedData }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: admin.dashboard().url },
     { title: 'Global Notices' },
 ];
 
 const createModalOpen = ref(false);
 const editModalOpen = ref(false);
+const viewModalOpen = ref(false);
+const deleteModalOpen = ref(false);
 const editingNotice = ref<NoticeItem | null>(null);
+const viewingNotice = ref<NoticeItem | null>(null);
+const deletingNotice = ref<NoticeItem | null>(null);
 
 const typeOptions = [
     { value: 'info', label: 'Info' },
@@ -81,11 +85,35 @@ watch(editingNotice, (n) => {
 function openEdit(n: NoticeItem) {
     editingNotice.value = n;
     editModalOpen.value = true;
+    viewModalOpen.value = false;
 }
 
 function closeEdit() {
     editModalOpen.value = false;
     editingNotice.value = null;
+}
+
+function openView(n: NoticeItem) {
+    viewingNotice.value = n;
+    viewModalOpen.value = true;
+}
+
+function closeView() {
+    viewModalOpen.value = false;
+    viewingNotice.value = null;
+}
+
+function openDeleteNotice(n: NoticeItem) {
+    deletingNotice.value = n;
+    deleteModalOpen.value = true;
+}
+function closeDeleteNotice() {
+    deleteModalOpen.value = false;
+    deletingNotice.value = null;
+}
+function confirmDeleteNotice() {
+    if (!deletingNotice.value) return;
+    router.delete(admin.notices.destroy.url(deletingNotice.value.id), { onSuccess: () => closeDeleteNotice() });
 }
 
 function formatDate(value: string | null) {
@@ -102,9 +130,6 @@ function messageSnippet(msg: string, maxLen = 60) {
     return msg.length <= maxLen ? msg : msg.slice(0, maxLen) + '…';
 }
 
-function confirmDelete(message: string) {
-    return window.confirm(message);
-}
 
 function typeVariant(type: string) {
     if (type === 'success') return 'default';
@@ -118,7 +143,7 @@ function typeVariant(type: string) {
     <Head title="Global Notices" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-4 p-4">
+        <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
@@ -173,29 +198,32 @@ function typeVariant(type: string) {
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
-                                            class="h-8 w-8 p-0"
+                                            title="View"
+                                            @click="openView(notice)"
+                                        >
+                                            <Eye class="size-4" />
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            title="Edit"
+                                            class="hover:text-primary"
                                             @click="openEdit(notice)"
                                         >
-                                            <span class="sr-only">Edit</span>
                                             <Pencil class="size-4" />
                                         </Button>
-                                        <Form
-                                            :action="admin.notices.destroy.url(notice.id)"
-                                            method="post"
-                                            class="inline"
-                                            @submit="(e: Event) => !confirmDelete('Delete this notice?') && e.preventDefault()"
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                            title="Delete"
+                                            @click="openDeleteNotice(notice)"
                                         >
-                                            <input type="hidden" name="_method" value="DELETE" />
-                                            <Button
-                                                type="submit"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                class="h-8 w-8 p-0 text-red-600 hover:text-red-700 dark:text-red-400"
-                                            >
-                                                <span class="sr-only">Delete</span>
-                                                <Trash2 class="size-4" />
-                                            </Button>
-                                        </Form>
+                                            <span class="sr-only">Delete</span>
+                                            <Trash2 class="size-4" />
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -227,7 +255,7 @@ function typeVariant(type: string) {
                         :href="link.url"
                         class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
                         :class="link.active
-                            ? 'border-[#013CFC] bg-[#013CFC] text-white dark:border-[#60C8FC] dark:bg-[#60C8FC] dark:text-gray-900'
+                            ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900'
                             : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
                     >
                         <span v-html="link.label" />
@@ -241,9 +269,13 @@ function typeVariant(type: string) {
             <DialogContent :show-close-button="true" class="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Create Notice</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Create a new global notice for all users.
+                    </DialogDescription>
                 </DialogHeader>
                 <Form
-                    v-bind="admin.notices.store.form()"
+                    :action="admin.notices.store.url()"
+                    method="post"
                     class="flex flex-col gap-4"
                     @submit="createModalOpen = false"
                 >
@@ -259,7 +291,7 @@ function typeVariant(type: string) {
                                 name="message"
                                 rows="5"
                                 required
-                                class="flex min-h-[100px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-[#013CFC] focus:outline-none focus:ring-1 focus:ring-[#013CFC] dark:border-gray-700 dark:bg-neutral-800 dark:placeholder:text-gray-500"
+                                class="flex min-h-[100px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-700 dark:bg-neutral-800 dark:placeholder:text-gray-500"
                                 placeholder="Notice content"
                             />
                         </div>
@@ -293,7 +325,7 @@ function typeVariant(type: string) {
                                 name="is_active"
                                 type="checkbox"
                                 value="1"
-                                class="h-4 w-4 rounded border-gray-300 text-[#013CFC] focus:ring-[#013CFC] dark:border-gray-600 dark:bg-neutral-800"
+                                class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand dark:border-gray-600 dark:bg-neutral-800"
                             />
                             <Label for="create-is_active" class="cursor-pointer">Active</Label>
                         </div>
@@ -313,6 +345,9 @@ function typeVariant(type: string) {
             <DialogContent :show-close-button="true" class="sm:max-w-lg">
                 <DialogHeader>
                     <DialogTitle>Edit Notice</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Edit an existing global notice.
+                    </DialogDescription>
                 </DialogHeader>
                 <Form
                     v-if="editingNotice"
@@ -342,7 +377,7 @@ function typeVariant(type: string) {
                                 name="message"
                                 rows="5"
                                 required
-                                class="flex min-h-[100px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-[#013CFC] focus:outline-none focus:ring-1 focus:ring-[#013CFC] dark:border-gray-700 dark:bg-neutral-800 dark:placeholder:text-gray-500"
+                                class="flex min-h-[100px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-gray-700 dark:bg-neutral-800 dark:placeholder:text-gray-500"
                                 placeholder="Notice content"
                             />
                         </div>
@@ -376,7 +411,7 @@ function typeVariant(type: string) {
                                 name="is_active"
                                 type="checkbox"
                                 value="1"
-                                class="h-4 w-4 rounded border-gray-300 text-[#013CFC] focus:ring-[#013CFC] dark:border-gray-600 dark:bg-neutral-800"
+                                class="h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand dark:border-gray-600 dark:bg-neutral-800"
                             />
                             <Label for="edit-is_active" class="cursor-pointer">Active</Label>
                         </div>
@@ -388,6 +423,65 @@ function typeVariant(type: string) {
                         <Button type="submit">Update</Button>
                     </DialogFooter>
                 </Form>
+            </DialogContent>
+        </Dialog>
+
+        <!-- View Notice modal -->
+        <Dialog v-model:open="viewModalOpen">
+            <DialogContent v-if="viewingNotice" class="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>View Notice</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        View details of the selected notice.
+                    </DialogDescription>
+                </DialogHeader>
+                <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                    <div>
+                        <h3 class="text-sm font-medium text-foreground">{{ viewingNotice.title || '—' }}</h3>
+                        <p class="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">{{ viewingNotice.message || '—' }}</p>
+                    </div>
+                    <dl class="grid grid-cols-1 gap-2 text-sm">
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Type</dt>
+                            <dd class="mt-0.5"><Badge :variant="typeVariant(viewingNotice.type)">{{ viewingNotice.type || 'info' }}</Badge></dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</dt>
+                            <dd class="mt-0.5"><Badge :variant="viewingNotice.is_active ? 'default' : 'secondary'">{{ viewingNotice.is_active ? 'Active' : 'Inactive' }}</Badge></dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Expires at</dt>
+                            <dd class="mt-0.5">{{ formatDate(viewingNotice.expires_at) }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Created</dt>
+                            <dd class="mt-0.5">{{ formatDate(viewingNotice.created_at) }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeView()">Close</Button>
+                    <Button type="button" @click="openEdit(viewingNotice)">Edit Notice</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <!-- Delete Notice Modal -->
+        <Dialog v-model:open="deleteModalOpen" @update:open="(v: boolean) => !v && closeDeleteNotice()">
+            <DialogContent v-if="deletingNotice" :show-close-button="true" class="max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Delete Notice</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Confirm deletion of the selected notice.
+                    </DialogDescription>
+                    <p class="text-sm text-muted-foreground mt-0.5">
+                        Are you sure you want to delete <strong>{{ deletingNotice.title }}</strong>? This action cannot be undone.
+                    </p>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeDeleteNotice">Cancel</Button>
+                    <Button type="button" variant="destructive" @click="confirmDeleteNotice">Delete</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </AppLayout>
