@@ -30,6 +30,8 @@ const settingsUrl = computed(() => menu.value.footer.settings.href);
 
 const handleLogout = () => {
     router.flushAll();
+    localStorage.removeItem('hris-chat-history');
+    localStorage.removeItem('hris-chat-history-opt-in');
 };
 
 defineProps<Props>();

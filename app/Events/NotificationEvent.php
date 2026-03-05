@@ -12,32 +12,18 @@ class NotificationEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public int $userId;
-
-    public string $title;
-
-    public string $message;
-
-    public string $type;
-
-    public ?array $data;
-
     /**
-     * Create a new event instance.
+     * @deprecated This event is no longer used. Prefer SystemNotification for
+     *             database + broadcast notifications or create a feature-specific
+     *             event instead.
      */
     public function __construct(
-        int $userId,
-        string $title,
-        string $message,
-        string $type = 'info',
-        ?array $data = null
-    ) {
-        $this->userId = $userId;
-        $this->title = $title;
-        $this->message = $message;
-        $this->type = $type;
-        $this->data = $data;
-    }
+        public int $userId,
+        public string $title,
+        public string $message,
+        public string $type = 'info',
+        public ?array $data = null,
+    ) {}
 
     /**
      * Get the channels the event should broadcast on.

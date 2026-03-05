@@ -45,12 +45,19 @@ class LeaveApproved implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return [
-            // Notify the employee whose leave was approved
-            new PrivateChannel('App.Models.User.'.$this->leave->employee_id),
+        $channels = [
             // Notify HR dashboard
             new PrivateChannel('hr.dashboard'),
         ];
+
+        $userId = $this->leave->employee?->user_id;
+
+        if (is_int($userId)) {
+            // Notify the employee whose leave was approved (per-user channel)
+            $channels[] = new PrivateChannel('App.Models.User.'.$userId);
+        }
+
+        return $channels;
     }
 
     /**

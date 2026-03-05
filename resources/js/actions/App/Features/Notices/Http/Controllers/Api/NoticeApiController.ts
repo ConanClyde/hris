@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../../wayfinder'
 /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
 export const active = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ active.definition = {
 
 /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
 active.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ active.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
 active.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ active.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
 active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
     const activeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
         activeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ active.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Notices\Http\Controllers\Api\NoticeApiController::active
- * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:14
+ * @see app/Features/Notices/Http/Controllers/Api/NoticeApiController.php:10
  * @route '/api/v1/notices/active'
  */
         activeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

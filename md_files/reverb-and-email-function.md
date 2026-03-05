@@ -4,8 +4,8 @@ This document outlines the real-time broadcasting setup (via Laravel Reverb and 
 
 ---
 
-## 1. List of All Reverb Events
-The backend dispatches real-time events that implement the `ShouldBroadcastNow` interface for immediate broadcasting. There are **14 primary events** located in `app/Events/`:
+## 1. List of Core Reverb Events
+The backend dispatches real-time events that implement the `ShouldBroadcastNow` interface for immediate broadcasting. Some of the primary events located in `app/Events/` include:
 
 1. `HolidayAdded`
 2. `HolidayUpdated`
@@ -16,7 +16,7 @@ The backend dispatches real-time events that implement the `ShouldBroadcastNow` 
 7. `NoticeCreated`
 8. `NoticeDeleted`
 9. `NoticeUpdated`
-10. `NotificationEvent`
+10. `NotificationsUnreadCountUpdated`
 11. `TrainingAssigned`
 12. `TrainingCompleted`
 13. `UserApproved`

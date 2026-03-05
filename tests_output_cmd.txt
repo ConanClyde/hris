@@ -1,0 +1,166 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                 0.01s  
+
+   PASS  Tests\Feature\ActivityLogsTest
+  ✓ logs update actions via middleware for authentic… 0.41s  
+  ✓ logs login and logout events                      0.03s  
+  ✓ admin activity logs index supports search and ac… 0.05s  
+
+   PASS  Tests\Feature\Admin\UserApprovalTest
+  ✓ admin can approve a pending user                  0.10s  
+  ✓ admin can reject a pending user                   0.03s  
+  ✓ approve and reject only work for pending users    0.03s  
+  ✓ hr can approve a pending employee but cannot app… 0.03s  
+
+   PASS  Tests\Feature\Api\LeaveApiTest
+  ✓ leave api index requires integration key          0.02s  
+  ✓ leave api index returns paginated leave applicat… 0.03s  
+  ✓ leave api store creates leave application         0.03s  
+  ✓ leave api update status changes status            0.02s  
+
+   PASS  Tests\Feature\Api\OrganizationalStructureApiTest
+  ✓ organizational structure api requires integratio… 0.03s  
+  ✓ organizational structure api returns divisions w… 0.02s  
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  ✓ login screen can be rendered                      0.03s  
+  ✓ users can authenticate using the login screen     0.03s  
+  ✓ users with two factor enabled are redirected to…  0.03s  
+  ✓ users can not authenticate with invalid password  0.03s  
+  ✓ users can logout                                  0.02s  
+  ✓ users are rate limited                            0.03s  
+
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  ✓ email verification screen can be rendered         0.03s  
+  ✓ email can be verified                             0.03s  
+  ✓ email is not verified with invalid hash           0.03s  
+  ✓ email is not verified with invalid user id        0.03s  
+  ✓ verified user is redirected to dashboard from ve… 0.03s  
+  ✓ already verified user visiting verification link… 0.03s  
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  ✓ confirm password screen can be rendered           0.03s  
+  ✓ password confirmation requires authentication     0.03s  
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  ✓ reset password link screen can be rendered        0.03s  
+  ✓ reset password link can be requested              0.23s  
+  ✓ reset password screen can be rendered             0.23s  
+  ✓ password can be reset with valid token            0.23s  
+  ✓ password cannot be reset with invalid token       0.24s  
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  ✓ registration screen can be rendered by guest      0.02s  
+  ✓ guest can register new user and is redirected to… 0.03s  
+  ✓ inactive user cannot log in                       0.03s  
+
+   PASS  Tests\Feature\Auth\TwoFactorChallengeTest
+  ✓ two factor challenge redirects to login when not… 0.02s  
+  ✓ two factor challenge can be rendered              0.03s  
+
+   PASS  Tests\Feature\Auth\VerificationNotificationTest
+  ✓ sends verification notification                   0.03s  
+  ✓ does not send verification notification if email… 0.02s  
+
+   FAIL  Tests\Feature\AvatarBroadcastingTest
+  ⨯ broadcasts avatar updated event when uploading a… 0.05s  
+  ⨯ broadcasts avatar removed event when removing av… 0.03s  
+
+   PASS  Tests\Feature\DashboardTest
+  ✓ guests are redirected to the login page           0.02s  
+  ✓ authenticated users can visit the dashboard       0.02s  
+
+   PASS  Tests\Feature\EmailTemplatesTest
+  ✓ it renders leave submitted email                  0.02s  
+  ✓ it renders holiday added email                    0.02s  
+  ✓ it renders notice created email                   0.02s  
+  ✓ it renders training assigned email                0.02s  
+  ✓ it renders user registered email                  0.02s  
+  ✓ it renders user approved email                    0.02s  
+  ✓ it renders user rejected email                    0.02s  
+
+   PASS  Tests\Feature\EmployeeModuleTest
+  ✓ employee can view leave applications              0.03s  
+  ✓ employee can view pds                             0.04s  
+  ✓ employee can view training                        0.03s  
+  ✓ employee can create leave application             0.03s  
+  ✓ leave credits deducted on approval                0.04s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ returns a correct response                        0.03s  
+
+   PASS  Tests\Feature\ForceChangePasswordTest
+  ✓ user flagged to change password is redirected to… 0.03s  
+  ✓ user without must_change_password can access das… 0.02s  
+
+   PASS  Tests\Feature\NoticesRemovalTest
+  ✓ badge metrics no longer include notices_unread    0.02s  
+  ✓ active notices endpoint is backwards compatible…  0.02s  
+
+   PASS  Tests\Feature\NotificationsTest
+  ✓ index returns only current user notifications     0.03s  
+  ✓ markAsRead sets read_at only for owner notificat… 0.03s  
+  ✓ unreadCount returns correct integer               0.02s  
+  ✓ index can filter unread only                      0.02s  
+  ✓ markAllRead marks all unread notifications as re… 0.02s  
+  ✓ delete endpoints remove notifications only for o… 0.03s  
+  ✓ SystemNotification broadcasts immediately         0.07s  
+
+   PASS  Tests\Feature\PostsTest
+  ✓ admin can create a post and notifications are ge… 0.03s  
+  ✓ employee sees only published posts scoped to the… 0.03s  
+
+   PASS  Tests\Feature\Settings\PasswordUpdateTest
+  ✓ password update page is displayed                 0.02s  
+  ✓ password can be updated                           0.03s  
+  ✓ correct password must be provided to update pass… 0.03s  
+
+   PASS  Tests\Feature\Settings\ProfileUpdateTest
+  ✓ profile page is displayed                         0.03s  
+  ✓ profile information can be updated                0.03s  
+  ✓ email verification status is unchanged when the…  0.03s  
+  ✓ user can delete their account                     0.03s  
+  ✓ correct password must be provided to delete acco… 0.04s  
+
+   PASS  Tests\Feature\Settings\TwoFactorAuthenticationTest
+  ✓ two factor settings page can be rendered          0.04s  
+  ✓ two factor settings page requires password confi… 0.02s  
+  ✓ two factor settings page does not requires passw… 0.02s  
+  ✓ two factor settings page returns forbidden respo… 0.02s  
+  ─────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\AvatarBroadcastingTest > broadca…   
+  Expecting null not to be null.
+
+  at tests\Feature\AvatarBroadcastingTest.php:30
+     26▕         ->assertRedirect()
+     27▕         ->assertSessionHasNoErrors();
+     28▕ 
+     29▕     $user->refresh();
+  ➜  30▕     expect($user->avatar)->not->toBe($originalAvatar);
+     31▕     expect($user->avatar)->not->toBeNull();
+     32▕ 
+     33▕ });
+     34▕
+
+  1   tests\Feature\AvatarBroadcastingTest.php:30
+
+  ─────────────────────────────────────────────────────────  
+   FAILED  Tests\Feature\AvatarBroadcastingTest > broadca…   
+  Failed asserting that 'avatars/old.jpg' is null.
+
+  at tests\Feature\AvatarBroadcastingTest.php:56
+     52▕         ->assertRedirect()
+     53▕         ->assertSessionHasNoErrors();
+     54▕ 
+     55▕     $user->refresh();
+  ➜  56▕     expect($user->avatar)->toBeNull();
+     57▕ });
+     58▕
+
+  1   tests\Feature\AvatarBroadcastingTest.php:56
+
+
+  Tests:    2 failed, 80 passed (318 assertions)
+  Duration: 4.01s
+

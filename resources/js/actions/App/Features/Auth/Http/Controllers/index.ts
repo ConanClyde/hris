@@ -1,6 +1,8 @@
+import ForceChangePasswordController from './ForceChangePasswordController'
 import ProfileController from './ProfileController'
 const Controllers = {
-    ProfileController: Object.assign(ProfileController, ProfileController),
+    ForceChangePasswordController: Object.assign(ForceChangePasswordController, ForceChangePasswordController),
+ProfileController: Object.assign(ProfileController, ProfileController),
 }
 
 export default Controllers

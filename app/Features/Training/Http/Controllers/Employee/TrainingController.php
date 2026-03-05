@@ -40,7 +40,7 @@ class TrainingController extends Controller
         }
 
         $query = Training::query()
-            ->where('employee_id', $employeeId);
+            ->where('employee_fk', $employeeId);
 
         if ($request->filled('type')) {
             $query->where('type', $request->input('type'));
@@ -86,6 +86,7 @@ class TrainingController extends Controller
 
         $training = Training::create(array_merge($validated, [
             'employee_id' => $employeeId,
+            'employee_fk' => $employeeId,
             'employee_name' => Auth::user()->name,
             'status' => 'pending',
         ]));
@@ -109,7 +110,7 @@ class TrainingController extends Controller
     public function update(Request $request, $id)
     {
         $employeeId = $this->getEmployeeId();
-        $training = Training::where('id', $id)->where('employee_id', $employeeId)->firstOrFail();
+        $training = Training::where('id', $id)->where('employee_fk', $employeeId)->firstOrFail();
 
         // Check if training record can be updated (e.g. only if pending)
         if ($training->status !== 'pending') {
@@ -134,7 +135,7 @@ class TrainingController extends Controller
     public function destroy($id)
     {
         $employeeId = $this->getEmployeeId();
-        $training = Training::where('id', $id)->where('employee_id', $employeeId)->firstOrFail();
+        $training = Training::where('id', $id)->where('employee_fk', $employeeId)->firstOrFail();
 
         if ($training->status !== 'pending') {
             return back()->with('error', 'Cannot delete training record that has been processed.');
@@ -149,7 +150,7 @@ class TrainingController extends Controller
     {
         $employeeId = $this->getEmployeeId();
 
-        $query = Training::where('employee_id', $employeeId)->orderByDesc('created_at');
+        $query = Training::where('employee_fk', $employeeId)->orderByDesc('created_at');
 
         return response()->streamDownload(function () use ($query) {
             $out = fopen('php://output', 'w');
@@ -173,7 +174,7 @@ class TrainingController extends Controller
     public function deleteAttachment($id)
     {
         $employeeId = Auth::user()?->employee?->id;
-        $training = Training::where('id', $id)->where('employee_id', $employeeId)->first();
+        $training = Training::where('id', $id)->where('employee_fk', $employeeId)->first();
 
         if (! $training) {
             return response()->json(['success' => false, 'message' => 'Training not found or unauthorized'], 404);

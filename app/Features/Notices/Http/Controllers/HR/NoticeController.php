@@ -54,6 +54,8 @@ class NoticeController extends Controller
         // Broadcast notice created event
         broadcast(new NoticeCreated($notice))->toOthers();
 
+        // Realtime + badge behavior for notices is now handled via the new SystemNotification flow.
+
         // Email all active users about the new notice
         $recipients = User::query()
             ->where('is_active', true)

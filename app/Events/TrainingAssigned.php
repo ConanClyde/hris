@@ -19,20 +19,24 @@ class TrainingAssigned implements ShouldBroadcastNow
 
     public int $employeeId;
 
+    public int $assignedTo;
+
     /**
      * Create a new event instance.
      */
-    public function __construct(Training $training, int $employeeId)
+    public function __construct(Training $training, int $assignedTo)
     {
         $this->training = $training;
-        $this->employeeId = $employeeId;
+        $this->assignedTo = $assignedTo;
+        $this->employeeId = $training->employee_id;
         $this->trainingData = [
             'id' => $training->id,
+            'employee_id' => $training->employee_id,
+            'employee_fk' => $training->employee_fk,
+            'employee_name' => $training->employee_name,
             'title' => $training->title,
-            'description' => $training->description,
-            'start_date' => $training->start_date,
-            'end_date' => $training->end_date,
-            'location' => $training->location,
+            'date_from' => $training->date_from,
+            'date_to' => $training->date_to,
             'status' => $training->status,
         ];
     }

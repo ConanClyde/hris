@@ -1,57 +1,162 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { AlertCircle, AlertTriangle, Bell, CheckCircle, Info } from 'lucide-vue-next';
+import { Bell } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import NotificationCard from '@/components/notifications/NotificationCard.vue';
+import Pagination from '@/components/Pagination.vue';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 
-type NoticeItem = {
-    id: number;
+type NotificationItem = {
+    id: string;
     title: string;
-    message: string;
     type: string;
-    is_active: boolean;
-    expires_at: string | null;
-    created_at: string;
+    body: string;
+    icon?: string | null;
+    data?: Record<string, unknown>;
+    is_read: boolean;
+    created_at: string | null;
+    user_name?: string;
+    user_avatar?: string | null;
 };
 
 type PaginatedData = {
-    data: NoticeItem[];
+    data: NotificationItem[];
     current_page: number;
     last_page: number;
     links: { url: string | null; label: string; active: boolean }[];
 };
 
-defineProps<{ notices: PaginatedData }>();
+const props = defineProps<{ notifications: PaginatedData; filter?: string }>();
+
+const notifications = ref<PaginatedData>(props.notifications ?? { data: [], current_page: 1, last_page: 1, links: [] });
 
 const breadcrumbs: BreadcrumbItem[] = [
-
     { title: 'Notifications' },
 ];
 
-function formatDate(value: string | null) {
-    if (!value) return '—';
+const hasNotifications = computed(() => notifications.value.data.length > 0);
+
+const {
+    notificationsUnreadCount,
+    markAllAsRead: markAllAsReadGlobal,
+    markAsRead: markAsReadGlobal,
+    refreshNotificationsDropdown,
+} = useBroadcasting();
+
+function csrfToken(): string {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
+async function markAsRead(notificationId: string) {
+    const notif = notifications.value.data.find(n => n.id === notificationId);
+    const wasUnread = !!notif && !notif.is_read;
+    if (notif) {
+        notif.is_read = true;
+    }
+    if (wasUnread) {
+        markAsReadGlobal(notificationId);
+    }
+
     try {
-        return new Date(value).toLocaleString(undefined, {
-            dateStyle: 'short',
-            timeStyle: 'short',
+        const response = await fetch(`/employee/notifications/${notificationId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken(),
+                'Accept': 'application/json',
+            },
         });
-    } catch {
-        return value;
+
+        if (!response.ok && notif) {
+            notif.is_read = false;
+            return;
+        }
+
+        await refreshNotificationsDropdown('employee');
+    } catch (error) {
+        if (notif) {
+            notif.is_read = false;
+        }
+        console.error('Failed to mark as read:', error);
     }
 }
 
-function noticeIcon(type: string) {
-    if (type === 'success') return CheckCircle;
-    if (type === 'warning') return AlertTriangle;
-    if (type === 'danger') return AlertCircle;
-    return Info;
+async function openNotification(notificationId: string) {
+    const notification = notifications.value.data.find(n => n.id === notificationId);
+    if (!notification) return;
+
+    const wasUnread = !notification.is_read;
+    notification.is_read = true;
+    if (wasUnread) {
+        markAsReadGlobal(notificationId);
+    }
+
+    try {
+        const response = await fetch(`/employee/notifications/${notificationId}/mark-as-read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken(),
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            notification.is_read = false;
+            return;
+        }
+
+        await refreshNotificationsDropdown('employee');
+    } catch (error) {
+        notification.is_read = false;
+        console.error('Failed to mark as read before open:', error);
+    }
+
+    const data = notification.data || {};
+    const redirect = (data.redirect_url as string | undefined)
+        ?? (data.url as string | undefined)
+        ?? undefined;
+
+    if (redirect) {
+        window.location.href = redirect;
+    }
 }
 
-function noticeColor(type: string) {
-    if (type === 'success') return 'text-emerald-600 dark:text-emerald-400';
-    if (type === 'warning') return 'text-amber-600 dark:text-amber-400';
-    if (type === 'danger') return 'text-red-600 dark:text-red-400';
-    return 'text-primary';
+async function markAllRead() {
+    notifications.value = {
+        ...notifications.value,
+        data: notifications.value.data.map(n => ({ ...n, is_read: true })),
+    };
+    markAllAsReadGlobal();
+
+    await fetch('/employee/notifications/mark-all-read', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken(),
+            'Accept': 'application/json',
+        },
+    });
+
+    await refreshNotificationsDropdown('employee');
+}
+
+async function deleteAll() {
+    await fetch('/employee/notifications', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken(),
+            'Accept': 'application/json',
+        },
+    });
+
+    if (typeof notificationsUnreadCount.value === 'number') {
+        notificationsUnreadCount.value = 0;
+    }
+
+    notifications.value = {
+        ...notifications.value,
+        data: [],
+    };
 }
 </script>
 
@@ -69,61 +174,77 @@ function noticeColor(type: string) {
                 </p>
             </div>
 
-            <div class="space-y-3">
-                <div
-                    v-for="n in notices.data"
-                    :key="n.id"
-                    class="flex gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-800/50"
-                >
-                    <div
-                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                        :class="noticeColor(n.type)"
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <Link
+                        href="/employee/notifications"
+                        class="text-sm"
+                        :class="props.filter === 'unread' ? 'text-muted-foreground hover:text-foreground' : 'font-medium text-foreground'"
                     >
-                        <component :is="noticeIcon(n.type)" class="size-5" />
-                    </div>
-                    <div class="min-w-0 flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-gray-100">
-                            {{ n.title }}
-                        </h3>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
-                            {{ n.message }}
-                        </p>
-                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                            {{ formatDate(n.created_at) }}
-                            <span v-if="n.expires_at"> · Expires {{ formatDate(n.expires_at) }}</span>
-                        </p>
-                    </div>
+                        All
+                    </Link>
+                    <span class="text-muted-foreground">•</span>
+                    <Link
+                        href="/employee/notifications?filter=unread"
+                        class="text-sm"
+                        :class="props.filter === 'unread' ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                    >
+                        Unread
+                    </Link>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        class="text-sm text-muted-foreground hover:text-foreground"
+                        @click="markAllRead"
+                    >
+                        Mark all read
+                    </button>
+                    <span class="text-muted-foreground">•</span>
+                    <button
+                        type="button"
+                        class="text-sm text-red-600 hover:text-red-700"
+                        @click="deleteAll"
+                    >
+                        Delete all
+                    </button>
                 </div>
             </div>
 
             <div
-                v-if="!notices.data.length"
+                v-if="hasNotifications"
+                class="space-y-3"
+            >
+                <NotificationCard
+                    v-for="n in notifications.data"
+                    :id="n.id"
+                    :key="n.id"
+                    :title="n.title"
+                    :body="n.body"
+                    :type="n.type"
+                    :is-read="n.is_read"
+                    :created-at="n.created_at"
+                    :user-name="n.user_name"
+                    :user-avatar="n.user_avatar || undefined"
+                    :show-new-badge="true"
+                    :show-type-badge="true"
+                    :can-mark-read="!n.is_read"
+                    :can-delete="false"
+                    @open="openNotification"
+                    @markRead="markAsRead"
+                />
+            </div>
+
+            <div
+                v-else
                 class="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-gray-400"
             >
                 <Bell class="mx-auto size-10 text-gray-400 dark:text-gray-500" />
                 <p class="mt-2">No notifications yet.</p>
             </div>
 
-            <div
-                v-if="notices.last_page > 1"
-                class="flex flex-wrap items-center justify-center gap-2"
-            >
-                <template v-for="(link, i) in notices.links" :key="i">
-                    <span
-                        v-if="!link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-gray-200 px-3 text-sm text-gray-400 dark:border-neutral-700"
-                        v-html="link.label"
-                    />
-                    <Link
-                        v-else
-                        :href="link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
-                    >
-                        <span v-html="link.label" />
-                    </Link>
-                </template>
-            </div>
+            <Pagination :meta="notifications" />
         </div>
     </AppLayout>
 </template>
+

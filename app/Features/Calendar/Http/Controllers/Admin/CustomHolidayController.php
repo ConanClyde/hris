@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\HolidayAddedMail;
 use App\Mail\HolidayUpdatedMail;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -34,6 +35,30 @@ class CustomHolidayController extends Controller
         $holiday = CustomHoliday::create($validated);
 
         event(new CustomHolidayCreated($holiday));
+
+        $actor = Auth::user();
+        $actorPayload = $actor
+            ? [
+                'id' => $actor->id,
+                'name' => $actor->full_name,
+                'avatar' => $actor->avatar,
+            ]
+            : null;
+
+        User::query()
+            ->where('is_active', true)
+            ->each(function (User $recipient) use ($holiday, $actorPayload): void {
+                $recipient->notify(new SystemNotification(
+                    type: 'info',
+                    title: 'New Holiday',
+                    message: "{$holiday->title} has been added to the calendar.",
+                    data: [
+                        'redirect_url' => '/employee/calendar',
+                        'holiday_id' => $holiday->id,
+                    ],
+                    actor: $actorPayload,
+                ));
+            });
 
         // Broadcast email to all active users about the new holiday
         $recipients = User::query()
@@ -67,6 +92,30 @@ class CustomHolidayController extends Controller
         $holiday->update($validated);
 
         event(new CustomHolidayUpdated($holiday));
+
+        $actor = Auth::user();
+        $actorPayload = $actor
+            ? [
+                'id' => $actor->id,
+                'name' => $actor->full_name,
+                'avatar' => $actor->avatar,
+            ]
+            : null;
+
+        User::query()
+            ->where('is_active', true)
+            ->each(function (User $recipient) use ($holiday, $actorPayload): void {
+                $recipient->notify(new SystemNotification(
+                    type: 'warning',
+                    title: 'Holiday Updated',
+                    message: "{$holiday->title} has been updated.",
+                    data: [
+                        'redirect_url' => '/employee/calendar',
+                        'holiday_id' => $holiday->id,
+                    ],
+                    actor: $actorPayload,
+                ));
+            });
 
         // Broadcast email to all active users about the updated holiday
         $recipients = User::query()

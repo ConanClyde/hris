@@ -20,7 +20,7 @@ import AppLogo from './AppLogo.vue';
 const page = usePage();
 const {
     usersPendingCount,
-    noticesUnreadCount,
+    notificationsUnreadCount,
     leavesPendingCount,
     trainingsAssignedCount,
     pdsPendingCount,
@@ -41,10 +41,10 @@ const counts = computed(() => {
             typeof usersPendingCount.value === 'number'
                 ? usersPendingCount.value
                 : base.users_pending,
-        notices_unread:
-            typeof noticesUnreadCount.value === 'number'
-                ? noticesUnreadCount.value
-                : base.notices_unread,
+        notifications_unread:
+            typeof notificationsUnreadCount.value === 'number'
+                ? notificationsUnreadCount.value
+                : base.notifications_unread,
         leaves_pending:
             typeof leavesPendingCount.value === 'number'
                 ? leavesPendingCount.value

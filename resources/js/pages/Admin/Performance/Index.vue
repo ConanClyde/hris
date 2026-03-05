@@ -2,7 +2,6 @@
 import { Head } from '@inertiajs/vue3';
 import { Cpu, Server, Zap } from 'lucide-vue-next';
 import AppLayout from '@/layouts/AppLayout.vue';
-import admin from '@/routes/admin';
 import type { BreadcrumbItem } from '@/types';
 
 type Metrics = {

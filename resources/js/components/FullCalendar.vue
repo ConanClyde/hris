@@ -7,8 +7,10 @@ import listPlugin from '@fullcalendar/list';
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
-import { inject, nextTick, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, onUpdated, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
+import type { SidebarContext } from '@/components/ui/sidebar/utils';
+import { useSidebar } from '@/components/ui/sidebar/utils';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 
@@ -90,7 +92,15 @@ function initCalendar() {
             emit('dateClick', { date: info.date, dateStr: info.dateStr });
         },
         eventClick: (info) => {
-            emit('eventClick', { event: info.event });
+            emit('eventClick', {
+                event: {
+                    id: info.event.id,
+                    title: info.event.title,
+                    start: info.event.start ?? new Date(),
+                    end: info.event.end ?? undefined,
+                    extendedProps: info.event.extendedProps as Record<string, unknown>,
+                },
+            });
         },
         datesSet: (info) => {
             currentTitle.value = info.view.title;
@@ -163,7 +173,12 @@ function handleResize() {
     }, 100);
 }
 
-const sidebar = inject('sidebar', null);
+let sidebar: SidebarContext | null = null;
+try {
+    sidebar = useSidebar();
+} catch {
+    sidebar = null;
+}
 
 // Watch for sidebar state changes
 if (sidebar) {
@@ -264,6 +279,10 @@ defineExpose({
                 </Button>
             </div>
 
+            <div class="text-lg font-semibold text-foreground text-center flex-1 truncate px-4">
+                {{ currentTitle }}
+            </div>
+
             <div v-if="showViewSwitcher" class="flex items-center gap-1">
                 <Button
                     v-for="view in viewOptions"
@@ -285,7 +304,7 @@ defineExpose({
             </div>
         </div>
         <div
-            class="relative h-full min-h-[400px] flex-1 overflow-hidden bg-background p-3 sm:p-4 dark:bg-card"
+            class="relative flex-1 min-h-[400px] overflow-auto overscroll-contain touch-pan-x touch-pan-y bg-background p-3 sm:p-4 dark:bg-card"
         >
             <div
                 v-if="props.loading"

@@ -3,6 +3,7 @@
 namespace App\Features\Users\Http\Controllers\Admin;
 
 use App\Events\UserApproved;
+use App\Events\UserIdentityUpdated;
 use App\Events\UserRegistered;
 use App\Events\UserRejected;
 use App\Features\Users\Enums\UserRole;
@@ -11,6 +12,8 @@ use App\Mail\UserApprovedMail;
 use App\Mail\UserRegisteredMail;
 use App\Mail\UserRejectedMail;
 use App\Models\User;
+use App\Notifications\SystemNotification;
+use App\Support\DefaultPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -49,8 +52,12 @@ class UserController extends Controller
                 'employees.division_id',
                 'employees.subdivision_id',
                 'employees.section_id',
+                'pds_personal.sex',
+                'pds_personal.dob as date_of_birth',
             ])
-            ->leftJoin('employees', 'employees.user_id', '=', 'users.id');
+            ->leftJoin('employees', 'employees.user_id', '=', 'users.id')
+            ->leftJoin('pds', 'pds.employee_id', '=', 'employees.id')
+            ->leftJoin('pds_personal', 'pds_personal.pds_id', '=', 'pds.id');
         $status = $request->route('status') ?? $request->input('status');
         $isHr = Auth::user()?->isHr();
 
@@ -87,14 +94,30 @@ class UserController extends Controller
             $query->where('users.status', 'approved');
         }
 
+        $perPage = (int) $request->input('per_page', 8);
+        $perPage = max(5, min($perPage, 25));
+
         $appendQuery = collect($request->query())->reject(fn ($v) => $v === 'all')->all();
-        $users = $query->orderByDesc('users.created_at')->paginate(10)->appends($appendQuery);
+        $users = $query->orderByDesc('users.created_at')->paginate($perPage)->appends($appendQuery);
+
+        $users->getCollection()->transform(function ($u) {
+            $avatarPath = $u->avatar ?? null;
+            $updatedAt = $u->updated_at ?? null;
+            $u->avatar = $avatarPath
+                ? asset('storage/'.$avatarPath).'?v='.(optional($updatedAt)->timestamp)
+                : null;
+
+            return $u;
+        });
 
         $page = str_starts_with((string) $request->route()?->getName(), 'hr.')
             ? 'HR/Users/Index'
             : 'Admin/Users/Index';
 
-        $filters = array_merge($request->only(['search', 'role']), array_filter(['status' => $status]));
+        $filters = array_merge(
+            $request->only(['search', 'role', 'per_page']),
+            array_filter(['status' => $status])
+        );
 
         $pendingCountQuery = User::where('status', 'pending');
 
@@ -119,15 +142,15 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,username',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
             'role' => 'required|in:'.implode(',', array_column(UserRole::cases(), 'value')),
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'name_extension' => 'nullable|string|max:50',
+            // Personal fields for all roles
+            'sex' => 'nullable|in:male,female',
+            'date_of_birth' => 'nullable|date',
             // Employee-specific fields (conditional validation)
-            'sex' => 'required_if:role,employee|in:male,female',
-            'date_of_birth' => 'required_if:role,employee|date',
             'date_hired' => 'required_if:role,employee|date',
             'division_id' => 'required_if:role,employee|exists:divisions,id',
             'subdivision_id' => 'nullable|exists:subdivisions,id',
@@ -141,6 +164,9 @@ class UserController extends Controller
         }
 
         $user = DB::transaction(function () use ($validated) {
+            $rawPassword = DefaultPassword::forCurrentYear();
+            $isEmployee = $validated['role'] === UserRole::Employee->value;
+
             // Create the user
             $user = User::create([
                 'name' => $validated['name'],
@@ -150,39 +176,44 @@ class UserController extends Controller
                 'last_name' => $validated['last_name'],
                 'name_extension' => $validated['name_extension'] ?? null,
                 'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
+                'password' => Hash::make($rawPassword),
+                'must_change_password' => true,
                 'role' => $validated['role'],
                 'is_active' => true,
                 'status' => 'approved', // Auto-approved when created by admin/HR
             ]);
 
-            // If employee, create employee record
-            if ($validated['role'] === UserRole::Employee->value) {
-                // Get division/subdivision/section names
+            // Build employee data (base fields for all roles)
+            $employeeData = [
+                'user_id' => $user->id,
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'] ?? null,
+                'last_name' => $validated['last_name'],
+                'name_extension' => $validated['name_extension'] ?? null,
+                'email' => $validated['email'],
+                'status' => 'active',
+            ];
+
+            // Add employee-specific fields
+            if ($isEmployee) {
                 $divisionName = null;
                 $subdivisionName = null;
                 $sectionName = null;
 
-                if (!empty($validated['division_id'])) {
+                if (! empty($validated['division_id'])) {
                     $division = \App\Features\Employees\Models\Division::find($validated['division_id']);
                     $divisionName = $division?->name;
                 }
-                if (!empty($validated['subdivision_id'])) {
+                if (! empty($validated['subdivision_id'])) {
                     $subdivision = \App\Features\Employees\Models\Subdivision::find($validated['subdivision_id']);
                     $subdivisionName = $subdivision?->name;
                 }
-                if (!empty($validated['section_id'])) {
+                if (! empty($validated['section_id'])) {
                     $section = \App\Features\Employees\Models\Section::find($validated['section_id']);
                     $sectionName = $section?->name;
                 }
 
-                \App\Features\Employees\Models\Employee::create([
-                    'user_id' => $user->id,
-                    'first_name' => $validated['first_name'],
-                    'middle_name' => $validated['middle_name'] ?? null,
-                    'last_name' => $validated['last_name'],
-                    'name_extension' => $validated['name_extension'] ?? null,
-                    'email' => $validated['email'],
+                $employeeData = array_merge($employeeData, [
                     'position' => $validated['position'] ?? null,
                     'classification' => $validated['classification'] ?? null,
                     'date_hired' => $validated['date_hired'] ?? null,
@@ -192,41 +223,75 @@ class UserController extends Controller
                     'division' => $divisionName,
                     'subdivision' => $subdivisionName,
                     'section' => $sectionName,
-                    'status' => 'active',
                 ]);
-
-                // Create PDS record for sex and date_of_birth
-                if (!empty($validated['sex']) || !empty($validated['date_of_birth'])) {
-                    $employeeRecord = \App\Features\Employees\Models\Employee::where('user_id', $user->id)->first();
-                    if ($employeeRecord) {
-                        $pds = \App\Features\Pds\Models\Pds::create([
-                            'employee_id' => $employeeRecord->id,
-                            'status' => 'draft',
-                        ]);
-                        \App\Features\Pds\Models\PdsPersonal::create([
-                            'pds_id' => $pds->id,
-                            'sex' => $validated['sex'] ?? null,
-                            'dob' => $validated['date_of_birth'] ?? null,
-                            'surname' => $validated['last_name'] ?? null,
-                            'first_name' => $validated['first_name'] ?? null,
-                            'middle_name' => $validated['middle_name'] ?? null,
-                            'name_extension' => $validated['name_extension'] ?? null,
-                            'email' => $validated['email'] ?? null,
-                        ]);
-                    }
-                }
             }
+
+            // Create employee record for all roles
+            $employee = \App\Features\Employees\Models\Employee::create($employeeData);
+
+            // Create PDS + PdsPersonal records for all roles
+            $pds = \App\Features\Pds\Models\Pds::create([
+                'employee_id' => $employee->id,
+                'status' => 'draft',
+            ]);
+            \App\Features\Pds\Models\PdsPersonal::create([
+                'pds_id' => $pds->id,
+                'sex' => $validated['sex'] ?? null,
+                'dob' => $validated['date_of_birth'] ?? null,
+                'surname' => $validated['last_name'] ?? null,
+                'first_name' => $validated['first_name'] ?? null,
+                'middle_name' => $validated['middle_name'] ?? null,
+                'name_extension' => $validated['name_extension'] ?? null,
+                'email' => $validated['email'] ?? null,
+            ]);
 
             return $user;
         });
 
         // Broadcast user registered event
-        broadcast(new UserRegistered($user->fresh(['employee'])))->toOthers();
+        $userWithRelations = $user->fresh(['employee']);
+        broadcast(new UserRegistered($userWithRelations))->toOthers();
+
+        $actor = Auth::user();
+        $actorPayload = $actor
+            ? [
+                'id' => $actor->id,
+                'name' => $actor->full_name,
+                'avatar' => is_string($actor->avatar) ? $actor->avatar : null,
+            ]
+            : null;
+
+        User::query()
+            ->whereIn('role', [UserRole::Admin->value, UserRole::Hr->value])
+            ->where('is_active', true)
+            ->where('id', '!=', $userWithRelations->id)
+            ->each(function (User $recipient) use ($userWithRelations, $actorPayload): void {
+                $redirectUrl = $recipient->isAdmin()
+                    ? '/admin/users/pending'
+                    : '/hr/users/pending';
+
+                $recipient->notify(new SystemNotification(
+                    type: 'info',
+                    title: 'New User Registered',
+                    message: "{$userWithRelations->full_name} has applied for an account.",
+                    data: [
+                        'redirect_url' => $redirectUrl,
+                        'user_id' => $userWithRelations->id,
+                    ],
+                    actor: $actorPayload,
+                ));
+            });
+
+        // Email the newly created user
+        if ($userWithRelations->email) {
+            Mail::to($userWithRelations->email)->queue(new UserRegisteredMail($userWithRelations, $request->ip()));
+        }
 
         // Email HR / Admin users about the new user created by admin / HR
         $hrRecipients = User::query()
             ->whereIn('role', [UserRole::Admin->value, UserRole::Hr->value])
             ->where('is_active', true)
+            ->where('id', '!=', $userWithRelations->id)
             ->pluck('email')
             ->all();
 
@@ -266,6 +331,8 @@ class UserController extends Controller
             'email' => $validated['email'],
             'is_active' => $validated['is_active'] ?? $user->is_active,
         ]);
+
+        broadcast(new UserIdentityUpdated($user->refresh()))->toOthers();
 
         return redirect()->back()->with('success', 'User updated successfully.');
     }
@@ -310,6 +377,19 @@ class UserController extends Controller
         $approverName = $currentUser?->full_name ?? 'Admin';
         broadcast(new UserApproved($user, $approverName))->toOthers();
 
+        $user->notify(new SystemNotification(
+            type: 'success',
+            title: 'Account Approved',
+            message: "Your account has been approved by {$approverName}.",
+            data: [
+                'redirect_url' => '/login',
+                'user_id' => $user->id,
+            ],
+            actor: $currentUser
+                ? ['id' => $currentUser->id, 'name' => $approverName, 'avatar' => $currentUser->avatar]
+                : null,
+        ));
+
         if ($user->email) {
             Mail::to($user->email)->queue(new UserApprovedMail($user, $approverName));
         }
@@ -342,6 +422,19 @@ class UserController extends Controller
         $approverName = $currentUser?->full_name ?? 'Admin';
         broadcast(new UserRejected($user, $approverName))->toOthers();
 
+        $user->notify(new SystemNotification(
+            type: 'error',
+            title: 'Account Rejected',
+            message: "Your account has been rejected by {$approverName}.",
+            data: [
+                'redirect_url' => '/login',
+                'user_id' => $user->id,
+            ],
+            actor: $currentUser
+                ? ['id' => $currentUser->id, 'name' => $approverName, 'avatar' => $currentUser->avatar]
+                : null,
+        ));
+
         if ($user->email) {
             Mail::to($user->email)->queue(new UserRejectedMail($user, $approverName));
         }
@@ -360,6 +453,8 @@ class UserController extends Controller
         }
 
         $user->update(['is_active' => ! $user->is_active]);
+
+        broadcast(new UserIdentityUpdated($user->refresh()))->toOthers();
 
         $status = $user->is_active ? 'activated' : 'deactivated';
 
@@ -401,10 +496,16 @@ class UserController extends Controller
         switch ($action) {
             case 'activate':
                 User::whereIn('id', $userIds)->update(['is_active' => true]);
+                User::whereIn('id', $userIds)->get()->each(function (User $u) {
+                    broadcast(new UserIdentityUpdated($u->refresh()))->toOthers();
+                });
                 $message = "Successfully activated {$count} users.";
                 break;
             case 'deactivate':
                 User::whereIn('id', $userIds)->update(['is_active' => false]);
+                User::whereIn('id', $userIds)->get()->each(function (User $u) {
+                    broadcast(new UserIdentityUpdated($u->refresh()))->toOthers();
+                });
                 $message = "Successfully deactivated {$count} users.";
                 break;
             case 'delete':

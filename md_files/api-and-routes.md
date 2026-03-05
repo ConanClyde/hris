@@ -15,14 +15,14 @@ Key:
 
 | Methods | URI | Name | Middleware | Action |
 |---------|-----|------|------------|--------|
-| `GET|HEAD` | `/api/v1/leave-applications` | `-` | `api, integration` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@index` |
-| `POST` | `/api/v1/leave-applications` | `-` | `api, integration` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@store` |
-| `GET|HEAD` | `/api/v1/leave-applications/{id}` | `-` | `api, integration` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@show` |
-| `PUT` | `/api/v1/leave-applications/{id}/status` | `-` | `api, integration` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@updateStatus` |
-| `GET|HEAD` | `/api/v1/notices/active` | `-` | `api, integration` | `App\Features\Notices\Http\Controllers\Api\NoticeApiController@active` |
-| `GET|HEAD` | `/api/v1/organizational-structure` | `-` | `api, integration` | `App\Features\Employees\Http\Controllers\Api\StructureController@index` |
-| `GET|HEAD` | `/api/v1/trainings` | `-` | `api, integration` | `App\Features\Training\Http\Controllers\Api\TrainingApiController@index` |
-| `PUT` | `/api/v1/trainings/{id}/status` | `-` | `api, integration` | `App\Features\Training\Http\Controllers\Api\TrainingApiController@updateStatus` |
+| `GET|HEAD` | `/api/v1/leave-applications` | `-` | `api, integration, throttle:api` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@index` |
+| `POST` | `/api/v1/leave-applications` | `-` | `api, integration, throttle:api` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@store` |
+| `GET|HEAD` | `/api/v1/leave-applications/{id}` | `-` | `api, integration, throttle:api` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@show` |
+| `PUT` | `/api/v1/leave-applications/{id}/status` | `-` | `api, integration, throttle:api` | `App\Features\Leave\Http\Controllers\Api\LeaveApiController@updateStatus` |
+| `GET|HEAD` | `/api/v1/notices/active` | `-` | `api, integration, throttle:api` | `App\Features\Notices\Http\Controllers\Api\NoticeApiController@active` |
+| `GET|HEAD` | `/api/v1/organizational-structure` | `-` | `api, integration, throttle:api` | `App\Features\Employees\Http\Controllers\Api\StructureController@index` |
+| `GET|HEAD` | `/api/v1/trainings` | `-` | `api, integration, throttle:api` | `App\Features\Training\Http\Controllers\Api\TrainingApiController@index` |
+| `PUT` | `/api/v1/trainings/{id}/status` | `-` | `api, integration, throttle:api` | `App\Features\Training\Http\Controllers\Api\TrainingApiController@updateStatus` |
 
 ## Admin Module
 
@@ -74,6 +74,7 @@ Key:
 | `GET|HEAD` | `/hr/calendar` | `hr.calendar` | `web, auth, role:hr` | `App\Features\Calendar\Http\Controllers\HR\CalendarController@index` |
 | `GET|HEAD` | `/hr/calendar/events` | `hr.calendar.events` | `web, auth, role:hr` | `App\Features\Calendar\Http\Controllers\HR\CalendarController@events` |
 | `GET|HEAD` | `/hr/dashboard` | `hr.dashboard` | `web, auth, role:hr` | `App\Features\Dashboard\Http\Controllers\DashboardController@hr` |
+| `GET|HEAD` | `/hr/activity-logs` | `hr.activity-logs.index` | `web, auth, role:hr` | `App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController@userIndex` |
 | `GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS` | `/hr/employees` | `-` | `web, auth, role:hr` | `Illuminate\Routing\RedirectController` |
 | `GET|HEAD` | `/hr/leave-applications` | `hr.leave-applications.index` | `web, auth, role:hr` | `App\Features\Leave\Http\Controllers\HR\LeaveController@index` |
 | `POST` | `/hr/leave-applications` | `hr.leave-applications.store` | `web, auth, role:hr` | `App\Features\Leave\Http\Controllers\HR\LeaveController@store` |
@@ -119,6 +120,7 @@ Key:
 | `GET|HEAD` | `/employee/calendar` | `employee.calendar` | `web, auth, role:employee` | `App\Features\Calendar\Http\Controllers\Employee\CalendarController@index` |
 | `GET|HEAD` | `/employee/calendar/events` | `employee.calendar.events` | `web, auth, role:employee` | `App\Features\Calendar\Http\Controllers\Employee\CalendarController@events` |
 | `GET|HEAD` | `/employee/dashboard` | `employee.dashboard` | `web, auth, role:employee` | `App\Features\Dashboard\Http\Controllers\DashboardController@employee` |
+| `GET|HEAD` | `/employee/activity-logs` | `employee.activity-logs.index` | `web, auth, role:employee` | `App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController@userIndex` |
 | `GET|HEAD` | `/employee/leave-applications` | `employee.leave-applications.index` | `web, auth, role:employee` | `App\Features\Leave\Http\Controllers\Employee\LeaveController@index` |
 | `POST` | `/employee/leave-applications` | `employee.leave-applications.store` | `web, auth, role:employee` | `App\Features\Leave\Http\Controllers\Employee\LeaveController@store` |
 | `GET|HEAD` | `/employee/leave-applications/export` | `employee.leave-applications.export` | `web, auth, role:employee` | `App\Features\Leave\Http\Controllers\Employee\LeaveController@export` |
@@ -178,13 +180,13 @@ Key:
 | `GET|HEAD` | `/email/verify` | `verification.notice` | `web, auth:web` | `Laravel\Fortify\Http\Controllers\EmailVerificationPromptController@__invoke` |
 | `GET|HEAD` | `/email/verify/{id}/{hash}` | `verification.verify` | `web, auth:web, signed, throttle:6,1` | `Laravel\Fortify\Http\Controllers\VerifyEmailController@__invoke` |
 | `GET|HEAD` | `/forgot-password` | `password.request` | `web, guest:web` | `Laravel\Fortify\Http\Controllers\PasswordResetLinkController@create` |
-| `POST` | `/forgot-password` | `password.email` | `web, guest:web` | `Laravel\Fortify\Http\Controllers\PasswordResetLinkController@store` |
+| `POST` | `/forgot-password` | `password.email` | `web, guest:web, throttle:password-reset` | `Laravel\Fortify\Http\Controllers\PasswordResetLinkController@store` |
 | `GET|HEAD` | `/login` | `login` | `web, guest:web` | `Laravel\Fortify\Http\Controllers\AuthenticatedSessionController@create` |
 | `POST` | `/login` | `login.store` | `web, guest:web, throttle:login` | `Laravel\Fortify\Http\Controllers\AuthenticatedSessionController@store` |
 | `POST` | `/logout` | `logout` | `web, auth:web` | `Laravel\Fortify\Http\Controllers\AuthenticatedSessionController@destroy` |
 | `GET|HEAD` | `/register` | `register` | `web, guest` | `App\Http\Controllers\Auth\RegisterController@create` |
 | `POST` | `/register` | `register.store` | `web, guest` | `App\Http\Controllers\Auth\RegisterController@store` |
-| `POST` | `/reset-password` | `password.update` | `web, guest:web` | `Laravel\Fortify\Http\Controllers\NewPasswordController@store` |
+| `POST` | `/reset-password` | `password.update` | `web, guest:web, throttle:password-reset` | `Laravel\Fortify\Http\Controllers\NewPasswordController@store` |
 | `GET|HEAD` | `/reset-password/{token}` | `password.reset` | `web, guest:web` | `Laravel\Fortify\Http\Controllers\NewPasswordController@create` |
 | `GET|HEAD` | `/two-factor-challenge` | `two-factor.login` | `web, guest:web` | `Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController@create` |
 | `POST` | `/two-factor-challenge` | `two-factor.login.store` | `web, guest:web, throttle:two-factor` | `Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController@store` |
@@ -209,4 +211,3 @@ Key:
 | `GET|HEAD` | `//` | `home` | `web` | `*(Closure)*` |
 | `GET|HEAD` | `/dashboard` | `dashboard` | `web, auth, verified` | `*(Closure)*` |
 | `GET|HEAD` | `/up` | `-` | `` | `*(Closure)*` |
-

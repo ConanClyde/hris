@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
 import AlertError from '@/components/AlertError.vue';
 import Heading from '@/components/Heading.vue';
 import { Button } from '@/components/ui/button';
@@ -38,7 +37,7 @@ const errorsList = (errors: Record<string, string>) => {
                 />
 
                 <Form
-                    v-bind="PasswordController.update.form()"
+                    v-bind="edit.form()"
                     :options="{
                         preserveScroll: true,
                     }"

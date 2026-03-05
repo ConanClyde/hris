@@ -2,6 +2,7 @@
 
 namespace App\Features\Leave\Http\Controllers\Api;
 
+use App\Features\Employees\Models\Employee;
 use App\Features\Leave\Events\LeaveStatusUpdated;
 use App\Features\Leave\Http\Requests\StoreLeaveRequest;
 use App\Features\Leave\Http\Requests\UpdateLeaveStatusRequest;
@@ -49,9 +50,18 @@ class LeaveApiController extends Controller
 
     public function store(StoreLeaveRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        $employee = is_numeric($validated['employee_id'] ?? null)
+            ? Employee::find((int) $validated['employee_id'])
+            : null;
+
         $leave = LeaveApplication::create(array_merge(
-            $request->validated(),
-            ['status' => 'pending']
+            $validated,
+            [
+                'status' => 'pending',
+                'employee_fk' => $employee?->id,
+                'employee_name' => $validated['employee_name'] ?? $employee?->full_name,
+            ]
         ));
 
         event(new LeaveStatusUpdated(

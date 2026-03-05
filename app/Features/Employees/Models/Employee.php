@@ -72,6 +72,13 @@ class Employee extends Model
         return $this->hasMany(\App\Features\Leave\Models\LeaveCredit::class);
     }
 
+    public function badges(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Badge::class, 'employee_badges', 'employee_id', 'badge_id')
+            ->withPivot('awarded_at')
+            ->withTimestamps();
+    }
+
     public function getFullNameAttribute(): string
     {
         $middle = $this->middle_name ? ' '.$this->middle_name : '';
@@ -94,5 +101,54 @@ class Employee extends Model
         }
 
         return implode(' → ', $parts) ?: $this->division ?? 'Unassigned';
+    }
+
+    /**
+     * Calculate years of service from date hired.
+     */
+    public function getYearsOfServiceAttribute(): int
+    {
+        if (! $this->date_hired) {
+            return 0;
+        }
+
+        return (int) $this->date_hired->diffInYears(now());
+    }
+
+    /**
+     * Calculate months of service (remaining after years).
+     */
+    public function getMonthsOfServiceAttribute(): int
+    {
+        if (! $this->date_hired) {
+            return 0;
+        }
+
+        $diff = $this->date_hired->diff(now());
+
+        return (int) $diff->m;
+    }
+
+    /**
+     * Get formatted service record string.
+     */
+    public function getServiceRecordAttribute(): string
+    {
+        $years = $this->years_of_service;
+        $months = $this->months_of_service;
+
+        if ($years === 0 && $months === 0) {
+            return 'New hire';
+        }
+
+        $parts = [];
+        if ($years > 0) {
+            $parts[] = $years.' '.($years === 1 ? 'year' : 'years');
+        }
+        if ($months > 0) {
+            $parts[] = $months.' '.($months === 1 ? 'month' : 'months');
+        }
+
+        return implode(', ', $parts);
     }
 }

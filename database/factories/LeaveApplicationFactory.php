@@ -30,7 +30,7 @@ class LeaveApplicationFactory extends Factory
             'date_to' => $dateTo,
             'total_days' => fake()->randomFloat(1, 0.5, 5),
             'reason' => fake()->sentence(),
-            'status' => fake()->randomElement(['pending', 'approved', 'rejected']),
+            'status' => fake()->randomElement(['pending', 'approved', 'rejected', 'cancelled']),
         ];
     }
 
@@ -42,5 +42,10 @@ class LeaveApplicationFactory extends Factory
     public function approved(): static
     {
         return $this->state(['status' => 'approved']);
+    }
+
+    public function cancelled(): static
+    {
+        return $this->state(['status' => 'cancelled']);
     }
 }

@@ -7,8 +7,8 @@ use App\Features\Calendar\Http\Controllers\Admin\CalendarController as AdminCale
 use App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController;
 use App\Features\Dashboard\Http\Controllers\PerformanceController as AdminPerformanceController;
 use App\Features\Dashboard\Http\Controllers\ReportsController as AdminReportsController;
-use App\Features\Notices\Http\Controllers\Admin\NoticeController;
 use App\Features\Notifications\Http\Controllers\NotificationController;
+use App\Features\Posts\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Features\Users\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -59,18 +59,21 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::delete('/{id}', [BackupController::class, 'destroy'])->name('admin.backup.destroy');
     });
 
-    // Notices
-    Route::get('/admin/notices', [NoticeController::class, 'index'])->name('admin.notices.index');
-    Route::get('/admin/notices/create', [NoticeController::class, 'create'])->name('admin.notices.create');
-    Route::post('/admin/notices', [NoticeController::class, 'store'])->name('admin.notices.store');
-    Route::get('/admin/notices/{id}/edit', [NoticeController::class, 'edit'])->name('admin.notices.edit');
-    Route::put('/admin/notices/{id}', [NoticeController::class, 'update'])->name('admin.notices.update');
-    Route::delete('/admin/notices/{id}', [NoticeController::class, 'destroy'])->name('admin.notices.destroy');
-
     // Notifications
     Route::get('/admin/notifications', [NotificationController::class, 'index'])->name('admin.notifications');
     Route::post('/admin/notifications/{noticeId}/mark-as-read', [NotificationController::class, 'markAsRead'])->name('admin.notifications.mark-as-read');
+    Route::post('/admin/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('admin.notifications.mark-all-read');
     Route::get('/admin/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('admin.notifications.unread-count');
+    Route::delete('/admin/notifications/{noticeId}', [NotificationController::class, 'destroy'])->name('admin.notifications.destroy');
+    Route::delete('/admin/notifications', [NotificationController::class, 'destroyAll'])->name('admin.notifications.destroy-all');
+
+    // Posts / Announcements
+    Route::get('/admin/posts', [AdminPostController::class, 'index'])->name('admin.posts.index');
+    Route::post('/admin/posts', [AdminPostController::class, 'store'])->name('admin.posts.store');
+    Route::post('/admin/posts/{post}/react', [AdminPostController::class, 'react'])->name('admin.posts.react');
+    Route::post('/admin/posts/{post}/comments', [AdminPostController::class, 'comment'])->name('admin.posts.comment');
+    Route::put('/admin/posts/{post}', [AdminPostController::class, 'update'])->name('admin.posts.update');
+    Route::delete('/admin/posts/{post}', [AdminPostController::class, 'destroy'])->name('admin.posts.destroy');
 
     // Settings & Profile
     Route::get('/admin/settings', function () {

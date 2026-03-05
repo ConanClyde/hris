@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Features\Training\Http\Controllers\Employee\TrainingController::deleteMethod
- * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:173
+ * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:174
  * @route '/employee/training/attachment/{id}'
  */
 export const deleteMethod = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -16,7 +16,7 @@ deleteMethod.definition = {
 
 /**
 * @see \App\Features\Training\Http\Controllers\Employee\TrainingController::deleteMethod
- * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:173
+ * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:174
  * @route '/employee/training/attachment/{id}'
  */
 deleteMethod.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ deleteMethod.url = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Features\Training\Http\Controllers\Employee\TrainingController::deleteMethod
- * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:173
+ * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:174
  * @route '/employee/training/attachment/{id}'
  */
 deleteMethod.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -54,7 +54,7 @@ deleteMethod.delete = (args: { id: string | number } | [id: string | number ] | 
 
     /**
 * @see \App\Features\Training\Http\Controllers\Employee\TrainingController::deleteMethod
- * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:173
+ * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:174
  * @route '/employee/training/attachment/{id}'
  */
     const deleteMethodForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -69,7 +69,7 @@ deleteMethod.delete = (args: { id: string | number } | [id: string | number ] | 
 
             /**
 * @see \App\Features\Training\Http\Controllers\Employee\TrainingController::deleteMethod
- * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:173
+ * @see app/Features/Training/Http/Controllers/Employee/TrainingController.php:174
  * @route '/employee/training/attachment/{id}'
  */
         deleteMethodForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

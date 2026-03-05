@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Bell } from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -32,10 +32,14 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import UserMenuContent from '@/components/UserMenuContent.vue';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
-import { getInitials } from '@/composables/useInitials';
+import { getInitials, getInitialsFromName } from '@/composables/useInitials';
 import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
+import admin from '@/routes/admin';
+import employee from '@/routes/employee';
+import hr from '@/routes/hr';
 import type { BreadcrumbItem, NavItem } from '@/types';
 
 type Props = {
@@ -48,6 +52,81 @@ const props = withDefaults(defineProps<Props>(), {
 
 const page = usePage();
 const auth = computed(() => page.props.auth);
+const showAvatar = computed(() => typeof auth.value?.user?.avatar === 'string' && auth.value.user.avatar.trim() !== '');
+const notificationsHref = computed(() => {
+    const role = (auth.value?.user as { role?: string } | undefined)?.role;
+    if (role === 'admin') return admin.notifications.url();
+    if (role === 'hr') return hr.notifications.url();
+    return employee.notifications.url();
+});
+const role = computed(() => (auth.value?.user as { role?: string } | undefined)?.role ?? 'employee');
+
+const {
+    notifications,
+    notificationsUnreadCount,
+    markAllAsRead,
+    markAsRead,
+    refreshNotificationsDropdown,
+} = useBroadcasting();
+
+const latestNotifications = computed(() => notifications.value.slice(0, 10));
+const unreadBadge = computed(() => {
+    const count = notificationsUnreadCount.value;
+    return typeof count === 'number' && count > 0 ? count : 0;
+});
+
+function csrfToken(): string {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+}
+
+async function markAllServerRead() {
+    const safeRole = String(role.value || '').toLowerCase();
+    const url = safeRole === 'admin'
+        ? '/admin/notifications/mark-all-read'
+        : safeRole === 'hr'
+            ? '/hr/notifications/mark-all-read'
+            : '/employee/notifications/mark-all-read';
+
+    await fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken(),
+            'Accept': 'application/json',
+        },
+    });
+
+    markAllAsRead();
+    await refreshNotificationsDropdown(role.value);
+}
+
+async function openNotification(n: { id: string; data?: Record<string, unknown> }) {
+    const safeRole = String(role.value || '').toLowerCase();
+    const url = safeRole === 'admin'
+        ? `/admin/notifications/${n.id}/mark-as-read`
+        : safeRole === 'hr'
+            ? `/hr/notifications/${n.id}/mark-as-read`
+            : `/employee/notifications/${n.id}/mark-as-read`;
+
+    await fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken(),
+            'Accept': 'application/json',
+        },
+    });
+
+    markAsRead(n.id);
+    await refreshNotificationsDropdown(role.value);
+
+    const redirect = (n.data?.redirect_url as string | undefined)
+        ?? (n.data?.url as string | undefined)
+        ?? undefined;
+    if (redirect) {
+        window.location.href = redirect;
+    } else {
+        window.location.href = notificationsHref.value;
+    }
+}
 const { isCurrentUrl, whenCurrentUrl } = useCurrentUrl();
 
 const activeItemStyles =
@@ -238,6 +317,78 @@ const rightNavItems: NavItem[] = [
                         </div>
                     </div>
 
+                    <!-- Notifications -->
+                    <DropdownMenu>
+                        <DropdownMenuTrigger :as-child="true">
+                            <button
+                                type="button"
+                                class="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-transparent text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-neutral-800"
+                                :aria-label="`Notifications (${unreadBadge})`"
+                            >
+                                <Bell class="size-5" />
+                                <span
+                                    v-if="unreadBadge > 0"
+                                    class="absolute -right-0.5 -top-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-semibold leading-5 text-white"
+                                >
+                                    {{ unreadBadge > 99 ? '99+' : unreadBadge }}
+                                </span>
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" class="w-96 p-0">
+                            <div class="flex items-center justify-between border-b px-3 py-2">
+                                <div class="text-sm font-semibold">Notifications</div>
+                                <div class="flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        class="h-8"
+                                        @click="markAllServerRead"
+                                    >
+                                        Mark all read
+                                    </Button>
+                                    <Link
+                                        :href="notificationsHref"
+                                        class="text-xs text-muted-foreground hover:text-foreground"
+                                    >
+                                        View all
+                                    </Link>
+                                </div>
+                            </div>
+                            <div class="max-h-96 overflow-auto">
+                                <button
+                                    v-for="n in latestNotifications"
+                                    :key="n.id"
+                                    type="button"
+                                    class="flex w-full items-start gap-3 border-b px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-neutral-800"
+                                    :class="!n.read ? 'bg-blue-50/60 dark:bg-blue-900/10' : ''"
+                                    @click="openNotification(n)"
+                                >
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <p class="truncate text-sm font-medium">
+                                                {{ n.title }}
+                                            </p>
+                                            <span v-if="!n.read" class="h-2 w-2 shrink-0 rounded-full bg-blue-600"></span>
+                                        </div>
+                                        <p class="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                                            {{ n.message }}
+                                        </p>
+                                        <p class="mt-1 text-[11px] text-muted-foreground">
+                                            {{ new Date(n.created_at).toLocaleString() }}
+                                        </p>
+                                    </div>
+                                </button>
+                                <div
+                                    v-if="!latestNotifications.length"
+                                    class="px-3 py-10 text-center text-sm text-muted-foreground"
+                                >
+                                    No notifications yet.
+                                </div>
+                            </div>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <DropdownMenu>
                         <DropdownMenuTrigger :as-child="true">
                             <Button
@@ -249,14 +400,14 @@ const rightNavItems: NavItem[] = [
                                     class="size-8 overflow-hidden rounded-full"
                                 >
                                     <AvatarImage
-                                        v-if="auth.user.avatar"
-                                        :src="auth.user.avatar"
+                                        v-if="showAvatar"
+                                        :src="auth.user.avatar!"
                                         :alt="auth.user.name"
                                     />
                                     <AvatarFallback
                                         class="rounded-full bg-foreground text-background font-semibold"
                                     >
-                                        {{ getInitials(auth.user?.name) }}
+                                        {{ getInitialsFromName({ first_name: (auth.user as any)?.first_name, last_name: (auth.user as any)?.last_name }) || getInitials(auth.user?.name) }}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>

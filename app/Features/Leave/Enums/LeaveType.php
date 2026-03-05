@@ -6,10 +6,14 @@ enum LeaveType: string
 {
     case Vacation = 'Vacation Leave';
     case Sick = 'Sick Leave';
-    case Emergency = 'Emergency Leave';
+    case Wellness = 'Wellness Leave';
+    case SpecialLeavePrivileges = 'Special Leave Privileges';
+    case MandatoryForced = 'Mandatory/Forced Leave';
     case Maternity = 'Maternity Leave';
     case Paternity = 'Paternity Leave';
-    case Other = 'Other';
+    case SoloParent = 'Solo Parent Leave';
+    case Study = 'Study Leave';
+    case LeaveWithoutPay = 'Leave Without Pay (LWOP)';
 
     public static function labels(): array
     {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Form, Head, Link, usePage } from '@inertiajs/vue3';
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import AlertError from '@/components/AlertError.vue';
 import DeleteUser from '@/components/DeleteUser.vue';
 import Heading from '@/components/Heading.vue';
@@ -50,7 +49,7 @@ const errorsList = (errors: Record<string, string>) => {
                 />
 
                 <Form
-                    v-bind="ProfileController.update.form()"
+                    v-bind="edit.form()"
                     class="space-y-6"
                     v-slot="{ errors, processing, recentlySuccessful }"
                 >

@@ -42,10 +42,17 @@ class LeaveCancelled implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return [
-            new PrivateChannel('App.Models.User.'.$this->leave->employee_id),
+        $channels = [
             new PrivateChannel('hr.dashboard'),
         ];
+
+        $userId = $this->leave->employee?->user_id;
+
+        if (is_int($userId)) {
+            $channels[] = new PrivateChannel('App.Models.User.'.$userId);
+        }
+
+        return $channels;
     }
 
     /**

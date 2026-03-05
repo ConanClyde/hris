@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
-import { Eye, Pencil } from 'lucide-vue-next';
+import { Eye, Pencil, XCircle } from 'lucide-vue-next';
 import { ref, watch, computed } from 'vue';
+import ListFiltersBar from '@/components/ListFiltersBar.vue';
+import Pagination from '@/components/Pagination.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -47,9 +49,15 @@ type PaginatedData = {
     links: { url: string | null; label: string; active: boolean }[];
 };
 
+type LeaveCreditItem = {
+    leave_type: string;
+    balance: number | string;
+};
+
 const props = withDefaults(
     defineProps<{
         applications: PaginatedData;
+        leaveCredits: LeaveCreditItem[];
         types: string[];
         statusOptions: Record<string, string>;
         filters?: { type?: string; status?: string };
@@ -70,6 +78,9 @@ if (leavesPendingCount.value === null) {
 }
 
 const pendingCountComputed = computed(() => leavesPendingCount.value ?? 0);
+const leaveCreditsTotal = computed(() =>
+    props.leaveCredits.reduce((sum, item) => sum + Number(item.balance ?? 0), 0),
+);
 
 const filterType = ref(props.filters?.type ?? 'all');
 const filterStatus = ref(props.filters?.status ?? 'all');
@@ -77,8 +88,15 @@ const filterStatus = ref(props.filters?.status ?? 'all');
 const viewModalOpen = ref(false);
 const addModalOpen = ref(false);
 const editModalOpen = ref(false);
+const cancelModalOpen = ref(false);
 const viewingApp = ref<Application | null>(null);
 const editingApp = ref<Application | null>(null);
+const cancellingApp = ref<Application | null>(null);
+const attachmentError = ref('');
+
+const csrfToken =
+    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ??
+    '';
 
 const addType = ref('');
 const addDateFrom = ref('');
@@ -101,11 +119,15 @@ watch(
     { immediate: true }
 );
 
+let filterDebounce: ReturnType<typeof setTimeout> | null = null;
 watch([filterType, filterStatus], () => {
-    const query: Record<string, string> = {};
-    if (filterType.value && filterType.value !== 'all') query.type = filterType.value;
-    if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
-    router.get(employee.leaveApplications.index.url(), query, { preserveState: true });
+    if (filterDebounce) clearTimeout(filterDebounce);
+    filterDebounce = setTimeout(() => {
+        const query: Record<string, string> = {};
+        if (filterType.value && filterType.value !== 'all') query.type = filterType.value;
+        if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
+        router.get(employee.leaveApplications.index.url(), query, { preserveState: true });
+    }, 300);
 });
 
 watch(editingApp, (app) => {
@@ -151,6 +173,25 @@ function closeEdit() {
     editingApp.value = null;
 }
 
+function openCancel(app: Application) {
+    cancellingApp.value = app;
+    cancelModalOpen.value = true;
+}
+
+function closeCancel() {
+    cancelModalOpen.value = false;
+    cancellingApp.value = null;
+}
+
+function confirmCancel() {
+    if (!cancellingApp.value) return;
+    router.put(
+        employee.leaveApplications.update.url(cancellingApp.value.id),
+        { status: 'cancelled' },
+        { onSuccess: () => closeCancel() },
+    );
+}
+
 function submitAdd(e: Event) {
     e.preventDefault();
     router.post(employee.leaveApplications.store.url(), {
@@ -175,6 +216,7 @@ function submitEdit(e: Event) {
 function statusVariant(status: string) {
     if (status === 'approved') return 'default';
     if (status === 'rejected') return 'destructive';
+    if (status === 'cancelled') return 'outline';
     return 'secondary';
 }
 
@@ -192,13 +234,93 @@ function inclusiveDates(app: Application) {
     const to = app.date_to ? formatDate(String(app.date_to).slice(0, 10)) : null;
     return to && to !== from ? `${from} – ${to}` : from;
 }
+
+type AttachmentItem = {
+    name: string;
+    url: string;
+    path: string | null;
+};
+
+function attachmentName(value: string) {
+    const clean = value.split('?')[0] || value;
+    const last = clean.split('/').filter(Boolean).pop();
+    return last || 'Attachment';
+}
+
+function attachmentUrl(value: string) {
+    if (value.startsWith('http') || value.startsWith('/')) {
+        return value;
+    }
+    return `/storage/${value}`;
+}
+
+function normalizeAttachments(input: unknown): AttachmentItem[] {
+    if (!Array.isArray(input)) return [];
+    return input
+        .map((item) => {
+            if (typeof item === 'string') {
+                return {
+                    name: attachmentName(item),
+                    url: attachmentUrl(item),
+                    path: item,
+                };
+            }
+            if (item && typeof item === 'object') {
+                const record = item as Record<string, unknown>;
+                const raw =
+                    (record.path as string | undefined) ??
+                    (record.file_path as string | undefined) ??
+                    (record.storage_path as string | undefined) ??
+                    (record.url as string | undefined);
+                if (!raw) return null;
+                return {
+                    name:
+                        (record.name as string | undefined) ??
+                        (record.original_name as string | undefined) ??
+                        (record.filename as string | undefined) ??
+                        attachmentName(raw),
+                    url:
+                        (record.url as string | undefined) ??
+                        attachmentUrl(raw),
+                    path: (record.path as string | undefined) ?? raw,
+                };
+            }
+            return null;
+        })
+        .filter(Boolean) as AttachmentItem[];
+}
+
+async function deleteAttachment(leaveId: number, path: string | null) {
+    attachmentError.value = '';
+    const query = path ? `?path=${encodeURIComponent(path)}` : '';
+    const res = await fetch(`/employee/leave-attachments/${leaveId}${query}`, {
+        method: 'DELETE',
+        headers: {
+            Accept: 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+        },
+    });
+
+    if (!res.ok) {
+        const payload = await res.json().catch(() => ({}));
+        attachmentError.value = payload?.message || 'Failed to delete attachment.';
+        return;
+    }
+
+    const payload = await res.json().catch(() => ({}));
+    if (viewingApp.value) {
+        viewingApp.value.attachments = Array.isArray(payload?.attachments)
+            ? payload.attachments
+            : [];
+    }
+}
 </script>
 
 <template>
     <Head title="Leave Applications" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-4 p-4">
+        <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
@@ -227,9 +349,36 @@ function inclusiveDates(app: Application) {
                         </p>
                     </CardContent>
                 </Card>
+                <Card class="border border-gray-200 dark:border-neutral-800">
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                            Leave Credits
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                            {{ leaveCreditsTotal.toFixed(2) }}
+                        </p>
+                        <div v-if="props.leaveCredits.length" class="mt-2 space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                            <div
+                                v-for="credit in props.leaveCredits"
+                                :key="credit.leave_type"
+                                class="flex items-center justify-between"
+                            >
+                                <span>{{ credit.leave_type }}</span>
+                                <span class="text-gray-700 dark:text-gray-300">
+                                    {{ Number(credit.balance ?? 0).toFixed(2) }}
+                                </span>
+                            </div>
+                        </div>
+                        <p v-else class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            No leave credits available.
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50">
+            <ListFiltersBar>
                 <div class="w-[140px]">
                     <Label for="filter-type" class="sr-only">Type</Label>
                     <Select v-model="filterType">
@@ -259,7 +408,7 @@ function inclusiveDates(app: Application) {
                 <Button type="button" variant="outline" @click="clearFilters">
                     Clear filters
                 </Button>
-            </div>
+            </ListFiltersBar>
 
             <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
                 <div class="overflow-x-auto">
@@ -311,6 +460,17 @@ function inclusiveDates(app: Application) {
                                         >
                                             <Pencil class="size-4" />
                                         </Button>
+                                        <Button
+                                            v-if="app.status === 'pending'"
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-sm"
+                                            title="Cancel"
+                                            class="text-red-500 hover:text-red-600"
+                                            @click="openCancel(app)"
+                                        >
+                                            <XCircle class="size-4" />
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -326,26 +486,7 @@ function inclusiveDates(app: Application) {
                 </div>
             </div>
 
-            <div
-                v-if="applications.last_page > 1"
-                class="flex flex-wrap items-center justify-center gap-2"
-            >
-                <template v-for="(link, i) in applications.links" :key="i">
-                    <span
-                        v-if="!link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-gray-200 px-3 text-sm text-gray-400 dark:border-neutral-700"
-                        v-html="link.label"
-                    />
-                    <Link
-                        v-else
-                        :href="link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
-                    >
-                        <span v-html="link.label" />
-                    </Link>
-                </template>
-            </div>
+            <Pagination :meta="applications" />
         </div>
 
         <!-- View modal -->
@@ -382,6 +523,38 @@ function inclusiveDates(app: Application) {
                         <div v-if="viewingApp.reason">
                             <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Reason</dt>
                             <dd class="mt-0.5 whitespace-pre-wrap">{{ viewingApp.reason }}</dd>
+                        </div>
+                        <div v-if="normalizeAttachments(viewingApp.attachments).length">
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Attachments</dt>
+                            <dd class="mt-1 space-y-2">
+                                <div
+                                    v-for="att in normalizeAttachments(viewingApp.attachments)"
+                                    :key="att.url"
+                                    class="flex items-center justify-between gap-2"
+                                >
+                                    <a
+                                        :href="att.url"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="text-sm text-brand hover:underline dark:text-brand-light"
+                                    >
+                                        {{ att.name }}
+                                    </a>
+                                    <Button
+                                        v-if="viewingApp.status === 'pending'"
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon-sm"
+                                        class="text-red-500 hover:text-red-600"
+                                        @click="deleteAttachment(viewingApp.id, att.path)"
+                                    >
+                                        <XCircle class="size-4" />
+                                    </Button>
+                                </div>
+                                <p v-if="attachmentError" class="text-sm text-red-500">
+                                    {{ attachmentError }}
+                                </p>
+                            </dd>
                         </div>
                         <div>
                             <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Submitted</dt>
@@ -491,6 +664,25 @@ function inclusiveDates(app: Application) {
                         <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog v-model:open="cancelModalOpen">
+            <DialogContent v-if="cancellingApp" :show-close-button="true" class="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Cancel Leave Application</DialogTitle>
+                    <DialogDescription class="sr-only">
+                        Confirm cancellation of the leave application.
+                    </DialogDescription>
+                    <p class="text-sm text-muted-foreground">
+                        Cancel leave request for {{ cancellingApp.type }} on
+                        {{ inclusiveDates(cancellingApp) }}?
+                    </p>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button type="button" variant="outline" @click="closeCancel">Keep</Button>
+                    <Button type="button" variant="destructive" @click="confirmCancel">Cancel leave</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     </AppLayout>

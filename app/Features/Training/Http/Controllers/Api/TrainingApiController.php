@@ -15,6 +15,12 @@ class TrainingApiController extends Controller
     {
         $query = Training::query();
 
+        if ($employeeFk = $request->query('employee_fk')) {
+            $query->where('employee_fk', (int) $employeeFk);
+        } elseif ($employeeId = (string) $request->query('employee_id', '')) {
+            $query->where('employee_id', $employeeId);
+        }
+
         if ($search = (string) $request->query('search', '')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
@@ -50,7 +56,7 @@ class TrainingApiController extends Controller
 
         event(new TrainingStatusUpdated(
             id: $training->id,
-            employeeId: $training->employee_id ?? '',
+            employeeId: (string) ($training->employee_fk ?? $training->employee_id ?? ''),
             employeeName: $training->employee_name,
             status: $training->status,
             title: $training->title,

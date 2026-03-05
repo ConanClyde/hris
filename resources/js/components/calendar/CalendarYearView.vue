@@ -12,7 +12,7 @@ if (!calendar) {
 const weekStartsOn = 0;
 
 const months = computed(() => {
-    const d = calendar.date.value;
+    const d = calendar!.date.value;
     return Array.from({ length: 12 }, (_, i) => addMonths(setMonth(startOfMonth(d), 0), i));
 });
 
@@ -22,7 +22,7 @@ function getDaysForMonth(month: Date) {
 }
 
 function isToday(date: Date) {
-    return isSameDay(date, calendar.today);
+    return isSameDay(date, calendar!.today);
 }
 </script>
 

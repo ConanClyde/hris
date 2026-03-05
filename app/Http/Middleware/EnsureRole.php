@@ -16,13 +16,17 @@ class EnsureRole
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        $isAuthenticated = Auth::check() || session('user_id');
+        $isAuthenticated = Auth::check();
 
         $user = Auth::user();
         $currentRole = $user?->role;
 
-        if (! $currentRole) {
-            $currentRole = (string) session('role', '');
+        if (! $isAuthenticated || ! $currentRole) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Unauthorized'], 401);
+            }
+
+            return redirect()->route('login');
         }
 
         if ((string) $currentRole !== $role) {
@@ -33,10 +37,6 @@ class EnsureRole
 
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Forbidden'], 403);
-            }
-
-            if (! $isAuthenticated) {
-                return redirect()->route('login');
             }
 
             return redirect()->route('dashboard');

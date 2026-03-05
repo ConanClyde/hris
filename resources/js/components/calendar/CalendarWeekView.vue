@@ -15,7 +15,7 @@ const hours = Array.from({ length: 24 }, (_, i) => i);
 const ROW_HEIGHT_PX = 48;
 
 const weekDays = computed(() => {
-    const start = startOfWeek(calendar.date.value, { weekStartsOn });
+    const start = startOfWeek(calendar!.date.value, { weekStartsOn });
     return Array.from({ length: 7 }, (_, i) => addDays(start, i));
 });
 
@@ -26,7 +26,7 @@ const dayHeaderLabels = computed(() =>
 function eventsForDay(day: Date) {
     const dayStart = startOfDay(day);
     const dayEnd = endOfDay(day);
-    return calendar.events.value.filter(
+    return calendar!.events.value.filter(
         (evt) =>
             isWithinInterval(evt.start, { start: dayStart, end: dayEnd }) ||
             isWithinInterval(evt.end, { start: dayStart, end: dayEnd }) ||
@@ -59,7 +59,7 @@ function eventBlockStyle(evt: CalendarEventNormalized, day: Date, hour: number) 
 }
 
 function isToday(date: Date) {
-    return isSameDay(date, calendar.today);
+    return isSameDay(date, calendar!.today);
 }
 </script>
 

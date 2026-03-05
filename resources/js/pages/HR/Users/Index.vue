@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { CheckCircle2, ChevronDown, Eye, Pencil, Trash2, XCircle } from 'lucide-vue-next';
-import { computed, onMounted, ref, watch } from 'vue';
+import {
+    CheckCircle2,
+    ChevronDown,
+    Eye,
+    Pencil,
+    Trash2,
+    XCircle,
+} from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
+import AlertError from '@/components/AlertError.vue';
+import Pagination from '@/components/Pagination.vue';
 import TableUserCell from '@/components/TableUserCell.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,6 +23,13 @@ import {
     DialogFooter,
     DialogScrollContent,
 } from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -23,17 +39,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import AlertError from '@/components/AlertError.vue';
-import PasswordInput from '@/components/auth/PasswordInput.vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { useBroadcasting } from '@/composables/useBroadcasting';
+import { useOrgUnitSelectors } from '@/composables/useOrgUnitSelectors';
+import AppLayout from '@/layouts/AppLayout.vue';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
@@ -42,6 +50,7 @@ type UserItem = {
     name: string;
     email: string;
     username?: string;
+    avatar?: string | null;
     role: string;
     is_active: boolean;
     status: string;
@@ -67,17 +76,19 @@ type PaginatedData = {
     data: UserItem[];
     current_page: number;
     last_page: number;
+    per_page: number;
+    total: number;
     links: { url: string | null; label: string; active: boolean }[];
 };
 
 const props = withDefaults(
     defineProps<{
         users: PaginatedData;
-        filters?: { search?: string; role?: string; status?: string };
+        filters?: { search?: string; role?: string; status?: string; per_page?: string | number };
         pendingCount?: number;
         rejectedCount?: number;
     }>(),
-    { filters: () => ({}), pendingCount: 0, rejectedCount: 0 }
+    { filters: () => ({}), pendingCount: 0, rejectedCount: 0 },
 );
 
 const { usersPendingCount } = useBroadcasting();
@@ -87,7 +98,7 @@ if (usersPendingCount.value === null) {
 }
 
 const pendingCountComputed = computed(
-    () => usersPendingCount.value ?? (props.pendingCount ?? 0),
+    () => usersPendingCount.value ?? props.pendingCount ?? 0,
 );
 
 const realtimeUsers = ref<UserItem[]>([...props.users.data]);
@@ -96,7 +107,7 @@ watch(
     (next) => {
         realtimeUsers.value = [...next];
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 function upsertUserRow(u: Partial<UserItem> & { id: number }) {
@@ -105,7 +116,10 @@ function upsertUserRow(u: Partial<UserItem> & { id: number }) {
         realtimeUsers.value = [u as UserItem, ...realtimeUsers.value];
         return;
     }
-    realtimeUsers.value[idx] = { ...realtimeUsers.value[idx], ...u } as UserItem;
+    realtimeUsers.value[idx] = {
+        ...realtimeUsers.value[idx],
+        ...u,
+    } as UserItem;
 }
 
 function removeUserRow(id: number) {
@@ -128,6 +142,23 @@ watch(
             return;
         }
 
+        if (evt.type === 'identity_updated') {
+            upsertUserRow(user);
+            if (viewingUser.value && viewingUser.value.id === user.id) {
+                viewingUser.value = {
+                    ...viewingUser.value,
+                    ...user,
+                } as any;
+            }
+            if (editingUser.value && editingUser.value.id === user.id) {
+                editingUser.value = {
+                    ...editingUser.value,
+                    ...user,
+                } as any;
+            }
+            return;
+        }
+
         if (evt.type === 'approved') {
             if (filterStatus.value === 'pending') {
                 removeUserRow(user.id);
@@ -147,33 +178,44 @@ watch(
                 return;
             }
             if (filterStatus.value === 'rejected') {
-                upsertUserRow({ ...user, status: 'rejected', is_active: false });
+                upsertUserRow({
+                    ...user,
+                    status: 'rejected',
+                    is_active: false,
+                });
                 return;
             }
-            upsertUserRow({ id: user.id, status: 'rejected', is_active: false });
+            upsertUserRow({
+                id: user.id,
+                status: 'rejected',
+                is_active: false,
+            });
         }
-    }
+    },
 );
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Manage Users' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Manage Users' }];
+
+const basePerPage = String(props.filters?.per_page ?? props.users.per_page ?? 8);
 
 // Separate filter states for each tab
 const allUsersFilters = ref({
     search: props.filters?.search ?? '',
     role: props.filters?.role || 'all',
-    status: props.filters?.status || 'all'
+    status: props.filters?.status || 'all',
+    per_page: basePerPage,
 });
 
 const pendingFilters = ref({
     search: props.filters?.search ?? '',
-    role: props.filters?.role || 'all'
+    role: props.filters?.role || 'all',
+    per_page: basePerPage,
 });
 
 const rejectedFilters = ref({
     search: props.filters?.search ?? '',
-    role: props.filters?.role || 'all'
+    role: props.filters?.role || 'all',
+    per_page: basePerPage,
 });
 
 // Current active tab
@@ -192,9 +234,10 @@ const searchInput = computed({
     },
     set: (value) => {
         if (activeTab.value === 'pending') pendingFilters.value.search = value;
-        else if (activeTab.value === 'rejected') rejectedFilters.value.search = value;
+        else if (activeTab.value === 'rejected')
+            rejectedFilters.value.search = value;
         else allUsersFilters.value.search = value;
-    }
+    },
 });
 
 const filterRole = computed({
@@ -205,9 +248,10 @@ const filterRole = computed({
     },
     set: (value) => {
         if (activeTab.value === 'pending') pendingFilters.value.role = value;
-        else if (activeTab.value === 'rejected') rejectedFilters.value.role = value;
+        else if (activeTab.value === 'rejected')
+            rejectedFilters.value.role = value;
         else allUsersFilters.value.role = value;
-    }
+    },
 });
 
 const filterStatus = computed({
@@ -218,9 +262,22 @@ const filterStatus = computed({
     },
     set: (value) => {
         if (activeTab.value === 'all') allUsersFilters.value.status = value;
-    }
+    },
 });
 
+const perPage = computed({
+    get: () => {
+        if (activeTab.value === 'pending') return pendingFilters.value.per_page;
+        if (activeTab.value === 'rejected') return rejectedFilters.value.per_page;
+        return allUsersFilters.value.per_page;
+    },
+    set: (value) => {
+        if (activeTab.value === 'pending') pendingFilters.value.per_page = value;
+        else if (activeTab.value === 'rejected')
+            rejectedFilters.value.per_page = value;
+        else allUsersFilters.value.per_page = value;
+    },
+});
 
 const roleOptions = [
     { value: 'admin', label: 'Admin' },
@@ -229,37 +286,48 @@ const roleOptions = [
 ];
 
 watch(
-    () => [props.filters?.search, props.filters?.role, props.filters?.status],
-    ([search, role, status]) => {
+    () => [props.filters?.search, props.filters?.role, props.filters?.status, props.filters?.per_page],
+    ([search, role, status, perPageValue]) => {
         const statusValue = (status as string) || 'all';
         const searchValue = (search as string) ?? '';
         const roleValue = (role as string) || 'all';
+        const perPageFilter = String(perPageValue ?? basePerPage);
 
         if (statusValue === 'pending') {
             pendingFilters.value.search = searchValue;
             pendingFilters.value.role = roleValue;
+            pendingFilters.value.per_page = perPageFilter;
         } else if (statusValue === 'rejected') {
             rejectedFilters.value.search = searchValue;
             rejectedFilters.value.role = roleValue;
+            rejectedFilters.value.per_page = perPageFilter;
         } else {
             allUsersFilters.value.search = searchValue;
             allUsersFilters.value.role = roleValue;
             allUsersFilters.value.status = statusValue;
+            allUsersFilters.value.per_page = perPageFilter;
         }
     },
-    { immediate: true }
+    { immediate: true },
 );
 
-
 let debounce: ReturnType<typeof setTimeout> | null = null;
-watch([searchInput, filterRole, filterStatus], () => {
+watch([searchInput, filterRole, filterStatus, perPage], () => {
     if (debounce) clearTimeout(debounce);
     debounce = setTimeout(() => {
         const query: Record<string, string> = {};
         if (searchInput.value) query.search = searchInput.value;
-        if (filterRole.value && filterRole.value !== 'all') query.role = filterRole.value;
-        const statusArg = filterStatus.value && filterStatus.value !== 'all' ? { status: filterStatus.value } : undefined;
-        const url = hr.users.index.url(statusArg, Object.keys(query).length ? { query } : undefined);
+        if (filterRole.value && filterRole.value !== 'all')
+            query.role = filterRole.value;
+        if (perPage.value) query.per_page = String(perPage.value);
+        const statusArg =
+            filterStatus.value && filterStatus.value !== 'all'
+                ? { status: filterStatus.value }
+                : undefined;
+        const url = hr.users.index.url(
+            statusArg,
+            Object.keys(query).length ? { query } : undefined,
+        );
         router.get(url, {}, { preserveState: true });
     }, 300);
 });
@@ -268,18 +336,27 @@ function clearFilters() {
     if (activeTab.value === 'pending') {
         pendingFilters.value.search = '';
         pendingFilters.value.role = 'all';
+        pendingFilters.value.per_page = basePerPage;
     } else if (activeTab.value === 'rejected') {
         rejectedFilters.value.search = '';
         rejectedFilters.value.role = 'all';
+        rejectedFilters.value.per_page = basePerPage;
     } else {
         allUsersFilters.value.search = '';
         allUsersFilters.value.role = 'all';
         allUsersFilters.value.status = 'all';
+        allUsersFilters.value.per_page = basePerPage;
     }
 
-    // Navigate to the current tab without filters
-    const statusArg = activeTab.value !== 'all' ? { status: activeTab.value } : undefined;
-    router.get(hr.users.index.url(statusArg));
+    const statusArg =
+        activeTab.value !== 'all' ? { status: activeTab.value } : undefined;
+    const query = basePerPage ? { per_page: basePerPage } : undefined;
+    router.get(
+        hr.users.index.url(
+            statusArg,
+            query ? { query } : undefined,
+        ),
+    );
 }
 
 // Helper functions for status display
@@ -309,7 +386,9 @@ function getStatusVariant(user: any) {
 const currentQuery = computed(() => {
     const q: Record<string, string> = {};
     if (searchInput.value) q.search = searchInput.value;
-    if (filterRole.value && filterRole.value !== 'all') q.role = filterRole.value;
+    if (filterRole.value && filterRole.value !== 'all')
+        q.role = filterRole.value;
+    if (perPage.value) q.per_page = String(perPage.value);
     return q;
 });
 
@@ -343,7 +422,7 @@ const addLastName = ref('');
 const addNameExtension = ref('');
 const addUsername = ref('');
 const addEmail = ref('');
-const addPassword = ref('');
+const addPassword = ref(`iloveTRC${new Date().getFullYear()}`);
 const addRole = ref('employee');
 const addStep = ref<1 | 2 | 3>(1);
 const addErrors = ref<Record<string, string>>({});
@@ -352,127 +431,95 @@ const addErrors = ref<Record<string, string>>({});
 const addSex = ref('');
 const addDateOfBirth = ref('');
 const addDateHired = ref('');
-const addDivisionId = ref<number | null>(null);
-const addSubdivisionId = ref<number | null>(null);
-const addSectionId = ref<number | null>(null);
 const addPosition = ref('');
 const addClassification = ref('');
 
-const addSubdivisionOptions = computed(() => {
-    if (!addDivisionId.value) return [];
-    return subdivisions.value.filter((s) => s.division_id === addDivisionId.value);
-});
-
-const addSectionOptions = computed(() => {
-    if (!addDivisionId.value) return [];
-    if (addSubdivisionId.value) {
-        return sections.value.filter((s) => s.subdivision_id === addSubdivisionId.value);
-    }
-    if (addSubdivisionOptions.value.length === 0) {
-        return sections.value.filter((s) => s.division_id === addDivisionId.value && s.subdivision_id === null);
-    }
-    return [];
-});
-
-watch(addDivisionId, (newVal, oldVal) => {
-    if (newVal === oldVal) return;
-    addSubdivisionId.value = null;
-    addSectionId.value = null;
-});
-
-watch(addSubdivisionId, (newVal, oldVal) => {
-    if (newVal === oldVal) return;
-    addSectionId.value = null;
-});
+const {
+    divisions,
+    subdivisions,
+    sections,
+    divisionId: addDivisionId,
+    subdivisionId: addSubdivisionId,
+    sectionId: addSectionId,
+    subdivisionOptions: addSubdivisionOptions,
+    sectionOptions: addSectionOptions,
+} = useOrgUnitSelectors();
 
 const addNameComputed = computed(() =>
-    [addFirstName.value, addLastName.value].filter(Boolean).join(' ')
+    [addFirstName.value, addLastName.value].filter(Boolean).join(' '),
 );
-
-// Organizational unit data
-const divisions = ref<any[]>([]);
-const subdivisions = ref<any[]>([]);
-const sections = ref<any[]>([]);
 
 const filteredSubdivisions = computed(() => {
     if (!editDivisionId.value) return [];
-    return subdivisions.value.filter((s) => s.division_id === editDivisionId.value);
+    return subdivisions.value.filter(
+        (s) => s.division_id === editDivisionId.value,
+    );
 });
 
 const filteredSections = computed(() => {
     if (editSubdivisionId.value) {
-        return sections.value.filter((s) => s.subdivision_id === editSubdivisionId.value);
+        return sections.value.filter(
+            (s) => s.subdivision_id === editSubdivisionId.value,
+        );
     }
 
     if (editDivisionId.value) {
-        return sections.value.filter((s) => s.division_id === editDivisionId.value && s.subdivision_id === null);
+        return sections.value.filter(
+            (s) =>
+                s.division_id === editDivisionId.value &&
+                s.subdivision_id === null,
+        );
     }
 
     return [];
 });
 
-// Fetch organizational unit data
-onMounted(async () => {
-    try {
-        // For now, we'll use sample data since we don't have API endpoints
-        // In a real implementation, you'd fetch from your API endpoints
-        divisions.value = [
-            { id: 1, name: 'Chief of Hospital Offices Division' },
-            { id: 2, name: 'Treatment and Rehabilitation Division' },
-            { id: 3, name: 'Finance and Administrative Division' }
-        ];
+watch(
+    editingUser,
+    (u) => {
+        if (u) {
+            editFirstName.value = u.first_name ?? '';
+            editMiddleName.value = u.middle_name ?? '';
+            editLastName.value = u.last_name ?? '';
+            editNameExtension.value = u.name_extension ?? '';
+            editUsername.value = u.username ?? '';
+            editEmail.value = u.email ?? '';
+            editIsActive.value =
+                u.is_active !== undefined
+                    ? u.is_active
+                        ? 'true'
+                        : 'false'
+                    : 'true';
+            editSex.value = u.sex ?? '';
+            editDateOfBirth.value = u.date_of_birth ?? '';
+            editPosition.value = u.position ?? '';
+            editClassification.value = u.classification ?? '';
+            editDateHired.value = u.date_hired ?? '';
+            editDivisionId.value = u.division_id ?? null;
+            editSubdivisionId.value = u.subdivision_id ?? null;
+            editSectionId.value = u.section_id ?? null;
 
-        subdivisions.value = [
-            { id: 1, name: 'Non-Residential Treatment & Rehabilitation', division_id: 2 },
-            { id: 2, name: 'Residential Treatment & Rehabilitation', division_id: 2 }
-        ];
+            if (editDivisionId.value) {
+                const subdivisionOk =
+                    !editSubdivisionId.value ||
+                    filteredSubdivisions.value.some(
+                        (s) => s.id === editSubdivisionId.value,
+                    );
+                if (!subdivisionOk) editSubdivisionId.value = null;
+            } else {
+                editSubdivisionId.value = null;
+            }
 
-        sections.value = [
-            { id: 1, name: 'Legal Unit', subdivision_id: null, division_id: 1 },
-            { id: 2, name: 'Planning Unit', subdivision_id: null, division_id: 1 },
-            { id: 3, name: 'Information and Communications Technology Unit', subdivision_id: null, division_id: 1 },
-            { id: 4, name: 'Medical Section', subdivision_id: 1, division_id: 2 },
-            { id: 5, name: 'Nursing Section', subdivision_id: 1, division_id: 2 },
-            { id: 6, name: 'Medical Section', subdivision_id: 2, division_id: 2 },
-            { id: 7, name: 'Nursing Section', subdivision_id: 2, division_id: 2 },
-            { id: 8, name: 'Human Resource Management Section', subdivision_id: null, division_id: 3 },
-            { id: 9, name: 'Procurement Section', subdivision_id: null, division_id: 3 },
-            { id: 10, name: 'Accounting Section', subdivision_id: null, division_id: 3 }
-        ];
-    } catch (error) {
-        console.error('Failed to fetch organizational units:', error);
-    }
-});
-
-watch(editingUser, (u) => {
-    if (u) {
-        editFirstName.value = u.first_name ?? '';
-        editMiddleName.value = u.middle_name ?? '';
-        editLastName.value = u.last_name ?? '';
-        editNameExtension.value = u.name_extension ?? '';
-        editUsername.value = u.username ?? '';
-        editEmail.value = u.email ?? '';
-        editIsActive.value = u.is_active !== undefined ? (u.is_active ? 'true' : 'false') : 'true';
-        editSex.value = u.sex ?? '';
-        editDateOfBirth.value = u.date_of_birth ?? '';
-        editPosition.value = u.position ?? '';
-        editClassification.value = u.classification ?? '';
-        editDateHired.value = u.date_hired ?? '';
-        editDivisionId.value = u.division_id ?? null;
-        editSubdivisionId.value = u.subdivision_id ?? null;
-        editSectionId.value = u.section_id ?? null;
-
-        if (editDivisionId.value) {
-            const subdivisionOk = !editSubdivisionId.value || filteredSubdivisions.value.some((s) => s.id === editSubdivisionId.value);
-            if (!subdivisionOk) editSubdivisionId.value = null;
-        } else {
-            editSubdivisionId.value = null;
+            const sectionOk =
+                !editSectionId.value ||
+                filteredSections.value.some(
+                    (s) => s.id === editSectionId.value,
+                );
+            if (!sectionOk) editSectionId.value = null;
         }
-
-        const sectionOk = !editSectionId.value || filteredSections.value.some((s) => s.id === editSectionId.value);
-        if (!sectionOk) editSectionId.value = null;
-    }
-}, { immediate: true });
+    },
+    { immediate: true },
+);
 
 watch(editDivisionId, (newDivisionId, oldDivisionId) => {
     if (newDivisionId === oldDivisionId) return;
@@ -483,7 +530,11 @@ watch(editDivisionId, (newDivisionId, oldDivisionId) => {
         return;
     }
 
-    const subdivisionOk = !editSubdivisionId.value || filteredSubdivisions.value.some((s) => s.id === editSubdivisionId.value);
+    const subdivisionOk =
+        !editSubdivisionId.value ||
+        filteredSubdivisions.value.some(
+            (s) => s.id === editSubdivisionId.value,
+        );
     if (!subdivisionOk) editSubdivisionId.value = null;
     editSectionId.value = null;
 });
@@ -491,12 +542,16 @@ watch(editDivisionId, (newDivisionId, oldDivisionId) => {
 watch(editSubdivisionId, (newSubdivisionId, oldSubdivisionId) => {
     if (newSubdivisionId === oldSubdivisionId) return;
 
-    const sectionOk = !editSectionId.value || filteredSections.value.some((s) => s.id === editSectionId.value);
+    const sectionOk =
+        !editSectionId.value ||
+        filteredSections.value.some((s) => s.id === editSectionId.value);
     if (!sectionOk) editSectionId.value = null;
 });
 
 function userName(u: UserItem): string {
-    return u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—';
+    return (
+        u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—'
+    );
 }
 
 function openView(u: UserItem) {
@@ -523,7 +578,7 @@ function approveViewingUser() {
             onFinish: () => {
                 approvalProcessing.value = null;
             },
-        }
+        },
     );
 }
 
@@ -540,7 +595,7 @@ function rejectViewingUser() {
             onFinish: () => {
                 approvalProcessing.value = null;
             },
-        }
+        },
     );
 }
 
@@ -570,7 +625,7 @@ function resetAddForm() {
     addNameExtension.value = '';
     addUsername.value = '';
     addEmail.value = '';
-    addPassword.value = '';
+    addPassword.value = `iloveTRC${new Date().getFullYear()}`;
     addRole.value = 'employee';
     addStep.value = 1;
     addErrors.value = {};
@@ -588,8 +643,8 @@ function resetAddForm() {
 const addErrorsList = computed(() => Object.values(addErrors.value));
 
 const canProceedAddStep2 = computed(() => {
-    const baseOk = Boolean(addFirstName.value.trim())
-        && Boolean(addLastName.value.trim());
+    const baseOk =
+        Boolean(addFirstName.value.trim()) && Boolean(addLastName.value.trim());
     if (!baseOk) return false;
     // Employee requires sex and dob
     return Boolean(addSex.value) && Boolean(addDateOfBirth.value);
@@ -600,7 +655,8 @@ const canProceedAddStep3 = computed(() => {
     if (!dateHiredOk) return false;
     const divisionOk = Boolean(addDivisionId.value);
     if (!divisionOk) return false;
-    if (addSubdivisionOptions.value.length && !addSubdivisionId.value) return false;
+    if (addSubdivisionOptions.value.length && !addSubdivisionId.value)
+        return false;
     if (addSectionOptions.value.length && !addSectionId.value) return false;
     const classificationOk = Boolean(addClassification.value);
     if (!classificationOk) return false;
@@ -610,9 +666,11 @@ const canProceedAddStep3 = computed(() => {
 });
 
 const canSubmitAdd = computed(() => {
-    return Boolean(addUsername.value.trim())
-        && Boolean(addEmail.value.trim())
-        && Boolean(addPassword.value);
+    return (
+        Boolean(addUsername.value.trim()) &&
+        Boolean(addEmail.value.trim()) &&
+        Boolean(addPassword.value)
+    );
 });
 
 const addLayoutTitle = computed(() => {
@@ -625,7 +683,8 @@ const addStepLabel = computed(() => `Step ${addStep.value} of 3`);
 
 const addLayoutDescription = computed(() => {
     if (addStep.value === 1) return 'Enter personal details.';
-    if (addStep.value === 2) return 'Enter employment and organizational details.';
+    if (addStep.value === 2)
+        return 'Enter employment and organizational details.';
     return 'Set up username, email, and password.';
 });
 
@@ -642,55 +701,81 @@ function prevAddStep() {
 function submitAddUser(e: Event) {
     e.preventDefault();
     addErrors.value = {};
-    router.post(hr.users.store.url(), {
-        name: addNameComputed.value,
-        first_name: addFirstName.value,
-        middle_name: addMiddleName.value || null,
-        last_name: addLastName.value,
-        name_extension: addNameExtension.value || null,
-        username: addUsername.value,
-        email: addEmail.value,
-        password: addPassword.value,
-        role: addRole.value,
-        sex: addSex.value,
-        date_of_birth: addDateOfBirth.value,
-        date_hired: addDateHired.value,
-        division_id: addDivisionId.value,
-        subdivision_id: addSubdivisionId.value,
-        section_id: addSectionId.value,
-        position: addPosition.value,
-        classification: addClassification.value,
-    }, {
-        onError: (errors) => {
-            addErrors.value = errors;
-            if (errors.first_name || errors.middle_name || errors.last_name || errors.name_extension || errors.sex || errors.date_of_birth) {
-                addStep.value = 1;
-            } else if (errors.date_hired || errors.division_id || errors.subdivision_id || errors.section_id || errors.position || errors.classification) {
-                addStep.value = 2;
-            } else if (errors.username || errors.email || errors.password) {
-                addStep.value = 3;
-            }
+    router.post(
+        hr.users.store.url(),
+        {
+            name: addNameComputed.value,
+            first_name: addFirstName.value,
+            middle_name: addMiddleName.value || null,
+            last_name: addLastName.value,
+            name_extension: addNameExtension.value || null,
+            username: addUsername.value,
+            email: addEmail.value,
+            password: addPassword.value,
+            role: addRole.value,
+            sex: addSex.value,
+            date_of_birth: addDateOfBirth.value,
+            date_hired: addDateHired.value,
+            division_id: addDivisionId.value,
+            subdivision_id: addSubdivisionId.value,
+            section_id: addSectionId.value,
+            position: addPosition.value,
+            classification: addClassification.value,
         },
-        onSuccess: () => { addModalOpen.value = false; resetAddForm(); },
-    });
+        {
+            onError: (errors) => {
+                addErrors.value = errors;
+                if (
+                    errors.first_name ||
+                    errors.middle_name ||
+                    errors.last_name ||
+                    errors.name_extension ||
+                    errors.sex ||
+                    errors.date_of_birth
+                ) {
+                    addStep.value = 1;
+                } else if (
+                    errors.date_hired ||
+                    errors.division_id ||
+                    errors.subdivision_id ||
+                    errors.section_id ||
+                    errors.position ||
+                    errors.classification
+                ) {
+                    addStep.value = 2;
+                } else if (errors.username || errors.email || errors.password) {
+                    addStep.value = 3;
+                }
+            },
+            onSuccess: () => {
+                addModalOpen.value = false;
+                resetAddForm();
+            },
+        },
+    );
 }
 
 function submitEditUser(e: Event) {
     e.preventDefault();
     if (!editingUser.value) return;
-    router.put(hr.users.update.url(editingUser.value.id), {
-        name: [editFirstName.value, editLastName.value].filter(Boolean).join(' '),
-        first_name: editFirstName.value,
-        middle_name: editMiddleName.value || null,
-        last_name: editLastName.value,
-        username: editUsername.value,
-        email: editEmail.value,
-        is_active: editIsActive.value,
-    }, {
-        onSuccess: () => closeEdit(),
-    });
+    router.put(
+        hr.users.update.url(editingUser.value.id),
+        {
+            name: [editFirstName.value, editLastName.value]
+                .filter(Boolean)
+                .join(' '),
+            first_name: editFirstName.value,
+            middle_name: editMiddleName.value || null,
+            last_name: editLastName.value,
+            username: editUsername.value,
+            email: editEmail.value,
+            is_active: editIsActive.value,
+        },
+        {
+            onSuccess: () => closeEdit(),
+        },
+    );
 }
-
 </script>
 
 <template>
@@ -698,31 +783,62 @@ function submitEditUser(e: Event) {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div
+                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            >
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                    <h1
+                        class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                    >
                         Manage Users
                     </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         View and manage user accounts. Approve or toggle status.
                     </p>
                 </div>
-                <Button type="button" @click="addModalOpen = true">Add Employee</Button>
+                <Button type="button" @click="addModalOpen = true"
+                    >Add Employee</Button
+                >
             </div>
 
             <!-- Tabs -->
-            <nav class="flex gap-1 border-b border-gray-200 dark:border-neutral-700" aria-label="Tabs">
+            <nav
+                class="flex gap-1 border-b border-gray-200 dark:border-neutral-700"
+                aria-label="Tabs"
+            >
                 <Link
-                    :href="hr.users.index.url(undefined, Object.keys(currentQuery).length ? { query: currentQuery } : undefined)"
+                    :href="
+                        hr.users.index.url(
+                            undefined,
+                            Object.keys(currentQuery).length
+                                ? { query: currentQuery }
+                                : undefined,
+                        )
+                    "
                     class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors"
-                    :class="(!filterStatus || filterStatus === 'all') ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="
+                        !filterStatus || filterStatus === 'all'
+                            ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    "
                 >
                     All Approved
                 </Link>
                 <Link
-                    :href="hr.users.index.url({ status: 'pending' }, Object.keys(currentQuery).length ? { query: currentQuery } : undefined)"
+                    :href="
+                        hr.users.index.url(
+                            { status: 'pending' },
+                            Object.keys(currentQuery).length
+                                ? { query: currentQuery }
+                                : undefined,
+                        )
+                    "
                     class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors"
-                    :class="filterStatus === 'pending' ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="
+                        filterStatus === 'pending'
+                            ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    "
                 >
                     Pending
                     <span
@@ -733,16 +849,29 @@ function submitEditUser(e: Event) {
                     </span>
                 </Link>
                 <Link
-                    :href="hr.users.index.url({ status: 'rejected' }, Object.keys(currentQuery).length ? { query: currentQuery } : undefined)"
+                    :href="
+                        hr.users.index.url(
+                            { status: 'rejected' },
+                            Object.keys(currentQuery).length
+                                ? { query: currentQuery }
+                                : undefined,
+                        )
+                    "
                     class="inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium transition-colors"
-                    :class="filterStatus === 'rejected' ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'"
+                    :class="
+                        filterStatus === 'rejected'
+                            ? 'border-brand text-brand dark:border-brand-light dark:text-brand-light'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                    "
                 >
                     Rejected
                 </Link>
             </nav>
 
             <!-- Filters -->
-            <div class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50">
+            <div
+                class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50"
+            >
                 <div class="min-w-[180px] flex-1">
                     <Label for="search" class="sr-only">Search</Label>
                     <Input
@@ -769,7 +898,6 @@ function submitEditUser(e: Event) {
                                 {{ opt.label }}
                             </SelectItem>
                         </SelectContent>
-
                     </Select>
                 </div>
                 <!-- Status filter - only shown for All Users tab -->
@@ -786,24 +914,64 @@ function submitEditUser(e: Event) {
                         </SelectContent>
                     </Select>
                 </div>
+                <div class="w-[110px]">
+                    <Label for="filter-per-page" class="sr-only">Rows</Label>
+                    <Select v-model="perPage">
+                        <SelectTrigger id="filter-per-page" class="h-10">
+                            <SelectValue placeholder="Rows" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="8">8</SelectItem>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="15">15</SelectItem>
+                            <SelectItem value="25">25</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
                 <Button type="button" variant="outline" @click="clearFilters">
                     Clear filters
                 </Button>
             </div>
 
-            <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
+            <div
+                class="overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-700"
+            >
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[560px] border-collapse text-sm">
-                        <thead class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                        <thead
+                            class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50"
+                        >
                             <tr>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Name</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Email</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Role</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Status</th>
-                                <th class="text-right font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Actions</th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Name
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Email
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Role
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Status
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                        <tbody
+                            class="divide-y divide-gray-200 dark:divide-neutral-700"
+                        >
                             <tr
                                 v-for="u in realtimeUsers"
                                 :key="u.id"
@@ -811,13 +979,27 @@ function submitEditUser(e: Event) {
                             >
                                 <td class="px-4 py-3">
                                     <TableUserCell
-                                        :name="u.name || [u.first_name, u.last_name].filter(Boolean).join(' ') || '—'"
+                                        :name="
+                                            u.name ||
+                                            [u.first_name, u.last_name]
+                                                .filter(Boolean)
+                                                .join(' ') ||
+                                            '—'
+                                        "
+                                        :avatar="u.avatar"
                                         :subtitle="u.username || u.email"
+                                        :user-id="u.id"
                                     />
                                 </td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ u.email }}</td>
+                                <td
+                                    class="px-4 py-3 text-gray-600 dark:text-gray-400"
+                                >
+                                    {{ u.email }}
+                                </td>
                                 <td class="px-4 py-3">
-                                    <Badge variant="outline">{{ u.role }}</Badge>
+                                    <Badge variant="outline">{{
+                                        u.role
+                                    }}</Badge>
                                 </td>
                                 <td class="px-4 py-3">
                                     <Badge :variant="getStatusVariant(u)">
@@ -825,8 +1007,12 @@ function submitEditUser(e: Event) {
                                     </Badge>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <div class="flex items-center justify-end gap-1">
-                                        <template v-if="filterStatus === 'pending'">
+                                    <div
+                                        class="flex items-center justify-end gap-1"
+                                    >
+                                        <template
+                                            v-if="filterStatus === 'pending'"
+                                        >
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -837,7 +1023,11 @@ function submitEditUser(e: Event) {
                                                 <Eye class="size-4" />
                                             </Button>
                                         </template>
-                                        <template v-else-if="filterStatus === 'rejected'">
+                                        <template
+                                            v-else-if="
+                                                filterStatus === 'rejected'
+                                            "
+                                        >
                                             <Button
                                                 type="button"
                                                 variant="ghost"
@@ -901,109 +1091,182 @@ function submitEditUser(e: Event) {
                 </div>
             </div>
 
-            <div
-                v-if="users.last_page > 1"
-                class="flex flex-wrap items-center justify-center gap-2"
-            >
-                <template v-for="(link, i) in users.links" :key="i">
-                    <span
-                        v-if="!link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-gray-200 px-3 text-sm text-gray-400 dark:border-neutral-700"
-                        v-html="link.label"
-                    />
-                    <Link
-                        v-else
-                        :href="link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
-                    >
-                        <span v-html="link.label" />
-                    </Link>
-                </template>
-            </div>
+            <Pagination :meta="users" />
         </div>
 
         <!-- View User modal -->
         <Dialog v-model:open="viewModalOpen">
-            <DialogScrollContent v-if="viewingUser" class="w-[95vw] max-w-3xl sm:w-[90vw]">
+            <DialogScrollContent
+                v-if="viewingUser"
+                class="w-[95vw] max-w-3xl sm:w-[90vw]"
+            >
                 <DialogHeader>
                     <DialogTitle>View Employee</DialogTitle>
                     <DialogDescription class="sr-only">
                         View employee profile details.
                     </DialogDescription>
                 </DialogHeader>
-                <div class="max-h-[75vh] overflow-y-auto space-y-4 p-2 sm:p-4">
+                <div class="max-h-[75vh] space-y-4 overflow-y-auto p-2 sm:p-4">
                     <div class="flex items-center gap-3">
                         <TableUserCell
                             :name="userName(viewingUser)"
-                            :subtitle="viewingUser.username || viewingUser.email"
+                            :avatar="viewingUser.avatar"
+                            :subtitle="
+                                viewingUser.username || viewingUser.email
+                            "
+                            :user-id="viewingUser.id"
                         />
                     </div>
-                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                    <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Username</dt>
-                            <dd class="mt-0.5">{{ viewingUser.username || viewingUser.email }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Name</dt>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Username
+                            </dt>
                             <dd class="mt-0.5">
-                                {{ userName(viewingUser) }}{{ viewingUser.name_extension ? `, ${viewingUser.name_extension}` : '' }}
+                                {{ viewingUser.username || viewingUser.email }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</dt>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Name
+                            </dt>
+                            <dd class="mt-0.5">
+                                {{ userName(viewingUser)
+                                }}{{
+                                    viewingUser.name_extension
+                                        ? `, ${viewingUser.name_extension}`
+                                        : ''
+                                }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Email
+                            </dt>
                             <dd class="mt-0.5">{{ viewingUser.email }}</dd>
                         </div>
 
                         <template v-if="viewingUser.role === 'employee'">
                             <div>
-                                <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Sex</dt>
-                                <dd class="mt-0.5 capitalize">{{ viewingUser.sex }}</dd>
+                                <dt
+                                    class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                                >
+                                    Sex
+                                </dt>
+                                <dd class="mt-0.5 capitalize">
+                                    {{ viewingUser.sex }}
+                                </dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Date of Birth</dt>
-                                <dd class="mt-0.5">{{ viewingUser.date_of_birth }}</dd>
+                                <dt
+                                    class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                                >
+                                    Date of Birth
+                                </dt>
+                                <dd class="mt-0.5">
+                                    {{ viewingUser.date_of_birth }}
+                                </dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Position</dt>
-                                <dd class="mt-0.5">{{ viewingUser.position || '—' }}</dd>
+                                <dt
+                                    class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                                >
+                                    Position
+                                </dt>
+                                <dd class="mt-0.5">
+                                    {{ viewingUser.position || '—' }}
+                                </dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Classification</dt>
-                                <dd class="mt-0.5">{{ viewingUser.classification || '—' }}</dd>
+                                <dt
+                                    class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                                >
+                                    Classification
+                                </dt>
+                                <dd class="mt-0.5">
+                                    {{ viewingUser.classification || '—' }}
+                                </dd>
                             </div>
                             <div>
-                                <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Date Hired</dt>
-                                <dd class="mt-0.5">{{ viewingUser.date_hired || '—' }}</dd>
+                                <dt
+                                    class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                                >
+                                    Date Hired
+                                </dt>
+                                <dd class="mt-0.5">
+                                    {{ viewingUser.date_hired || '—' }}
+                                </dd>
                             </div>
 
-                            <div v-if="viewingUser.division || viewingUser.subdivision || viewingUser.section" class="border-t pt-3 mt-3 space-y-2 sm:col-span-2">
-                                <h4 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            <div
+                                v-if="
+                                    viewingUser.division ||
+                                    viewingUser.subdivision ||
+                                    viewingUser.section
+                                "
+                                class="mt-3 space-y-2 border-t pt-3 sm:col-span-2"
+                            >
+                                <h4
+                                    class="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+                                >
                                     Organizational Unit
                                 </h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div
+                                    class="grid grid-cols-1 gap-2 sm:grid-cols-3"
+                                >
                                     <div v-if="viewingUser.division">
-                                        <span class="text-xs font-medium text-muted-foreground">Division:</span>
-                                        <div class="mt-0.5">{{ viewingUser.division }}</div>
+                                        <span
+                                            class="text-xs font-medium text-muted-foreground"
+                                            >Division:</span
+                                        >
+                                        <div class="mt-0.5">
+                                            {{ viewingUser.division }}
+                                        </div>
                                     </div>
                                     <div v-if="viewingUser.subdivision">
-                                        <span class="text-xs font-medium text-muted-foreground">Subdivision:</span>
-                                        <div class="mt-0.5">{{ viewingUser.subdivision }}</div>
+                                        <span
+                                            class="text-xs font-medium text-muted-foreground"
+                                            >Subdivision:</span
+                                        >
+                                        <div class="mt-0.5">
+                                            {{ viewingUser.subdivision }}
+                                        </div>
                                     </div>
                                     <div v-if="viewingUser.section">
-                                        <span class="text-xs font-medium text-muted-foreground">Section:</span>
-                                        <div class="mt-0.5">{{ viewingUser.section }}</div>
+                                        <span
+                                            class="text-xs font-medium text-muted-foreground"
+                                            >Section:</span
+                                        >
+                                        <div class="mt-0.5">
+                                            {{ viewingUser.section }}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </template>
 
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Role</dt>
-                            <dd class="mt-0.5 capitalize">{{ viewingUser.role }}</dd>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Role
+                            </dt>
+                            <dd class="mt-0.5 capitalize">
+                                {{ viewingUser.role }}
+                            </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</dt>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Status
+                            </dt>
                             <dd class="mt-0.5">
                                 <Badge :variant="getStatusVariant(viewingUser)">
                                     {{ getStatusLabel(viewingUser) }}
@@ -1044,14 +1307,19 @@ function submitEditUser(e: Event) {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button type="button" variant="outline" @click="closeView()">Close</Button>
+                    <Button type="button" variant="outline" @click="closeView()"
+                        >Close</Button
+                    >
                 </DialogFooter>
             </DialogScrollContent>
         </Dialog>
 
         <!-- Edit User modal -->
         <Dialog v-model:open="editModalOpen">
-            <DialogScrollContent v-if="editingUser" class="w-[95vw] max-w-3xl sm:w-[90vw]">
+            <DialogScrollContent
+                v-if="editingUser"
+                class="w-[95vw] max-w-3xl sm:w-[90vw]"
+            >
                 <DialogHeader>
                     <DialogTitle>Edit Employee</DialogTitle>
                     <DialogDescription class="sr-only">
@@ -1062,112 +1330,229 @@ function submitEditUser(e: Event) {
                     class="flex flex-col gap-4"
                     @submit.prevent="submitEditUser"
                 >
-                    <div class="max-h-[75vh] overflow-y-auto space-y-4 p-2 sm:p-4">
+                    <div
+                        class="max-h-[75vh] space-y-4 overflow-y-auto p-2 sm:p-4"
+                    >
                         <div class="space-y-2">
                             <Label for="edit-username">Username</Label>
-                            <Input id="edit-username" v-model="editUsername" disabled class="bg-gray-50/50 dark:bg-neutral-800/50 text-muted-foreground cursor-not-allowed" />
+                            <Input
+                                id="edit-username"
+                                v-model="editUsername"
+                                disabled
+                                class="cursor-not-allowed bg-gray-50/50 text-muted-foreground dark:bg-neutral-800/50"
+                            />
                         </div>
 
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-2">
                                 <Label for="edit-first_name">First name</Label>
-                                <Input id="edit-first_name" v-model="editFirstName" required />
+                                <Input
+                                    id="edit-first_name"
+                                    v-model="editFirstName"
+                                    required
+                                />
                             </div>
                             <div class="space-y-2">
-                                <Label for="edit-middle_name">Middle name</Label>
-                                <Input id="edit-middle_name" v-model="editMiddleName" />
+                                <Label for="edit-middle_name"
+                                    >Middle name</Label
+                                >
+                                <Input
+                                    id="edit-middle_name"
+                                    v-model="editMiddleName"
+                                />
                             </div>
                         </div>
 
                         <div class="space-y-2">
                             <Label for="edit-last_name">Last name</Label>
-                            <Input id="edit-last_name" v-model="editLastName" required />
+                            <Input
+                                id="edit-last_name"
+                                v-model="editLastName"
+                                required
+                            />
                         </div>
 
                         <div class="space-y-2">
-                            <Label for="edit-name_extension">Name Extension</Label>
-                            <Input id="edit-name_extension" v-model="editNameExtension" placeholder="e.g. Jr., Sr." />
+                            <Label for="edit-name_extension"
+                                >Name Extension</Label
+                            >
+                            <Input
+                                id="edit-name_extension"
+                                v-model="editNameExtension"
+                                placeholder="e.g. Jr., Sr."
+                            />
                         </div>
 
                         <div class="space-y-2">
                             <Label for="edit-email">Email</Label>
-                            <Input id="edit-email" v-model="editEmail" type="email" required />
+                            <Input
+                                id="edit-email"
+                                v-model="editEmail"
+                                type="email"
+                                required
+                            />
                         </div>
 
                         <!-- Employee-specific fields -->
                         <template v-if="editingUser?.role === 'employee'">
-                            <div class="border-t pt-4 mt-2">
-                                <h4 class="text-sm font-medium mb-3 text-muted-foreground">Employee Details</h4>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="mt-2 border-t pt-4">
+                                <h4
+                                    class="mb-3 text-sm font-medium text-muted-foreground"
+                                >
+                                    Employee Details
+                                </h4>
+                                <div
+                                    class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                >
                                     <div class="space-y-2">
                                         <Label for="edit-sex">Sex</Label>
                                         <Select v-model="editSex">
                                             <SelectTrigger id="edit-sex">
-                                                <SelectValue placeholder="Select Sex" />
+                                                <SelectValue
+                                                    placeholder="Select Sex"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="male">Male</SelectItem>
-                                                <SelectItem value="female">Female</SelectItem>
+                                                <SelectItem value="male"
+                                                    >Male</SelectItem
+                                                >
+                                                <SelectItem value="female"
+                                                    >Female</SelectItem
+                                                >
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div class="space-y-2">
-                                        <Label for="edit-date_of_birth">Date of Birth</Label>
-                                        <Input id="edit-date_of_birth" v-model="editDateOfBirth" type="date" />
+                                        <Label for="edit-date_of_birth"
+                                            >Date of Birth</Label
+                                        >
+                                        <Input
+                                            id="edit-date_of_birth"
+                                            v-model="editDateOfBirth"
+                                            type="date"
+                                        />
                                     </div>
                                     <div class="space-y-2">
-                                        <Label for="edit-position">Position</Label>
-                                        <Input id="edit-position" v-model="editPosition" />
+                                        <Label for="edit-position"
+                                            >Position</Label
+                                        >
+                                        <Input
+                                            id="edit-position"
+                                            v-model="editPosition"
+                                        />
                                     </div>
                                     <div class="space-y-2">
-                                        <Label for="edit-classification">Classification</Label>
-                                        <Input id="edit-classification" v-model="editClassification" />
+                                        <Label for="edit-classification"
+                                            >Classification</Label
+                                        >
+                                        <Input
+                                            id="edit-classification"
+                                            v-model="editClassification"
+                                        />
                                     </div>
                                     <div class="space-y-2">
-                                        <Label for="edit-date_hired">Date Hired</Label>
-                                        <Input id="edit-date_hired" v-model="editDateHired" type="date" />
+                                        <Label for="edit-date_hired"
+                                            >Date Hired</Label
+                                        >
+                                        <Input
+                                            id="edit-date_hired"
+                                            v-model="editDateHired"
+                                            type="date"
+                                        />
                                     </div>
                                 </div>
-                                <div class="border-t pt-4 mt-6">
-                                    <h5 class="text-sm font-medium mb-3">Organizational Unit</h5>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="mt-6 border-t pt-4">
+                                    <h5 class="mb-3 text-sm font-medium">
+                                        Organizational Unit
+                                    </h5>
+                                    <div
+                                        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                                    >
                                         <div class="space-y-2">
-                                            <Label for="edit-division">Division</Label>
+                                            <Label for="edit-division"
+                                                >Division</Label
+                                            >
                                             <Select v-model="editDivisionId">
-                                                <SelectTrigger id="edit-division">
-                                                    <SelectValue placeholder="Select Division" />
+                                                <SelectTrigger
+                                                    id="edit-division"
+                                                >
+                                                    <SelectValue
+                                                        placeholder="Select Division"
+                                                    />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem :value="null">None</SelectItem>
-                                                    <SelectItem v-for="division in divisions" :key="division.id" :value="division.id">
+                                                    <SelectItem :value="null"
+                                                        >None</SelectItem
+                                                    >
+                                                    <SelectItem
+                                                        v-for="division in divisions"
+                                                        :key="division.id"
+                                                        :value="division.id"
+                                                    >
                                                         {{ division.name }}
                                                     </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div v-if="editDivisionId && filteredSubdivisions.length" class="space-y-2">
-                                            <Label for="edit-subdivision">Subdivision</Label>
+                                        <div
+                                            v-if="
+                                                editDivisionId &&
+                                                filteredSubdivisions.length
+                                            "
+                                            class="space-y-2"
+                                        >
+                                            <Label for="edit-subdivision"
+                                                >Subdivision</Label
+                                            >
                                             <Select v-model="editSubdivisionId">
-                                                <SelectTrigger id="edit-subdivision">
-                                                    <SelectValue placeholder="Select Subdivision" />
+                                                <SelectTrigger
+                                                    id="edit-subdivision"
+                                                >
+                                                    <SelectValue
+                                                        placeholder="Select Subdivision"
+                                                    />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem :value="null">None</SelectItem>
-                                                    <SelectItem v-for="subdivision in filteredSubdivisions" :key="subdivision.id" :value="subdivision.id">
+                                                    <SelectItem :value="null"
+                                                        >None</SelectItem
+                                                    >
+                                                    <SelectItem
+                                                        v-for="subdivision in filteredSubdivisions"
+                                                        :key="subdivision.id"
+                                                        :value="subdivision.id"
+                                                    >
                                                         {{ subdivision.name }}
                                                     </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div v-if="editDivisionId && filteredSections.length" class="space-y-2">
-                                            <Label for="edit-section">Section</Label>
+                                        <div
+                                            v-if="
+                                                editDivisionId &&
+                                                filteredSections.length
+                                            "
+                                            class="space-y-2"
+                                        >
+                                            <Label for="edit-section"
+                                                >Section</Label
+                                            >
                                             <Select v-model="editSectionId">
-                                                <SelectTrigger id="edit-section">
-                                                    <SelectValue placeholder="Select Section" />
+                                                <SelectTrigger
+                                                    id="edit-section"
+                                                >
+                                                    <SelectValue
+                                                        placeholder="Select Section"
+                                                    />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem :value="null">None</SelectItem>
-                                                    <SelectItem v-for="section in filteredSections" :key="section.id" :value="section.id">
+                                                    <SelectItem :value="null"
+                                                        >None</SelectItem
+                                                    >
+                                                    <SelectItem
+                                                        v-for="section in filteredSections"
+                                                        :key="section.id"
+                                                        :value="section.id"
+                                                    >
                                                         {{ section.name }}
                                                     </SelectItem>
                                                 </SelectContent>
@@ -1186,13 +1571,20 @@ function submitEditUser(e: Event) {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="true">Active</SelectItem>
-                                    <SelectItem value="false">Inactive</SelectItem>
+                                    <SelectItem value="false"
+                                        >Inactive</SelectItem
+                                    >
                                 </SelectContent>
                             </Select>
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="closeEdit()">Cancel</Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="closeEdit()"
+                            >Cancel</Button
+                        >
                         <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>
@@ -1201,22 +1593,38 @@ function submitEditUser(e: Event) {
 
         <!-- Delete User modal -->
         <Dialog v-model:open="deleteModalOpen">
-            <DialogContent v-if="deletingUser" :show-close-button="true" class="max-w-md">
+            <DialogContent
+                v-if="deletingUser"
+                :show-close-button="true"
+                class="max-w-md"
+            >
                 <DialogHeader>
                     <DialogTitle>Delete User</DialogTitle>
                     <DialogDescription class="sr-only">
                         Confirm user account deletion.
                     </DialogDescription>
-                    <p class="text-sm text-muted-foreground mt-0.5">
-                        Are you sure you want to delete <strong>{{ userName(deletingUser) }}</strong>? This action cannot be undone.
+                    <p class="mt-0.5 text-sm text-muted-foreground">
+                        Are you sure you want to delete
+                        <strong>{{ userName(deletingUser) }}</strong
+                        >? This action cannot be undone.
                     </p>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeDelete()">Cancel</Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="closeDelete()"
+                        >Cancel</Button
+                    >
                     <Button
                         type="button"
                         variant="destructive"
-                        @click="router.delete(hr.users.destroy.url(deletingUser.id), { onSuccess: () => closeDelete() })"
+                        @click="
+                            router.delete(
+                                hr.users.destroy.url(deletingUser.id),
+                                { onSuccess: () => closeDelete() },
+                            )
+                        "
                     >
                         Delete User
                     </Button>
@@ -1225,20 +1633,34 @@ function submitEditUser(e: Event) {
         </Dialog>
 
         <!-- Add User modal -->
-        <Dialog v-model:open="addModalOpen" @update:open="(v: boolean) => v && resetAddForm()">
-            <DialogScrollContent class="w-[98vw] sm:w-[95vw] md:max-w-2xl lg:max-w-4xl max-h-[90vh]">
+        <Dialog
+            v-model:open="addModalOpen"
+            @update:open="(v: boolean) => v && resetAddForm()"
+        >
+            <DialogScrollContent
+                class="max-h-[90vh] w-[98vw] sm:w-[95vw] md:max-w-2xl lg:max-w-4xl"
+            >
                 <DialogHeader class="sr-only">
                     <DialogTitle>Add Employee</DialogTitle>
                     <DialogDescription>
                         Create a new employee account.
                     </DialogDescription>
                 </DialogHeader>
-                <form class="flex flex-col flex-1 h-full min-h-[50vh] sm:min-h-[600px] justify-between p-2 sm:p-4" @submit.prevent="submitAddUser">
-                    <div class="w-full sm:max-w-2xl min-w-0 mx-auto flex flex-col flex-1">
-                        <h1 class="mb-2 text-center text-xl sm:text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                <form
+                    class="flex h-full min-h-[50vh] flex-1 flex-col justify-center p-2 sm:min-h-[600px] sm:p-4"
+                    @submit.prevent="submitAddUser"
+                >
+                    <div
+                        class="mx-auto my-auto flex w-full min-w-0 flex-col justify-center sm:max-w-2xl"
+                    >
+                        <h1
+                            class="mb-2 text-center text-xl font-semibold text-gray-900 sm:text-2xl dark:text-gray-100"
+                        >
                             {{ addLayoutTitle }}
                         </h1>
-                        <p class="mb-2 text-center text-base font-medium text-gray-500 dark:text-gray-400">
+                        <p
+                            class="mb-2 text-center text-base font-medium text-gray-500 dark:text-gray-400"
+                        >
                             {{ addStepLabel }}
                         </p>
                         <div class="mb-4 flex gap-1">
@@ -1246,10 +1668,16 @@ function submitEditUser(e: Event) {
                                 v-for="i in 3"
                                 :key="i"
                                 class="h-1.5 flex-1 rounded-sm transition-colors"
-                                :class="i <= addStep ? 'bg-gray-900 dark:bg-gray-100' : 'bg-gray-200 dark:bg-neutral-700'"
+                                :class="
+                                    i <= addStep
+                                        ? 'bg-gray-900 dark:bg-gray-100'
+                                        : 'bg-gray-200 dark:bg-neutral-700'
+                                "
                             />
                         </div>
-                        <p class="mb-6 text-center text-base text-gray-600 dark:text-gray-400">
+                        <p
+                            class="mb-6 text-center text-base text-gray-600 dark:text-gray-400"
+                        >
                             {{ addLayoutDescription }}
                         </p>
 
@@ -1261,10 +1689,15 @@ function submitEditUser(e: Event) {
 
                         <div class="space-y-6 p-1">
                             <!-- Step 1: Personal Information -->
-                            <div v-show="addStep === 1" class="flex flex-col gap-6 min-w-0">
+                            <div
+                                v-show="addStep === 1"
+                                class="flex min-w-0 flex-col gap-6"
+                            >
                                 <div class="grid gap-4 sm:grid-cols-2">
                                     <div class="grid gap-2">
-                                        <Label for="add-first_name">First name</Label>
+                                        <Label for="add-first_name"
+                                            >First name</Label
+                                        >
                                         <Input
                                             id="add-first_name"
                                             v-model="addFirstName"
@@ -1273,7 +1706,9 @@ function submitEditUser(e: Event) {
                                         />
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-middle_name">Middle name</Label>
+                                        <Label for="add-middle_name"
+                                            >Middle name</Label
+                                        >
                                         <Input
                                             id="add-middle_name"
                                             v-model="addMiddleName"
@@ -1281,7 +1716,9 @@ function submitEditUser(e: Event) {
                                         />
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-last_name">Last name</Label>
+                                        <Label for="add-last_name"
+                                            >Last name</Label
+                                        >
                                         <Input
                                             id="add-last_name"
                                             v-model="addLastName"
@@ -1290,7 +1727,9 @@ function submitEditUser(e: Event) {
                                         />
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-name_extension">Name extension</Label>
+                                        <Label for="add-name_extension"
+                                            >Name extension</Label
+                                        >
                                         <Input
                                             id="add-name_extension"
                                             v-model="addNameExtension"
@@ -1304,81 +1743,158 @@ function submitEditUser(e: Event) {
                                         <Label for="add-sex">Sex</Label>
                                         <Select v-model="addSex">
                                             <SelectTrigger id="add-sex">
-                                                <SelectValue placeholder="Select sex" />
+                                                <SelectValue
+                                                    placeholder="Select sex"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="male">Male</SelectItem>
-                                                <SelectItem value="female">Female</SelectItem>
+                                                <SelectItem value="male"
+                                                    >Male</SelectItem
+                                                >
+                                                <SelectItem value="female"
+                                                    >Female</SelectItem
+                                                >
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div class="grid gap-2 min-w-0">
-                                        <Label for="add-dob">Date of birth</Label>
-                                        <Input id="add-dob" v-model="addDateOfBirth" type="date" class="w-full min-w-0" />
+                                    <div class="grid min-w-0 gap-2">
+                                        <Label for="add-dob"
+                                            >Date of birth</Label
+                                        >
+                                        <Input
+                                            id="add-dob"
+                                            v-model="addDateOfBirth"
+                                            type="date"
+                                            class="w-full min-w-0"
+                                        />
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Step 2: Employment Details -->
-                            <div v-show="addStep === 2" class="flex flex-col gap-6 min-w-0">
-                                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <div
+                                v-show="addStep === 2"
+                                class="flex min-w-0 flex-col gap-6"
+                            >
+                                <div
+                                    class="grid gap-4 sm:grid-cols-2 lg:grid-cols-1"
+                                >
                                     <div class="grid gap-2">
-                                        <Label for="add-date_hired">Date hired</Label>
-                                        <Input id="add-date_hired" v-model="addDateHired" type="date" class="w-full" />
+                                        <Label for="add-date_hired"
+                                            >Date hired</Label
+                                        >
+                                        <Input
+                                            id="add-date_hired"
+                                            v-model="addDateHired"
+                                            type="date"
+                                            class="w-full"
+                                        />
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-division">Division</Label>
+                                        <Label for="add-division"
+                                            >Division</Label
+                                        >
                                         <Select v-model="addDivisionId">
                                             <SelectTrigger id="add-division">
-                                                <SelectValue placeholder="Select division" />
+                                                <SelectValue
+                                                    placeholder="Select division"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem v-for="d in divisions" :key="d.id" :value="d.id">
+                                                <SelectItem
+                                                    v-for="d in divisions"
+                                                    :key="d.id"
+                                                    :value="d.id"
+                                                >
                                                     {{ d.name }}
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div v-if="addSubdivisionOptions.length" class="grid gap-2">
-                                        <Label for="add-subdivision">Subdivision</Label>
+                                    <div
+                                        v-if="
+                                            addDivisionId &&
+                                            addSubdivisionOptions.length
+                                        "
+                                        class="grid gap-2"
+                                    >
+                                        <Label for="add-subdivision"
+                                            >Subdivision</Label
+                                        >
                                         <Select v-model="addSubdivisionId">
                                             <SelectTrigger id="add-subdivision">
-                                                <SelectValue placeholder="Select subdivision" />
+                                                <SelectValue
+                                                    placeholder="Select subdivision"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem v-for="s in addSubdivisionOptions" :key="s.id" :value="s.id">
+                                                <SelectItem
+                                                    v-for="s in addSubdivisionOptions"
+                                                    :key="s.id"
+                                                    :value="s.id"
+                                                >
                                                     {{ s.name }}
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div v-if="addSectionOptions.length" class="grid gap-2">
+                                    <div
+                                        v-if="
+                                            addDivisionId &&
+                                            addSectionOptions.length
+                                        "
+                                        class="grid gap-2"
+                                    >
                                         <Label for="add-section">Section</Label>
                                         <Select v-model="addSectionId">
                                             <SelectTrigger id="add-section">
-                                                <SelectValue placeholder="Select section" />
+                                                <SelectValue
+                                                    placeholder="Select section"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem v-for="s in addSectionOptions" :key="s.id" :value="s.id">
+                                                <SelectItem
+                                                    v-for="s in addSectionOptions"
+                                                    :key="s.id"
+                                                    :value="s.id"
+                                                >
                                                     {{ s.name }}
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-position">Position</Label>
-                                        <Input id="add-position" v-model="addPosition" placeholder="e.g. Administrative Assistant" />
+                                        <Label for="add-position"
+                                            >Position</Label
+                                        >
+                                        <Input
+                                            id="add-position"
+                                            v-model="addPosition"
+                                            placeholder="e.g. Administrative Assistant"
+                                        />
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-classification">Classification</Label>
+                                        <Label for="add-classification"
+                                            >Classification</Label
+                                        >
                                         <Select v-model="addClassification">
-                                            <SelectTrigger id="add-classification">
-                                                <SelectValue placeholder="Select classification" />
+                                            <SelectTrigger
+                                                id="add-classification"
+                                            >
+                                                <SelectValue
+                                                    placeholder="Select classification"
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Regular">Regular</SelectItem>
-                                                <SelectItem value="Detailed">Detailed</SelectItem>
-                                                <SelectItem value="COS">COS</SelectItem>
+                                                <SelectItem value="Regular"
+                                                    >Regular</SelectItem
+                                                >
+                                                <SelectItem value="Detailed"
+                                                    >Detailed</SelectItem
+                                                >
+                                                <SelectItem value="COS"
+                                                    >COS</SelectItem
+                                                >
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -1386,10 +1902,15 @@ function submitEditUser(e: Event) {
                             </div>
 
                             <!-- Step 3: Credentials -->
-                            <div v-show="addStep === 3" class="flex flex-col gap-6 min-w-0">
+                            <div
+                                v-show="addStep === 3"
+                                class="flex min-w-0 flex-col gap-6"
+                            >
                                 <div class="grid gap-4 sm:grid-cols-2">
                                     <div class="grid gap-2">
-                                        <Label for="add-username">Username</Label>
+                                        <Label for="add-username"
+                                            >Username</Label
+                                        >
                                         <Input
                                             id="add-username"
                                             v-model="addUsername"
@@ -1408,29 +1929,39 @@ function submitEditUser(e: Event) {
                                         />
                                     </div>
                                     <div class="grid gap-2">
-                                        <Label for="add-password">Password</Label>
-                                        <PasswordInput
+                                        <Label for="add-password"
+                                            >Password</Label
+                                        >
+                                        <Input
                                             id="add-password"
                                             v-model="addPassword"
                                             name="password"
                                             autocomplete="new-password"
-                                            placeholder="Enter password"
-                                            required
+                                            disabled
+                                            class="cursor-not-allowed bg-gray-50/50 text-muted-foreground dark:bg-neutral-800/50"
                                         />
                                     </div>
                                     <div class="grid gap-2">
                                         <Label>Role</Label>
-                                        <Input :model-value="'Employee'" disabled />
+                                        <Input
+                                            :model-value="'Employee'"
+                                            disabled
+                                            class="cursor-not-allowed bg-gray-50/50 text-muted-foreground dark:bg-neutral-800/50"
+                                        />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mt-auto pt-8 flex justify-between gap-4">
+                        <div class="mt-auto flex justify-between gap-4 pt-8">
                             <Button
                                 type="button"
                                 variant="outline"
-                                @click="addStep === 1 ? (addModalOpen = false) : prevAddStep()"
+                                @click="
+                                    addStep === 1
+                                        ? (addModalOpen = false)
+                                        : prevAddStep()
+                                "
                             >
                                 {{ addStep === 1 ? 'Cancel' : 'Back' }}
                             </Button>

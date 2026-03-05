@@ -16,7 +16,7 @@ class EnsureSessionAuthenticated
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (! (Auth::check() || session('user_id'))) {
+        if (! Auth::check()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Unauthorized'], 401);
             }

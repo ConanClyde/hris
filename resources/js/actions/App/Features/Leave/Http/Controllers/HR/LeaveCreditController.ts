@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
 export const show = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ show.definition = {
 
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
 show.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -122,7 +122,7 @@ show.url = (args: { id: string | number } | [id: string | number ] | string | nu
 
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
 show.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -131,7 +131,7 @@ show.get = (args: { id: string | number } | [id: string | number ] | string | nu
 })
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
 show.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -141,7 +141,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
     /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
     const showForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -151,7 +151,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
 
             /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
         showForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -160,7 +160,7 @@ show.head = (args: { id: string | number } | [id: string | number ] | string | n
         })
             /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveCreditController::show
- * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:46
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveCreditController.php:64
  * @route '/hr/leave-credits/{id}'
  */
         showForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

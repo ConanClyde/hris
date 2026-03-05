@@ -6,7 +6,7 @@ use App\Features\Notices\Http\Controllers\Api\NoticeApiController;
 use App\Features\Training\Http\Controllers\Api\TrainingApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['integration'])
+Route::middleware(['integration', 'throttle:api'])
     ->prefix('v1')
     ->group(function () {
         Route::get('leave-applications', [LeaveApiController::class, 'index']);

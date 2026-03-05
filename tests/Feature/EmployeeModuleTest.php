@@ -39,6 +39,22 @@ class EmployeeModuleTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_employee_can_view_pds_preview()
+    {
+        Pds::create([
+            'employee_id' => $this->employee->id,
+            'status' => 'draft',
+        ]);
+
+        $response = $this->actingAs($this->employeeUser)->get('/employee/pds/preview');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Employee/PDS/Preview')
+            ->has('pds')
+        );
+    }
+
     public function test_employee_can_view_pds()
     {
         Pds::create([
@@ -54,6 +70,7 @@ class EmployeeModuleTest extends TestCase
     {
         Training::create([
             'employee_id' => $this->employee->id,
+            'employee_fk' => $this->employee->id,
             'title' => 'Test Training',
             'date_from' => now(),
             'status' => 'pending',
@@ -74,10 +91,33 @@ class EmployeeModuleTest extends TestCase
 
         $response->assertRedirect();
         $this->assertDatabaseHas('leave_applications', [
-            'employee_id' => $this->employee->id,
+            'employee_id' => (string) $this->employee->id,
             'type' => 'Vacation Leave',
             'total_days' => 2,
             'status' => 'pending',
+        ]);
+    }
+
+    public function test_employee_can_cancel_pending_leave_application()
+    {
+        $leave = LeaveApplication::create([
+            'employee_id' => (string) $this->employee->id,
+            'employee_fk' => $this->employee->id,
+            'employee_name' => $this->employee->full_name,
+            'type' => 'Vacation Leave',
+            'date_from' => now()->addDays(5),
+            'total_days' => 1,
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($this->employeeUser)->put(route('employee.leave-applications.update', $leave->id), [
+            'status' => 'cancelled',
+        ]);
+
+        $response->assertRedirect();
+        $this->assertDatabaseHas('leave_applications', [
+            'id' => $leave->id,
+            'status' => 'cancelled',
         ]);
     }
 

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { usePage } from '@inertiajs/vue3';
 import { Bell, Sun, Moon, Check, Trash2 } from 'lucide-vue-next';
-import { computed, onMounted } from 'vue';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,9 +22,6 @@ withDefaults(
     },
 );
 
-const page = usePage();
-const user = computed(() => page.props.auth.user as unknown as { id: number; role: string } | null);
-
 // Theme toggle
 const { appearance, updateAppearance } = useAppearance();
 
@@ -39,43 +34,10 @@ function toggleTheme() {
 const {
     notifications,
     unreadCount,
-    setupUserListeners,
-    setupAdminListeners,
-    setupHrListeners,
-    setupEmployeeListeners,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
 } = useBroadcasting();
-
-onMounted(() => {
-    if (user.value) {
-        // Always setup user-specific listeners
-        setupUserListeners(user.value.id);
-
-        // Setup role-based listeners
-        if (user.value.role === 'admin') {
-            setupAdminListeners();
-        }
-
-        if (user.value.role === 'hr' || user.value.role === 'admin') {
-            setupHrListeners();
-        }
-
-        // All employees get these
-        setupEmployeeListeners();
-    }
-});
-
-function markAsRead(id: number) {
-    const notif = notifications.value.find(n => n.id === id);
-    if (notif) notif.read = true;
-}
-
-function markAllAsRead() {
-    notifications.value.forEach(n => n.read = true);
-}
-
-function deleteNotification(id: number) {
-    notifications.value = notifications.value.filter(n => n.id !== id);
-}
 
 function formatTime(dateStr: string) {
     const date = new Date(dateStr);

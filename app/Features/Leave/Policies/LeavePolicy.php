@@ -15,7 +15,15 @@ class LeavePolicy
 
         $employee = $user->employee;
 
-        return $employee && (string) $leave->employee_id === (string) $employee->id;
+        if (! $employee) {
+            return false;
+        }
+
+        if ($leave->employee_fk !== null) {
+            return (int) $leave->employee_fk === (int) $employee->id;
+        }
+
+        return (string) $leave->employee_id === (string) $employee->id;
     }
 
     public function update(User $user, LeaveApplication $leave): bool
@@ -26,9 +34,15 @@ class LeavePolicy
 
         $employee = $user->employee;
 
-        return $employee
-            && (string) $leave->employee_id === (string) $employee->id
-            && $leave->status === 'pending';
+        if (! $employee) {
+            return false;
+        }
+
+        $matchesEmployee = $leave->employee_fk !== null
+            ? (int) $leave->employee_fk === (int) $employee->id
+            : (string) $leave->employee_id === (string) $employee->id;
+
+        return $matchesEmployee && $leave->status === 'pending';
     }
 
     public function delete(User $user, LeaveApplication $leave): bool

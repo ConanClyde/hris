@@ -211,7 +211,7 @@ register.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     register.form = registerForm
 /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
 export const home = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -225,7 +225,7 @@ home.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
 home.url = (options?: RouteQueryOptions) => {
@@ -233,7 +233,7 @@ home.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
 home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -241,7 +241,7 @@ home.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
 home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -250,7 +250,7 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
     const homeForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -259,7 +259,7 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
         homeForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -267,7 +267,7 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:8
+ * @see routes/web.php:11
  * @route '/'
  */
         homeForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -282,7 +282,7 @@ home.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     home.form = homeForm
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -296,7 +296,7 @@ dashboard.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -304,7 +304,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -312,7 +312,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -321,7 +321,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -330,7 +330,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -338,7 +338,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:13
+ * @see routes/web.php:16
  * @route '/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -352,3 +352,74 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     dashboard.form = dashboardForm
+/**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+export const aiChatbot = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: aiChatbot.url(options),
+    method: 'get',
+})
+
+aiChatbot.definition = {
+    methods: ["get","head"],
+    url: '/ai-chatbot',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+aiChatbot.url = (options?: RouteQueryOptions) => {
+    return aiChatbot.definition.url + queryParams(options)
+}
+
+/**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+aiChatbot.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: aiChatbot.url(options),
+    method: 'get',
+})
+/**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+aiChatbot.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: aiChatbot.url(options),
+    method: 'head',
+})
+
+    /**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+    const aiChatbotForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: aiChatbot.url(options),
+        method: 'get',
+    })
+
+            /**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+        aiChatbotForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: aiChatbot.url(options),
+            method: 'get',
+        })
+            /**
+ * @see routes/web.php:46
+ * @route '/ai-chatbot'
+ */
+        aiChatbotForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: aiChatbot.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    aiChatbot.form = aiChatbotForm

@@ -41,10 +41,10 @@ const legendItems = [
             class="absolute right-0 top-full z-50 mt-2 w-56 gap-0 border border-border py-0"
             @click.stop
         >
-            <CardHeader class="border-b border-border px-4 py-3">
-                <CardTitle class="text-sm font-semibold text-foreground">Calendar Legend</CardTitle>
+            <CardHeader class="border-b border-border p-4 !pb-4">
+                <CardTitle class="text-sm font-semibold text-foreground m-0">Calendar Legend</CardTitle>
             </CardHeader>
-            <CardContent class="space-y-3 p-4">
+            <CardContent class="space-y-3 p-4 pt-4">
                 <div
                     v-for="item in legendItems"
                     :key="item.label"

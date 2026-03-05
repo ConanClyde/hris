@@ -2,7 +2,6 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import admin from '@/routes/admin';
 import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 

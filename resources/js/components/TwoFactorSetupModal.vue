@@ -105,6 +105,15 @@ watch(
         }
     },
 );
+
+const getConfirmCodeError = (formErrors: Record<string, string>): string => {
+    return (
+        formErrors.confirmTwoFactorAuthentication ??
+        formErrors.confirmation_code ??
+        formErrors.code ??
+        ''
+    );
+};
 </script>
 
 <template>
@@ -248,12 +257,8 @@ watch(
                             class="relative w-full space-y-3"
                         >
                             <AlertError
-                                v-if="
-                                    errors?.confirmTwoFactorAuthentication?.code
-                                "
-                                :errors="[
-                                    errors.confirmTwoFactorAuthentication.code,
-                                ]"
+                                v-if="getConfirmCodeError(errors) !== ''"
+                                :errors="[getConfirmCodeError(errors)]"
                                 class="mb-4 border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20"
                             />
                             <div

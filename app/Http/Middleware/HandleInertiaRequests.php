@@ -41,7 +41,9 @@ class HandleInertiaRequests extends Middleware
 
         if ($user) {
             $sharedUser = $user->toArray();
-            $sharedUser['avatar'] = $user->avatar ? asset('storage/'.$user->avatar) : null;
+            $sharedUser['avatar'] = $user->avatar
+                ? asset('storage/'.$user->avatar).'?v='.$user->updated_at?->timestamp
+                : null;
         }
 
         return [

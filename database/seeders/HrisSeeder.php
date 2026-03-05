@@ -6,7 +6,6 @@ use App\Features\Employees\Models\Division;
 use App\Features\Employees\Models\Employee;
 use App\Features\Employees\Models\Section;
 use App\Features\Leave\Models\LeaveApplication;
-use App\Features\Notices\Models\Notice;
 use App\Features\Pds\Models\Pds;
 use App\Features\Pds\Models\PdsPersonal;
 use App\Models\User;
@@ -44,20 +43,6 @@ class HrisSeeder extends Seeder
             ]
         );
 
-        $this->ensureEmployeeAndPds($admin, [
-            'position' => 'System Administrator',
-            'classification' => 'Permanent',
-            'division_id' => $adminDivision?->id,
-            'division' => $adminDivision?->name,
-            'subdivision_id' => null,
-            'subdivision' => null,
-            'section_id' => $adminSection?->id,
-            'section' => $adminSection?->name,
-            'date_hired' => '2020-01-15',
-            'sex' => 'male',
-            'dob' => '1990-05-20',
-        ]);
-
         // ── HR User ────────────────────────────────
         $hrUser = User::firstOrCreate(
             ['email' => 'hr@example.com'],
@@ -75,20 +60,6 @@ class HrisSeeder extends Seeder
                 'avatar' => null,
             ]
         );
-
-        $this->ensureEmployeeAndPds($hrUser, [
-            'position' => 'HR Officer',
-            'classification' => 'Permanent',
-            'division_id' => $hrDivision?->id,
-            'division' => $hrDivision?->name,
-            'subdivision_id' => null,
-            'subdivision' => null,
-            'section_id' => $hrSection?->id,
-            'section' => $hrSection?->name,
-            'date_hired' => '2021-03-01',
-            'sex' => 'female',
-            'dob' => '1992-08-15',
-        ]);
 
         // ── Employee User ──────────────────────────
         $employeeUser = User::firstOrCreate(
@@ -124,7 +95,6 @@ class HrisSeeder extends Seeder
 
         // ── Sample data ────────────────────────────
         LeaveApplication::factory(5)->create();
-        Notice::factory(3)->create();
     }
 
     /**

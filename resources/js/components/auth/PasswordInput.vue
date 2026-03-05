@@ -51,7 +51,7 @@ const toggleVisibility = () => {
             :readonly="readonly"
             :tabindex="tabindex"
             :class="cn('pr-10', props.class)"
-            @update:model-value="emit('update:modelValue', $event)"
+            @update:model-value="emit('update:modelValue', String($event ?? ''))"
         />
         <button
             type="button"

@@ -4,16 +4,21 @@ namespace App\Features\Leave\Http\Controllers\Employee;
 
 use App\Events\LeaveCancelled;
 use App\Events\LeaveSubmitted;
+use App\Features\Employees\Models\Employee;
 use App\Features\Leave\Enums\LeaveStatus;
 use App\Features\Leave\Enums\LeaveType;
 use App\Features\Leave\Models\LeaveApplication;
+use App\Features\Leave\Models\LeaveCredit;
 use App\Http\Controllers\Controller;
 use App\Mail\LeaveCancelledMail;
 use App\Mail\LeaveSubmittedMail;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class LeaveController extends Controller
@@ -35,6 +40,7 @@ class LeaveController extends Controller
                     'last_page' => 1,
                     'links' => [],
                 ],
+                'leaveCredits' => [],
                 'types' => LeaveType::labels(),
                 'statusOptions' => LeaveStatus::options(),
                 'filters' => $request->only(['type', 'status']),
@@ -42,7 +48,7 @@ class LeaveController extends Controller
         }
 
         $query = LeaveApplication::query()
-            ->where('employee_id', $employeeId);
+            ->where('employee_fk', $employeeId);
 
         if ($request->filled('type')) {
             $query->where('type', $request->input('type'));
@@ -56,8 +62,18 @@ class LeaveController extends Controller
             ->paginate(10)
             ->appends($appendQuery);
 
+        $leaveCredits = LeaveCredit::query()
+            ->where('employee_id', $employeeId)
+            ->orderBy('leave_type')
+            ->get()
+            ->map(fn (LeaveCredit $credit) => [
+                'leave_type' => $credit->leave_type,
+                'balance' => $credit->balance,
+            ]);
+
         return Inertia::render('Employee/Leave/Index', [
             'applications' => $applications,
+            'leaveCredits' => $leaveCredits,
             'types' => LeaveType::labels(),
             'statusOptions' => LeaveStatus::options(),
             'filters' => $request->only(['type', 'status']),
@@ -72,15 +88,21 @@ class LeaveController extends Controller
         }
 
         $validated = $request->validate([
-            'type' => 'required|string',
+            'type' => ['required', 'string', Rule::in(LeaveType::labels())],
             'date_from' => 'required|date',
             'total_days' => 'required|numeric|min:0.5',
-            'reason' => 'nullable|string',
+            'reason' => 'nullable|string|max:1000',
+            'attachments' => 'nullable|array|max:5',
+            'attachments.*' => 'file|mimes:pdf,jpg,jpeg,png|max:51200',
         ]);
 
+        $employee = Employee::find($employeeId);
+        $employeeName = $employee?->full_name ?? Auth::user()->name;
+
         $leave = LeaveApplication::create([
-            'employee_id' => $employeeId,
-            'employee_name' => Auth::user()->name,
+            'employee_id' => (string) $employeeId,
+            'employee_fk' => $employeeId,
+            'employee_name' => $employeeName,
             'type' => $validated['type'],
             'date_from' => $validated['date_from'],
             'total_days' => $validated['total_days'],
@@ -90,6 +112,31 @@ class LeaveController extends Controller
 
         // Broadcast leave submitted event
         broadcast(new LeaveSubmitted($leave))->toOthers();
+
+        $actor = Auth::user();
+        $actorPayload = $actor
+            ? [
+                'id' => $actor->id,
+                'name' => $actor->full_name,
+                'avatar' => $actor->avatar,
+            ]
+            : null;
+
+        User::query()
+            ->whereIn('role', ['admin', 'hr'])
+            ->where('is_active', true)
+            ->each(function (User $recipient) use ($leave, $actorPayload): void {
+                $recipient->notify(new SystemNotification(
+                    type: 'info',
+                    title: 'Leave Submitted',
+                    message: "{$leave->employee_name} submitted a leave request.",
+                    data: [
+                        'redirect_url' => '/hr/leave-applications?status=pending',
+                        'leave_id' => $leave->id,
+                    ],
+                    actor: $actorPayload,
+                ));
+            });
 
         // Email HR / Admin users about the new leave application
         $hrRecipients = User::query()
@@ -108,7 +155,7 @@ class LeaveController extends Controller
     public function update(Request $request, $id)
     {
         $employeeId = $this->getEmployeeId();
-        $leave = LeaveApplication::where('id', $id)->where('employee_id', $employeeId)->firstOrFail();
+        $leave = LeaveApplication::where('id', $id)->where('employee_fk', $employeeId)->firstOrFail();
 
         // If trying to cancel
         if ($request->input('status') === 'cancelled') {
@@ -119,6 +166,31 @@ class LeaveController extends Controller
 
             // Broadcast leave cancelled event
             broadcast(new LeaveCancelled($leave))->toOthers();
+
+            $actor = Auth::user();
+            $actorPayload = $actor
+                ? [
+                    'id' => $actor->id,
+                    'name' => $actor->full_name,
+                    'avatar' => $actor->avatar,
+                ]
+                : null;
+
+            User::query()
+                ->whereIn('role', ['admin', 'hr'])
+                ->where('is_active', true)
+                ->each(function (User $recipient) use ($leave, $actorPayload): void {
+                    $recipient->notify(new SystemNotification(
+                        type: 'warning',
+                        title: 'Leave Cancelled',
+                        message: "{$leave->employee_name} cancelled a leave request.",
+                        data: [
+                            'redirect_url' => '/hr/leave-applications',
+                            'leave_id' => $leave->id,
+                        ],
+                        actor: $actorPayload,
+                    ));
+                });
 
             // Email employee about the cancelled leave
             $employeeUser = $leave->employee?->user;
@@ -138,7 +210,7 @@ class LeaveController extends Controller
         }
 
         $validated = $request->validate([
-            'type' => 'required|string',
+            'type' => ['required', 'string', Rule::in(LeaveType::labels())],
             'date_from' => 'required|date',
             'total_days' => 'required|numeric|min:0.5',
             'reason' => 'nullable|string',
@@ -152,7 +224,7 @@ class LeaveController extends Controller
     public function destroy($id)
     {
         $employeeId = $this->getEmployeeId();
-        $leave = LeaveApplication::where('id', $id)->where('employee_id', $employeeId)->firstOrFail();
+        $leave = LeaveApplication::where('id', $id)->where('employee_fk', $employeeId)->firstOrFail();
 
         if ($leave->status !== 'pending') {
             return back()->with('error', 'Cannot delete leave application that is no longer pending.');
@@ -167,7 +239,7 @@ class LeaveController extends Controller
     {
         $employeeId = $this->getEmployeeId();
 
-        $query = LeaveApplication::where('employee_id', $employeeId)->orderByDesc('created_at');
+        $query = LeaveApplication::where('employee_fk', $employeeId)->orderByDesc('created_at');
 
         return response()->streamDownload(function () use ($query) {
             $out = fopen('php://output', 'w');
@@ -187,10 +259,10 @@ class LeaveController extends Controller
         }, 'my-leave-applications.csv', ['Content-Type' => 'text/csv']);
     }
 
-    public function destroyAttachment($id)
+    public function destroyAttachment(Request $request, $id)
     {
         $employeeId = $this->getEmployeeId();
-        $leave = LeaveApplication::where('id', $id)->where('employee_id', $employeeId)->first();
+        $leave = LeaveApplication::where('id', $id)->where('employee_fk', $employeeId)->first();
 
         if (! $leave) {
             return response()->json(['success' => false, 'message' => 'Attachment not found or unauthorized'], 404);
@@ -200,6 +272,97 @@ class LeaveController extends Controller
             return response()->json(['success' => false, 'message' => 'Cannot delete attachment from a non-pending leave application'], 403);
         }
 
-        return response()->json(['success' => true, 'message' => 'Attachment deleted']);
+        $attachments = $leave->attachments;
+        if (! is_array($attachments) || $attachments === []) {
+            return response()->json(['success' => true, 'message' => 'No attachments to delete', 'attachments' => []]);
+        }
+
+        $target = $request->input('path');
+        [$remaining, $removed] = $this->removeAttachments($attachments, $target);
+
+        $leave->attachments = $remaining;
+        $leave->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attachment deleted',
+            'removed' => count($removed),
+            'attachments' => $remaining,
+        ]);
+    }
+
+    private function removeAttachments(array $attachments, ?string $target): array
+    {
+        $remaining = [];
+        $removed = [];
+        $normalizedTarget = $target ? $this->normalizeAttachmentPath($target) : null;
+
+        foreach ($attachments as $attachment) {
+            $meta = $this->attachmentMeta($attachment);
+            $path = $meta['path'];
+            $disk = $meta['disk'];
+            $matches = $normalizedTarget === null;
+
+            if ($normalizedTarget !== null) {
+                $matches = $path !== null && ($path === $normalizedTarget || $path === ltrim((string) $target, '/'));
+                if (! $matches && is_string($attachment)) {
+                    $matches = $attachment === $target;
+                }
+                if (! $matches && is_array($attachment)) {
+                    $matches = ($attachment['path'] ?? null) === $target || ($attachment['url'] ?? null) === $target;
+                }
+            }
+
+            if ($matches) {
+                if ($path) {
+                    Storage::disk($disk)->delete($path);
+                }
+                $removed[] = $path;
+
+                continue;
+            }
+
+            $remaining[] = $attachment;
+        }
+
+        return [$remaining, $removed];
+    }
+
+    private function attachmentMeta(mixed $attachment): array
+    {
+        $disk = 'public';
+        $path = null;
+
+        if (is_string($attachment)) {
+            $path = $attachment;
+        } elseif (is_array($attachment)) {
+            $disk = $attachment['disk'] ?? $disk;
+            $path = $attachment['path'] ?? $attachment['file_path'] ?? $attachment['storage_path'] ?? $attachment['url'] ?? null;
+        }
+
+        if (! is_string($path) || $path === '') {
+            return ['path' => null, 'disk' => $disk];
+        }
+
+        return ['path' => $this->normalizeAttachmentPath($path), 'disk' => $disk];
+    }
+
+    private function normalizeAttachmentPath(string $path): string
+    {
+        if (str_contains($path, '/storage/')) {
+            $path = substr($path, strpos($path, '/storage/') + 9);
+        }
+
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, 8);
+        }
+
+        $path = ltrim($path, '/');
+
+        if (str_starts_with($path, 'public/')) {
+            $path = substr($path, 7);
+        }
+
+        return $path;
     }
 }

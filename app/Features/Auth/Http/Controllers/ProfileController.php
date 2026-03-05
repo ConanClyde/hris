@@ -3,6 +3,7 @@
 namespace App\Features\Auth\Http\Controllers;
 
 use App\Events\AvatarUpdated;
+use App\Events\UserIdentityUpdated;
 use App\Features\ActivityLogs\Models\ActivityLog;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -31,7 +32,9 @@ class ProfileController extends Controller
             'role' => $user->role,
             'is_active' => $user->is_active,
             'created_at' => $user->created_at?->toISOString(),
-            'avatar' => $user->avatar ? asset('storage/'.$user->avatar) : null,
+            'avatar' => $user->avatar
+                ? asset('storage/'.$user->avatar).'?v='.$user->updated_at?->timestamp
+                : null,
         ];
 
         $activityLogs = ActivityLog::query()
@@ -69,7 +72,7 @@ class ProfileController extends Controller
             'last_name' => 'nullable|string|max:255',
             'name_extension' => 'nullable|string|max:50',
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'avatar' => 'nullable|image|max:2048',
+            'avatar' => 'nullable|file|mimetypes:image/jpeg,image/png,image/gif,image/webp|max:2048',
             'remove_avatar' => 'nullable|boolean',
         ]);
 
@@ -86,10 +89,12 @@ class ProfileController extends Controller
             'name' => $name,
         ]);
 
+        broadcast(new UserIdentityUpdated($user->refresh()))->toOthers();
+
         if (! empty($validated['remove_avatar']) && $user->avatar) {
             Storage::disk('public')->delete($user->avatar);
             $user->update(['avatar' => null]);
-            broadcast(new AvatarUpdated($user, null, 'removed'));
+            AvatarUpdated::dispatch($user, null, 'removed');
         }
 
         if ($request->hasFile('avatar')) {
@@ -98,8 +103,8 @@ class ProfileController extends Controller
             }
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->update(['avatar' => $path]);
-            $avatarUrl = asset('storage/'.$path);
-            broadcast(new AvatarUpdated($user, $avatarUrl, 'updated'));
+            $avatarUrl = asset('storage/'.$path).'?v='.$user->updated_at?->timestamp;
+            AvatarUpdated::dispatch($user, $avatarUrl, 'updated');
         }
 
         $employee = $user->employee;
@@ -129,7 +134,10 @@ class ProfileController extends Controller
             return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 
-        $user->update(['password' => Hash::make($validated['password'])]);
+        $user->update([
+            'password' => Hash::make($validated['password']),
+            'must_change_password' => false,
+        ]);
 
         return redirect()->back()->with('success', 'Password changed.');
     }

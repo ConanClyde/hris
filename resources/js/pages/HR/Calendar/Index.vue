@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import type { EventInput } from '@fullcalendar/core';
 import { Head } from '@inertiajs/vue3';
-import { AlertCircle, Download } from 'lucide-vue-next';
+import {
+    AlertCircle,
+    Download,
+} from 'lucide-vue-next';
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import LegendPopover from '@/components/calendar/LegendPopover.vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -268,6 +271,35 @@ function closeDateEventsModal() {
     selectedDateStr.value = '';
 }
 
+function getEventBadgeClasses(category: string, status?: string) {
+    if (category === 'holiday') {
+        return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-800';
+    }
+    if (category === 'leave') {
+        if (status === 'approved') {
+            return 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800';
+        }
+        return 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800';
+    }
+    if (category === 'training') {
+        if (status === 'approved') {
+            return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800';
+        }
+        return 'bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-900/30 dark:text-sky-300 dark:border-sky-800';
+    }
+    return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+}
+
+function getStatusBadgeClasses(status?: string) {
+    if (status === 'approved') {
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-800';
+    }
+    if (status === 'pending') {
+        return 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800';
+    }
+    return 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700';
+}
+
 onMounted(() => {
     const now = new Date();
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -356,7 +388,7 @@ onMounted(() => {
                     <Card
                         class="flex h-[70vh] min-h-[500px] flex-col gap-0 overflow-hidden border-border bg-background py-0 text-foreground dark:border-border dark:bg-card dark:text-card-foreground"
                     >
-                        <CardContent class="flex-1 overflow-hidden p-0">
+                        <CardContent class="flex-1 min-h-0 overflow-hidden p-0">
                             <Suspense>
                                 <template #default>
                                     <FullCalendar
@@ -399,37 +431,33 @@ onMounted(() => {
                         v-for="ev in eventsForSelectedDate"
                         :key="ev.id"
                         type="button"
-                        class="w-full rounded-lg border border-border bg-card p-3 text-left transition-colors hover:border-primary/30 hover:bg-muted/50"
+                        class="w-full rounded-lg border border-gray-200 bg-white p-3 text-left transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-neutral-600 dark:hover:bg-neutral-800"
                         @click="openEventDetail(ev)"
                     >
-                        <p class="font-medium text-foreground">
+                        <p class="font-medium text-gray-900 dark:text-gray-100">
                             {{ ev.title }}
                         </p>
                         <div class="mt-1 flex flex-wrap gap-2">
-                            <Badge variant="secondary" class="text-xs">
-                                {{
-                                    (ev.extendedProps as { category?: string })
-                                        ?.category ?? 'event'
-                                }}
+                            <Badge
+                                variant="outline"
+                                class="text-xs capitalize"
+                                :class="getEventBadgeClasses((ev.extendedProps as { category?: string })?.category ?? 'event', (ev.extendedProps as { status?: string })?.status)"
+                            >
+                                {{ (ev.extendedProps as { category?: string })?.category ?? 'event' }}
                             </Badge>
                             <Badge
-                                v-if="
-                                    (ev.extendedProps as { status?: string })
-                                        ?.status
-                                "
+                                v-if="(ev.extendedProps as { status?: string })?.status"
                                 variant="outline"
-                                class="text-xs"
+                                class="text-xs capitalize"
+                                :class="getStatusBadgeClasses((ev.extendedProps as { status?: string })?.status)"
                             >
-                                {{
-                                    (ev.extendedProps as { status?: string })
-                                        ?.status
-                                }}
+                                {{ (ev.extendedProps as { status?: string })?.status }}
                             </Badge>
                         </div>
                     </button>
                     <p
                         v-if="eventsForSelectedDate.length === 0"
-                        class="py-4 text-center text-sm text-muted-foreground"
+                        class="py-4 text-center text-sm text-gray-500 dark:text-gray-400"
                     >
                         No events on this day
                     </p>
@@ -439,8 +467,9 @@ onMounted(() => {
                         type="button"
                         variant="outline"
                         @click="closeDateEventsModal"
-                        >Close</Button
                     >
+                        Close
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -458,60 +487,74 @@ onMounted(() => {
                 <DialogHeader>
                     <DialogTitle>{{ selectedEvent.title }}</DialogTitle>
                     <DialogDescription class="sr-only">
-                        Detailed view of the selected calendar event.
+                        Detailed information about the selected calendar event.
                     </DialogDescription>
                 </DialogHeader>
-                <div class="space-y-3 py-2">
-                    <p class="text-sm text-muted-foreground">
-                        {{
-                            typeof selectedEvent.start === 'string'
-                                ? new Date(selectedEvent.start).toLocaleString()
-                                : selectedEvent.start.toLocaleString()
-                        }}
-                        <template v-if="selectedEvent.end">
-                            –
+
+                <div class="space-y-4 py-4">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Schedule</p>
+                        <p class="text-sm text-gray-900 dark:text-gray-100">
                             {{
-                                typeof selectedEvent.end === 'string'
-                                    ? new Date(
-                                          selectedEvent.end,
-                                      ).toLocaleString()
-                                    : selectedEvent.end.toLocaleString()
+                                typeof selectedEvent.start === 'string'
+                                    ? new Date(selectedEvent.start).toLocaleString()
+                                    : selectedEvent.start.toLocaleString()
                             }}
-                        </template>
-                    </p>
-                    <div class="flex flex-wrap gap-2">
-                        <Badge variant="secondary">{{
-                            (selectedEvent.extendedProps?.category as string) ??
-                            'event'
-                        }}</Badge>
-                        <Badge
-                            v-if="selectedEvent.extendedProps?.status"
-                            variant="outline"
-                        >
-                            {{ selectedEvent.extendedProps.status as string }}
-                        </Badge>
+                            <template v-if="selectedEvent.end">
+                                —
+                                {{
+                                    typeof selectedEvent.end === 'string'
+                                        ? new Date(selectedEvent.end).toLocaleString()
+                                        : selectedEvent.end.toLocaleString()
+                                }}
+                            </template>
+                        </p>
                     </div>
-                    <p
-                        v-if="selectedEvent.extendedProps?.employeeName"
-                        class="text-sm"
-                    >
-                        <span class="text-muted-foreground">Employee:</span>
-                        {{ selectedEvent.extendedProps.employeeName }}
-                    </p>
-                    <p
-                        v-if="selectedEvent.extendedProps?.description"
-                        class="text-sm text-muted-foreground"
-                    >
-                        {{ selectedEvent.extendedProps.description }}
-                    </p>
+
+                    <div v-if="selectedEvent.extendedProps?.employeeName" class="space-y-1">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Employee</p>
+                        <p class="text-sm text-gray-900 dark:text-gray-100">
+                            {{ selectedEvent.extendedProps.employeeName }}
+                        </p>
+                    </div>
+
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Category & Status</p>
+                        <div class="flex flex-wrap gap-2">
+                            <Badge
+                                variant="outline"
+                                class="capitalize"
+                                :class="getEventBadgeClasses((selectedEvent.extendedProps?.category as string) ?? 'event', (selectedEvent.extendedProps?.status as string))"
+                            >
+                                {{ (selectedEvent.extendedProps?.category as string) ?? 'event' }}
+                            </Badge>
+                            <Badge
+                                v-if="selectedEvent.extendedProps?.status"
+                                variant="outline"
+                                class="capitalize"
+                                :class="getStatusBadgeClasses(selectedEvent.extendedProps?.status as string)"
+                            >
+                                {{ selectedEvent.extendedProps.status as string }}
+                            </Badge>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedEvent.extendedProps?.description" class="space-y-1">
+                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Details</p>
+                        <div class="rounded-md bg-gray-50 p-3 text-sm text-gray-700 dark:bg-neutral-800/50 dark:text-gray-300">
+                            {{ selectedEvent.extendedProps.description }}
+                        </div>
+                    </div>
                 </div>
+
                 <DialogFooter>
                     <Button
                         type="button"
                         variant="outline"
                         @click="closeEventDetailModal"
-                        >Close</Button
                     >
+                        Close
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

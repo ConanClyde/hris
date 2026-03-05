@@ -110,7 +110,6 @@ const canProceedNext = computed(() => {
         const baseOk = Boolean(formData.value.first_name?.trim())
             && Boolean(formData.value.surname?.trim());
         if (!baseOk) return false;
-        if (!isEmployee.value) return true;
         return Boolean(formData.value.sex)
             && Boolean(formData.value.date_of_birth);
     }
@@ -363,8 +362,8 @@ const errorsList = (errors: Record<string, string>) => {
                     </div>
                 </div>
 
-                <!-- Employee-only personal fields -->
-                <div v-if="isEmployee" class="grid gap-4 sm:grid-cols-2">
+                <!-- Sex & Date of Birth for all roles -->
+                <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label>Sex</Label>
                         <Select

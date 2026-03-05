@@ -8,6 +8,7 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Auth;
 
 class NoticeCreated implements ShouldBroadcastNow
 {
@@ -17,12 +18,15 @@ class NoticeCreated implements ShouldBroadcastNow
 
     public array $noticeData;
 
+    public ?int $publisherUserId;
+
     /**
      * Create a new event instance.
      */
     public function __construct(Notice $notice)
     {
         $this->notice = $notice;
+        $this->publisherUserId = Auth::id();
         $this->noticeData = [
             'id' => $notice->id,
             'title' => $notice->title,
@@ -66,6 +70,7 @@ class NoticeCreated implements ShouldBroadcastNow
     {
         return [
             'notice' => $this->noticeData,
+            'publisher_user_id' => $this->publisherUserId,
             'message' => "New notice: {$this->notice->title}",
             'type' => $this->notice->type === 'danger' ? 'error' : ($this->notice->type === 'warning' ? 'warning' : 'info'),
         ];

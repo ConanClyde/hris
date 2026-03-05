@@ -24,7 +24,25 @@ class LeaveCreditController extends Controller
         $appendQuery = collect($request->query())->reject(fn ($v) => $v === 'all')->all();
         $credits = $query->orderBy('employee_id')
             ->paginate(10)
-            ->appends($appendQuery);
+            ->appends($appendQuery)
+            ->through(fn ($credit) => [
+                'id' => $credit->id,
+                'employee_id' => $credit->employee_id,
+                'user_id' => $credit->employee?->user?->id,
+                'avatar' => $credit->employee?->user?->avatar
+                    ? asset('storage/'.$credit->employee->user->avatar).'?v='.$credit->employee->user->updated_at?->timestamp
+                    : null,
+                'leave_type' => $credit->leave_type,
+                'balance' => $credit->balance,
+                'used' => $credit->used,
+                'pending' => $credit->pending,
+                'employee' => $credit->employee ? [
+                    'id' => $credit->employee->id,
+                    'full_name' => $credit->employee->full_name,
+                    'first_name' => $credit->employee->first_name,
+                    'last_name' => $credit->employee->last_name,
+                ] : null,
+            ]);
 
         $payload = ['credits' => $credits];
 

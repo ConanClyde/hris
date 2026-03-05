@@ -21,9 +21,18 @@ class NoticeController extends Controller
     public function index(Request $request)
     {
         $appendQuery = collect($request->query())->reject(fn ($v) => $v === 'all')->all();
+
+        // Debug: Log the query
+        \Log::info('Notices index query', [
+            'user_id' => Auth::id(),
+            'user_role' => Auth::user()?->role,
+        ]);
+
         $notices = Notice::orderByDesc('created_at')
             ->paginate(10)
             ->appends($appendQuery);
+
+        \Log::info('Notices count', ['total' => $notices->total(), 'count' => $notices->count()]);
 
         return Inertia::render('Admin/Notices/Index', ['notices' => $notices]);
     }
@@ -52,7 +61,10 @@ class NoticeController extends Controller
         ]);
 
         // Broadcast notice created event
+        \Log::info('Broadcasting NoticeCreated', ['notice_id' => $notice->id, 'publisher' => Auth::id()]);
         broadcast(new NoticeCreated($notice))->toOthers();
+
+        // Realtime + badge behavior for notices is now handled via the new SystemNotification flow.
 
         // Email all active users about the new notice
         $recipients = User::query()

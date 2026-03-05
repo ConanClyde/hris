@@ -10,6 +10,7 @@ use App\Features\Users\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Mail\TrainingAssignedMail;
 use App\Mail\TrainingCompletedMail;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -47,9 +48,32 @@ class TrainingController extends Controller
         }
 
         $appendQuery = collect($request->query())->reject(fn ($v) => $v === 'all')->all();
-        $trainings = $query->orderByDesc('created_at')
+        $trainings = $query->with(['employee.user'])
+            ->orderByDesc('created_at')
             ->paginate(10)
-            ->appends($appendQuery);
+            ->appends($appendQuery)
+            ->through(fn ($training) => [
+                'id' => $training->id,
+                'employee_id' => $training->employee_id,
+                'user_id' => $training->employee?->user?->id,
+                'avatar' => $training->employee?->user?->avatar
+                    ? asset('storage/'.$training->employee->user->avatar).'?v='.$training->employee->user->updated_at?->timestamp
+                    : null,
+                'employee_name' => $training->employee_name,
+                'title' => $training->title,
+                'date_from' => $training->date_from,
+                'date_to' => $training->date_to,
+                'time_from' => $training->time_from,
+                'time_to' => $training->time_to,
+                'hours' => $training->hours,
+                'type' => $training->type,
+                'provider' => $training->provider,
+                'category' => $training->category,
+                'fee' => $training->fee,
+                'participants' => $training->participants,
+                'status' => $training->status,
+                'created_at' => $training->created_at,
+            ]);
 
         $employeesQuery = Employee::query()->with(['user']);
 
@@ -83,9 +107,13 @@ class TrainingController extends Controller
             'provider' => 'nullable|string|max:255',
             'date_from' => 'required|date',
             'date_to' => 'nullable|date|after_or_equal:date_from',
+            'time_from' => 'nullable|string|max:20',
+            'time_to' => 'nullable|string|max:20',
             'hours' => 'nullable|numeric|min:0',
             'type' => 'nullable|string|max:255',
             'category' => 'nullable|string|max:255',
+            'fee' => 'nullable|numeric|min:0',
+            'participants' => 'nullable|string|max:255',
             'status' => 'in:pending,approved,rejected',
         ]);
 
@@ -97,14 +125,35 @@ class TrainingController extends Controller
             return redirect()->back()->with('error', 'HR users cannot manage training for admin accounts.');
         }
 
-        $training = Training::create($validated);
+        $training = Training::create(array_merge($validated, [
+            'employee_name' => $employee?->full_name ?? ($validated['employee_name'] ?? null),
+        ]));
+
+        if ($employee) {
+            $training->employee_fk = $employee->id;
+            $training->save();
+        }
 
         if ($employee && $employee->user_id) {
             broadcast(new TrainingAssigned($training, $employee->user_id))->toOthers();
 
             $user = $employee->user;
-            if ($user && $user->email) {
+            if ($user) {
                 $assignedBy = Auth::user()?->full_name ?? Auth::user()?->name ?? 'HR';
+                $user->notify(new SystemNotification(
+                    type: 'info',
+                    title: 'Training Assigned',
+                    message: "You have been assigned: {$training->title}.",
+                    data: [
+                        'redirect_url' => '/employee/training',
+                        'training_id' => $training->id,
+                    ],
+                    actor: Auth::user()
+                        ? ['id' => Auth::id(), 'name' => $assignedBy, 'avatar' => Auth::user()?->avatar]
+                        : null,
+                ));
+            }
+            if ($user && $user->email) {
                 Mail::to($user->email)->queue(
                     new TrainingAssignedMail($training, $employee->full_name, $assignedBy)
                 );
@@ -143,7 +192,9 @@ class TrainingController extends Controller
         }
 
         $oldStatus = $training->status;
-        $training->update($validated);
+        $training->update(array_merge($validated, [
+            'employee_fk' => is_numeric($validated['employee_id'] ?? null) ? (int) $validated['employee_id'] : null,
+        ]));
 
         // Broadcast training completed event if status was changed to approved
         if ($oldStatus !== 'approved' && $validated['status'] === 'approved') {
@@ -151,6 +202,20 @@ class TrainingController extends Controller
                 broadcast(new TrainingCompleted($training, $employee->user_id))->toOthers();
 
                 $user = $employee->user;
+                if ($user) {
+                    $user->notify(new SystemNotification(
+                        type: 'success',
+                        title: 'Training Completed',
+                        message: "Your training \"{$training->title}\" has been marked as completed.",
+                        data: [
+                            'redirect_url' => '/employee/training',
+                            'training_id' => $training->id,
+                        ],
+                        actor: Auth::user()
+                            ? ['id' => Auth::id(), 'name' => Auth::user()?->full_name ?? 'HR', 'avatar' => Auth::user()?->avatar]
+                            : null,
+                    ));
+                }
                 if ($user && $user->email) {
                     Mail::to($user->email)->queue(
                         new TrainingCompletedMail($training, $employee->full_name)

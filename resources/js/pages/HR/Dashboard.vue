@@ -3,42 +3,48 @@ import { Head, Link } from '@inertiajs/vue3';
 import { BarChart3, BookOpen, Calendar, FileText } from 'lucide-vue-next';
 import { computed } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import AppLayout from '@/layouts/AppLayout.vue';
-import { dashboard } from '@/routes';
-import hr from '@/routes/hr';
 import { useBroadcasting } from '@/composables/useBroadcasting';
+import AppLayout from '@/layouts/AppLayout.vue';
+import hr from '@/routes/hr';
 import type { BreadcrumbItem } from '@/types';
 
-const props = defineProps<{
+const pageProps = defineProps<{
     totalUsers: number;
     pendingLeaveCount: number;
     pendingTrainingCount: number;
     pdsPendingCount: number;
+    outToday?: Array<{
+        id: number;
+        employee_name: string;
+        department: string;
+        leave_type: string;
+        avatar: string | null;
+    }>;
     user?: { first_name: string } | null;
 }>();
 
-const { leavesPendingCount, trainingsAssignedCount, pdsPendingCount } = useBroadcasting();
+const { leavesPendingCount, trainingsAssignedCount, pdsPendingCount: pdsPendingCountRealtime } = useBroadcasting();
 
 if (leavesPendingCount.value === null) {
-    leavesPendingCount.value = props.pendingLeaveCount ?? 0;
+    leavesPendingCount.value = pageProps.pendingLeaveCount ?? 0;
 }
 if (trainingsAssignedCount.value === null) {
-    trainingsAssignedCount.value = props.pendingTrainingCount ?? 0;
+    trainingsAssignedCount.value = pageProps.pendingTrainingCount ?? 0;
 }
-if (pdsPendingCount.value === null) {
-    pdsPendingCount.value = props.pdsPendingCount ?? 0;
+if (pdsPendingCountRealtime.value === null) {
+    pdsPendingCountRealtime.value = pageProps.pdsPendingCount ?? 0;
 }
 
 const pendingLeaveCountComputed = computed(
-    () => leavesPendingCount.value ?? props.pendingLeaveCount,
+    () => leavesPendingCount.value ?? pageProps.pendingLeaveCount,
 );
 
 const pendingTrainingCountComputed = computed(
-    () => trainingsAssignedCount.value ?? props.pendingTrainingCount,
+    () => trainingsAssignedCount.value ?? pageProps.pendingTrainingCount,
 );
 
 const pdsPendingCountComputed = computed(
-    () => pdsPendingCount.value ?? props.pdsPendingCount,
+    () => pdsPendingCountRealtime.value ?? pageProps.pdsPendingCount,
 );
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -241,6 +247,45 @@ const pendingItems = [
                                     Pending
                                 </span>
                             </Link>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            <!-- "Who's Out Today" Widget -->
+            <div class="mt-6">
+                <Card class="border border-gray-200 dark:border-neutral-800">
+                    <CardHeader class="border-b border-gray-200 dark:border-neutral-800">
+                        <CardTitle class="text-base font-semibold text-gray-900 dark:text-gray-100">
+                            Who's Out Today
+                        </CardTitle>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Employees currently on approved leave
+                        </p>
+                    </CardHeader>
+                    <CardContent class="p-0">
+                        <div v-if="outToday && outToday.length > 0" class="divide-y divide-gray-200 dark:divide-neutral-800">
+                            <div
+                                v-for="person in outToday"
+                                :key="person.id"
+                                class="flex items-center gap-3 px-4 py-3"
+                            >
+                                <div class="flex size-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary">
+                                    <img v-if="person.avatar" :src="`/storage/${person.avatar}`" alt="Avatar" class="h-full w-full object-cover">
+                                    <span v-else class="text-xs font-semibold uppercase">{{ person.employee_name.substring(0, 2) }}</span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ person.employee_name }}</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ person.department }} &bull; {{ person.leave_type }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="flex flex-col items-center justify-center p-8 text-center">
+                            <div class="flex size-12 items-center justify-center rounded-full bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                                <Calendar class="size-6" />
+                            </div>
+                            <h3 class="mt-4 text-sm font-medium text-gray-900 dark:text-gray-100">Everyone is in the office today!</h3>
+                            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Fully staffed and ready to go.</p>
                         </div>
                     </CardContent>
                 </Card>

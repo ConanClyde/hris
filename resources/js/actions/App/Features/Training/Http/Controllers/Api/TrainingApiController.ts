@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Training\Http\Controllers\Api\TrainingApiController::updateStatus
- * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:45
+ * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:51
  * @route '/api/v1/trainings/{id}/status'
  */
 export const updateStatus = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -94,7 +94,7 @@ updateStatus.definition = {
 
 /**
 * @see \App\Features\Training\Http\Controllers\Api\TrainingApiController::updateStatus
- * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:45
+ * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:51
  * @route '/api/v1/trainings/{id}/status'
  */
 updateStatus.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -122,7 +122,7 @@ updateStatus.url = (args: { id: string | number } | [id: string | number ] | str
 
 /**
 * @see \App\Features\Training\Http\Controllers\Api\TrainingApiController::updateStatus
- * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:45
+ * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:51
  * @route '/api/v1/trainings/{id}/status'
  */
 updateStatus.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -132,7 +132,7 @@ updateStatus.put = (args: { id: string | number } | [id: string | number ] | str
 
     /**
 * @see \App\Features\Training\Http\Controllers\Api\TrainingApiController::updateStatus
- * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:45
+ * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:51
  * @route '/api/v1/trainings/{id}/status'
  */
     const updateStatusForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ updateStatus.put = (args: { id: string | number } | [id: string | number ] | str
 
             /**
 * @see \App\Features\Training\Http\Controllers\Api\TrainingApiController::updateStatus
- * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:45
+ * @see app/Features/Training/Http/Controllers/Api/TrainingApiController.php:51
  * @route '/api/v1/trainings/{id}/status'
  */
         updateStatusForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

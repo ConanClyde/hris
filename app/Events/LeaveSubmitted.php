@@ -43,12 +43,19 @@ class LeaveSubmitted implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        return [
+        $channels = [
             // Notify HR team
             new PrivateChannel('hr.dashboard'),
-            // Notify the employee who submitted
-            new PrivateChannel('App.Models.User.'.$this->leave->employee_id),
         ];
+
+        $userId = $this->leave->employee?->user_id;
+
+        if (is_int($userId)) {
+            // Notify the employee who submitted (per-user channel)
+            $channels[] = new PrivateChannel('App.Models.User.'.$userId);
+        }
+
+        return $channels;
     }
 
     /**

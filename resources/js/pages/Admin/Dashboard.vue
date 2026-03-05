@@ -2,10 +2,10 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { Users, BookOpen, FileText, DatabaseBackup } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { useBroadcasting } from '@/composables/useBroadcasting';
 import AppLayout from '@/layouts/AppLayout.vue';
 import admin from '@/routes/admin';
 import hr from '@/routes/hr';
-import { useBroadcasting } from '@/composables/useBroadcasting';
 import type { BreadcrumbItem } from '@/types';
 
 type Props = {

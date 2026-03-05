@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
@@ -79,6 +80,43 @@ test('users are rate limited', function () {
         'username' => $user->username,
         'password' => 'wrong-password',
     ]);
+
+    $response->assertTooManyRequests();
+});
+
+test('hr users can access activity logs', function () {
+    $user = User::factory()->create(['role' => 'hr']);
+
+    $response = $this->actingAs($user)->get('/hr/activity-logs');
+
+    $response->assertOk();
+});
+
+test('employees can access their activity logs', function () {
+    $user = User::factory()->create(['role' => 'employee']);
+
+    $response = $this->actingAs($user)->get('/employee/activity-logs');
+
+    $response->assertOk();
+});
+
+test('employees cannot access hr activity logs', function () {
+    $user = User::factory()->create(['role' => 'employee']);
+
+    $response = $this->actingAs($user)->get('/hr/activity-logs');
+
+    $response->assertRedirect(route('dashboard', absolute: false));
+});
+
+test('password reset requests are rate limited', function () {
+    Mail::fake();
+    $user = User::factory()->create(['email' => 'reset@example.com']);
+
+    for ($i = 0; $i < 5; $i++) {
+        $this->post('/forgot-password', ['email' => $user->email]);
+    }
+
+    $response = $this->post('/forgot-password', ['email' => $user->email]);
 
     $response->assertTooManyRequests();
 });

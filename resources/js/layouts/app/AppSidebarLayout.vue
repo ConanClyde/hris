@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { onMounted, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { Toaster, toast } from 'vue-sonner';
 import 'vue-sonner/style.css';
 import AppContent from '@/components/AppContent.vue';
@@ -28,16 +28,46 @@ watch(
     { deep: true, immediate: true }
 );
 
-const { setupUserListeners, setupAdminListeners, setupHrListeners, setupEmployeeListeners } = useBroadcasting();
+const {
+    notifications,
+    initCountsFromPage,
+    loadInitialDropdownItems,
+    setupUserListeners,
+    setupAdminListeners,
+    setupHrListeners,
+    setupEmployeeListeners,
+} = useBroadcasting();
 
-onMounted(() => {
+const notificationsHydrated = ref(false);
+
+watch(
+    () => notifications.value[0]?.id,
+    (next, prev) => {
+        if (!notificationsHydrated.value) return;
+        if (next === prev) return;
+
+        const n = notifications.value[0];
+        if (!n) return;
+
+        if (n.type === 'success') toast.success(n.title, { description: n.message });
+        else if (n.type === 'warning') toast.warning(n.title, { description: n.message });
+        else if (n.type === 'error') toast.error(n.title, { description: n.message });
+        else toast(n.title, { description: n.message });
+    }
+);
+
+onMounted(async () => {
     const user = page.props.auth?.user as { id?: number; role?: string } | undefined;
     if (!user?.id) return;
 
-    setupUserListeners(user.id);
+    initCountsFromPage(page.props.auth?.counts as any);
+    await loadInitialDropdownItems(user.role);
+    notificationsHydrated.value = true;
 
-    if (user.role === 'admin') setupAdminListeners();
-    if (user.role === 'hr') setupHrListeners();
+    setupUserListeners(user.id, user.role);
+
+    if (user.role === 'admin') setupAdminListeners(user.role);
+    if (user.role === 'hr' || user.role === 'admin') setupHrListeners(user.role);
 
     setupEmployeeListeners();
 });

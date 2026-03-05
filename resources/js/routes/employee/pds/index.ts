@@ -1,7 +1,62 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
+* @see \App\Features\Pds\Http\Controllers\Employee\PdsController::parse
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:380
+ * @route '/employee/pds/parse'
+ */
+export const parse = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: parse.url(options),
+    method: 'post',
+})
+
+parse.definition = {
+    methods: ["post"],
+    url: '/employee/pds/parse',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Features\Pds\Http\Controllers\Employee\PdsController::parse
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:380
+ * @route '/employee/pds/parse'
+ */
+parse.url = (options?: RouteQueryOptions) => {
+    return parse.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Features\Pds\Http\Controllers\Employee\PdsController::parse
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:380
+ * @route '/employee/pds/parse'
+ */
+parse.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: parse.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Features\Pds\Http\Controllers\Employee\PdsController::parse
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:380
+ * @route '/employee/pds/parse'
+ */
+    const parseForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: parse.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Features\Pds\Http\Controllers\Employee\PdsController::parse
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:380
+ * @route '/employee/pds/parse'
+ */
+        parseForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: parse.url(options),
+            method: 'post',
+        })
+    
+    parse.form = parseForm
+/**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +71,7 @@ index.definition = {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +80,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +89,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +99,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +109,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +118,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::index
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:33
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:37
  * @route '/employee/pds'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +134,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::store
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:53
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:107
  * @route '/employee/pds'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +149,7 @@ store.definition = {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::store
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:53
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:107
  * @route '/employee/pds'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +158,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::store
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:53
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:107
  * @route '/employee/pds'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +168,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::store
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:53
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:107
  * @route '/employee/pds'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +178,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::store
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:53
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:107
  * @route '/employee/pds'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +189,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
 export const preview = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -149,7 +204,7 @@ preview.definition = {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
 preview.url = (options?: RouteQueryOptions) => {
@@ -158,7 +213,7 @@ preview.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
 preview.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -167,7 +222,7 @@ preview.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
 preview.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -177,7 +232,7 @@ preview.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
     const previewForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -187,7 +242,7 @@ preview.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
         previewForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -196,7 +251,7 @@ preview.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Pds\Http\Controllers\Employee\PdsController::preview
- * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:268
+ * @see app/Features/Pds/Http/Controllers/Employee/PdsController.php:351
  * @route '/employee/pds/preview'
  */
         previewForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,10 +265,90 @@ preview.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
     
     preview.form = previewForm
+/**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+
+exportMethod.definition = {
+    methods: ["get","head"],
+    url: '/employee/pds/export',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+exportMethod.url = (options?: RouteQueryOptions) => {
+    return exportMethod.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportMethod.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportMethod.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+    const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: exportMethod.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+        exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: exportMethod.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Features\Pds\Http\Controllers\PdsExportController::exportMethod
+ * @see app/Features/Pds/Http/Controllers/PdsExportController.php:29
+ * @route '/employee/pds/export'
+ */
+        exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: exportMethod.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    exportMethod.form = exportMethodForm
 const pds = {
-    index: Object.assign(index, index),
+    parse: Object.assign(parse, parse),
+index: Object.assign(index, index),
 store: Object.assign(store, store),
 preview: Object.assign(preview, preview),
+export: Object.assign(exportMethod, exportMethod),
 }
 
 export default pds

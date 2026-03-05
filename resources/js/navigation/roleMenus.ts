@@ -1,16 +1,18 @@
 import {
     Bell,
     BookOpen,
+    Bot,
     Calendar,
     FileText,
     LayoutDashboard,
     LineChart,
-    Shield,
+    Network,
     Users,
     DatabaseBackup,
     Settings,
     User,
 } from 'lucide-vue-next';
+import { aiChatbot } from '@/routes';
 import admin from '@/routes/admin';
 import employee from '@/routes/employee';
 import hr from '@/routes/hr';
@@ -27,6 +29,11 @@ type RoleMenuConfig = {
 };
 
 export function getRoleMenu(role: AppRole, counts: Record<string, any> = {}): RoleMenuConfig {
+    const notificationsBadge =
+        typeof counts.notifications_unread === 'number' && counts.notifications_unread > 0
+            ? counts.notifications_unread
+            : undefined;
+
     if (role === 'admin') {
         return {
             main: [
@@ -43,16 +50,20 @@ export function getRoleMenu(role: AppRole, counts: Record<string, any> = {}): Ro
                 { title: 'Reports & Analytics', href: admin.reports().url, icon: FileText },
                 { title: 'Backup', href: admin.backup.index().url, icon: DatabaseBackup },
                 {
-                    title: 'Global Notices',
-                    href: admin.notices.index().url,
-                    icon: Shield,
-                    badge: counts.notices_unread || undefined
+                    title: 'Announcements',
+                    href: admin.posts.index().url,
+                    icon: FileText,
                 },
                 {
                     title: 'Notifications',
                     href: admin.notifications().url,
                     icon: Bell,
-                    badge: counts.notices_unread || undefined
+                    badge: notificationsBadge
+                },
+                {
+                    title: 'AI Helpdesk',
+                    href: aiChatbot().url,
+                    icon: Bot,
                 },
             ],
             footer: {
@@ -74,6 +85,11 @@ export function getRoleMenu(role: AppRole, counts: Record<string, any> = {}): Ro
                     badge: counts.users_pending || undefined
                 },
                 {
+                    title: 'Organizational Chart',
+                    href: hr.orgchart().url,
+                    icon: Network,
+                },
+                {
                     title: 'PDS Management',
                     href: hr.pds.index().url,
                     icon: FileText,
@@ -91,18 +107,22 @@ export function getRoleMenu(role: AppRole, counts: Record<string, any> = {}): Ro
                     icon: BookOpen,
                     badge: counts.trainings_assigned || undefined
                 },
-                { title: 'Reports & Analytics', href: hr.reports().url, icon: LineChart },
                 {
-                    title: 'Global Notices',
-                    href: hr.notices.index().url,
-                    icon: Shield,
-                    badge: counts.notices_unread || undefined
+                    title: 'Announcements',
+                    href: hr.posts.index().url,
+                    icon: FileText,
                 },
+                { title: 'Reports & Analytics', href: hr.reports().url, icon: LineChart },
                 {
                     title: 'Notifications',
                     href: hr.notifications().url,
                     icon: Bell,
-                    badge: counts.notices_unread || undefined
+                    badge: notificationsBadge
+                },
+                {
+                    title: 'AI Helpdesk',
+                    href: aiChatbot().url,
+                    icon: Bot,
                 },
             ],
             footer: {
@@ -130,10 +150,21 @@ export function getRoleMenu(role: AppRole, counts: Record<string, any> = {}): Ro
                 badge: counts.trainings_assigned || undefined
             },
             {
+                title: 'Announcements',
+                href: employee.posts.index().url,
+                icon: FileText,
+            },
+            {
                 title: 'Notifications',
                 href: employee.notifications().url,
                 icon: Bell,
-                badge: counts.notices_unread || undefined
+                badge: notificationsBadge
+            },
+            { title: 'Activity Logs', href: '/employee/activity-logs', icon: BookOpen },
+            {
+                title: 'AI Helpdesk',
+                href: aiChatbot().url,
+                icon: Bot,
             },
         ],
         footer: {

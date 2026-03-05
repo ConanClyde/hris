@@ -19,16 +19,25 @@ class TrainingCompleted implements ShouldBroadcastNow
 
     public int $employeeId;
 
+    public int $employeeUserId;
+
     /**
      * Create a new event instance.
      */
-    public function __construct(Training $training, int $employeeId)
+    public function __construct(Training $training, int $employeeUserId)
     {
         $this->training = $training;
-        $this->employeeId = $employeeId;
+        $this->employeeId = $employeeUserId;
+        $this->employeeUserId = $employeeUserId;
         $this->trainingData = [
             'id' => $training->id,
+            'employee_id' => $training->employee_id,
+            'employee_fk' => $training->employee_fk,
+            'employee_name' => $training->employee_name,
             'title' => $training->title,
+            'date_from' => $training->date_from,
+            'date_to' => $training->date_to,
+            'status' => $training->status,
             'completed_at' => now(),
         ];
     }

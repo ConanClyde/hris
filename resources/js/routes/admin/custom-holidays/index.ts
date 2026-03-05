@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../wayfinder'
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::index
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:19
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:20
  * @route '/admin/custom-holidays'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::store
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:24
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:25
  * @route '/admin/custom-holidays'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::store
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:24
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:25
  * @route '/admin/custom-holidays'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::store
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:24
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:25
  * @route '/admin/custom-holidays'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::store
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:24
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:25
  * @route '/admin/custom-holidays'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::store
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:24
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:25
  * @route '/admin/custom-holidays'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 export const update = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -149,7 +149,7 @@ update.definition = {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 update.url = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -177,7 +177,7 @@ update.url = (args: { custom_holiday: string | number } | [custom_holiday: strin
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 update.put = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -186,7 +186,7 @@ update.put = (args: { custom_holiday: string | number } | [custom_holiday: strin
 })
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 update.patch = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -196,7 +196,7 @@ update.patch = (args: { custom_holiday: string | number } | [custom_holiday: str
 
     /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
     const updateForm = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -211,7 +211,7 @@ update.patch = (args: { custom_holiday: string | number } | [custom_holiday: str
 
             /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
         updateForm.put = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -225,7 +225,7 @@ update.patch = (args: { custom_holiday: string | number } | [custom_holiday: str
         })
             /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::update
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:53
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:78
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
         updateForm.patch = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -241,7 +241,7 @@ update.patch = (args: { custom_holiday: string | number } | [custom_holiday: str
     update.form = updateForm
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::destroy
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:86
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:135
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 export const destroy = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -256,7 +256,7 @@ destroy.definition = {
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::destroy
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:86
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:135
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 destroy.url = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -284,7 +284,7 @@ destroy.url = (args: { custom_holiday: string | number } | [custom_holiday: stri
 
 /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::destroy
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:86
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:135
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
 destroy.delete = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -294,7 +294,7 @@ destroy.delete = (args: { custom_holiday: string | number } | [custom_holiday: s
 
     /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::destroy
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:86
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:135
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
     const destroyForm = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -309,7 +309,7 @@ destroy.delete = (args: { custom_holiday: string | number } | [custom_holiday: s
 
             /**
 * @see \App\Features\Calendar\Http\Controllers\Admin\CustomHolidayController::destroy
- * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:86
+ * @see app/Features/Calendar/Http/Controllers/Admin/CustomHolidayController.php:135
  * @route '/admin/custom-holidays/{custom_holiday}'
  */
         destroyForm.delete = (args: { custom_holiday: string | number } | [custom_holiday: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

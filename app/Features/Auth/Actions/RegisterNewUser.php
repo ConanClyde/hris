@@ -96,12 +96,9 @@ class RegisterNewUser
                 'first_name' => $validated['first_name'],
                 'middle_name' => $validated['middle_name'] ?? null,
                 'name_extension' => $validated['name_extension'] ?? null,
+                'dob' => $validated['date_of_birth'] ?? null,
+                'sex' => $validated['sex'] ?? null,
             ];
-
-            if ($isEmployee) {
-                $pdsPersonalData['dob'] = $validated['date_of_birth'] ?? null;
-                $pdsPersonalData['sex'] = $validated['sex'] ?? null;
-            }
 
             PdsPersonal::create($pdsPersonalData);
 
@@ -138,6 +135,8 @@ class RegisterNewUser
             'middle_name' => ['nullable', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'name_extension' => ['nullable', 'string', 'max:50'],
+            'sex' => ['nullable', 'string', 'in:male,female'],
+            'date_of_birth' => ['nullable', 'date'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'confirmed', Password::default()],
@@ -145,8 +144,6 @@ class RegisterNewUser
 
         if ($isEmployee) {
             $rules = array_merge($rules, [
-                'sex' => ['nullable', 'string', 'in:male,female'],
-                'date_of_birth' => ['nullable', 'date'],
                 'date_hired' => ['nullable', 'date'],
                 'division_id' => ['nullable', 'integer', 'exists:divisions,id'],
                 'subdivision_id' => ['nullable', 'integer', 'exists:subdivisions,id'],

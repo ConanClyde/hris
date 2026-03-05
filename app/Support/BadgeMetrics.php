@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Features\Leave\Models\LeaveApplication;
-use App\Features\Notices\Models\Notice;
 use App\Features\Pds\Models\Pds;
 use App\Features\Training\Models\Training;
 use App\Features\Users\Enums\UserRole;
@@ -31,7 +30,7 @@ class BadgeMetrics
 
                 if ($role === UserRole::Admin) {
                     $counts['users_pending'] = User::where('status', 'pending')->count();
-                    $counts['notices_unread'] = self::unreadNoticesForUser($user);
+                    $counts['notifications_unread'] = self::unreadNotificationsForUser($user);
                 }
 
                 if ($role === UserRole::Hr) {
@@ -57,25 +56,23 @@ class BadgeMetrics
                     $counts['trainings_assigned'] = $trainingQuery->count();
                     $counts['pds_pending'] = $pdsQuery->count();
                     $counts['users_pending'] = $usersPendingQuery->count();
-                    $counts['notices_unread'] = self::unreadNoticesForUser($user);
+                    $counts['notifications_unread'] = self::unreadNotificationsForUser($user);
                 }
 
                 if ($role === UserRole::Employee) {
                     $employeeId = $user->employee?->id;
 
                     $counts['leaves_pending'] = $employeeId
-                        ? LeaveApplication::where('employee_id', $employeeId)
+                        ? LeaveApplication::where('employee_fk', $employeeId)
                             ->where('status', 'pending')
                             ->count()
                         : 0;
 
                     $counts['trainings_assigned'] = $employeeId
-                        ? Training::where('employee_id', $employeeId)
+                        ? Training::where('employee_fk', $employeeId)
                             ->where('status', 'assigned')
                             ->count()
                         : 0;
-
-                    $counts['notices_unread'] = self::unreadNoticesForUser($user);
                 }
 
                 return $counts;
@@ -83,14 +80,10 @@ class BadgeMetrics
         );
     }
 
-    private static function unreadNoticesForUser(User $user): int
+    private static function unreadNotificationsForUser(User $user): int
     {
         try {
-            return Notice::active()
-                ->whereDoesntHave('readers', function ($q) use ($user): void {
-                    $q->where('user_id', $user->id);
-                })
-                ->count();
+            return $user->unreadNotifications()->count();
         } catch (\Throwable $e) {
             return 0;
         }

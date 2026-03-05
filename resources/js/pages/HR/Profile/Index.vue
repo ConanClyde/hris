@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Form, router } from '@inertiajs/vue3';
 import { Upload, X } from 'lucide-vue-next';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import PasswordInput from '@/components/auth/PasswordInput.vue';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -168,7 +168,11 @@ watch(
     { immediate: true }
 );
 
-const { getInitials } = useInitials();
+const { getInitialsFromName } = useInitials();
+
+const profileInitials = computed(() => {
+    return getInitialsFromName({ first_name: props.user.first_name, last_name: props.user.last_name });
+});
 
 function memberSince(createdAt: string | null): string {
     if (!createdAt) return '—';
@@ -208,7 +212,7 @@ function formatLogDate(iso: string | null): string {
                         <Avatar class="h-20 w-20 shrink-0 overflow-hidden rounded-lg">
                             <AvatarImage v-if="user.avatar" :src="user.avatar" :alt="fullName(user)" />
                             <AvatarFallback class="rounded-lg bg-foreground text-background text-2xl font-bold">
-                                {{ getInitials(fullName(user)) }}
+                                {{ profileInitials }}
                             </AvatarFallback>
                         </Avatar>
                         <div class="min-w-0 flex-1 space-y-0.5">
@@ -253,16 +257,18 @@ function formatLogDate(iso: string | null): string {
                             <p class="text-sm text-muted-foreground mt-0.5">Your recent activity.</p>
                         </CardHeader>
                         <CardContent>
-                            <ul v-if="user.activity_logs?.length" class="space-y-3 text-sm">
-                                <li v-for="log in user.activity_logs" :key="log.id" class="flex items-start gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
-                                    <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
-                                    <div class="min-w-0 flex-1">
-                                        <p class="font-medium text-foreground">{{ log.action }}</p>
-                                        <p class="text-xs text-muted-foreground mt-0.5">{{ log.subject_type || '' }} {{ log.created_at ? formatLogDate(log.created_at) : '' }}</p>
-                                    </div>
-                                </li>
-                            </ul>
-                            <p v-else class="text-sm text-muted-foreground">No recent activity.</p>
+                            <div class="max-h-[400px] overflow-y-auto pr-1">
+                                <ul v-if="user.activity_logs?.length" class="space-y-3 text-sm">
+                                    <li v-for="log in user.activity_logs" :key="log.id" class="flex items-start gap-3 border-b border-border pb-3 last:border-0 last:pb-0">
+                                        <span class="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-medium text-foreground">{{ log.action }}</p>
+                                            <p class="text-xs text-muted-foreground mt-0.5">{{ log.subject_type || '' }} {{ log.created_at ? formatLogDate(log.created_at) : '' }}</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <p v-else class="text-sm text-muted-foreground">No recent activity.</p>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -301,9 +307,15 @@ function formatLogDate(iso: string | null): string {
                         <div class="space-y-2">
                             <Label>Profile photo</Label>
                             <div class="flex items-center gap-4">
-                                <Avatar class="h-16 w-16 shrink-0 rounded-lg">
-                                    <AvatarImage v-if="avatarPreviewUrl || (user.avatar && !removeAvatar)" :src="avatarPreviewUrl || (removeAvatar ? null : user.avatar) || ''" :alt="fullName(user)" />
-                                    <AvatarFallback class="rounded-lg bg-muted text-lg">{{ getInitials(fullName(user)) }}</AvatarFallback>
+                                <Avatar class="h-16 w-16 shrink-0 overflow-hidden rounded-lg">
+                                    <AvatarImage
+                                        v-if="typeof (avatarPreviewUrl || (!removeAvatar ? (user.avatar ?? '') : '')) === 'string' && (avatarPreviewUrl || (!removeAvatar ? (user.avatar ?? '') : '')).trim() !== ''"
+                                        :src="(avatarPreviewUrl || (!removeAvatar ? (user.avatar ?? '') : ''))!"
+                                        :alt="fullName(user)"
+                                    />
+                                    <AvatarFallback class="rounded-lg bg-foreground text-background text-lg font-bold">
+                                        {{ profileInitials }}
+                                    </AvatarFallback>
                                 </Avatar>
                                 <div class="flex flex-col gap-2">
                                     <input ref="avatarInputRef" type="file" accept="image/*" class="hidden" @change="onAvatarFileChange" />

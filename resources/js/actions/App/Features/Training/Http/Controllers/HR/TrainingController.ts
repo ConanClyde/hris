@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../../wayfinder'
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::index
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:20
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:21
  * @route '/hr/training'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::store
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:78
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:102
  * @route '/hr/training'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::store
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:78
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:102
  * @route '/hr/training'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::store
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:78
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:102
  * @route '/hr/training'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::store
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:78
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:102
  * @route '/hr/training'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::store
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:78
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:102
  * @route '/hr/training'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::update
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:117
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:166
  * @route '/hr/training/{id}'
  */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -149,7 +149,7 @@ update.definition = {
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::update
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:117
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:166
  * @route '/hr/training/{id}'
  */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -177,7 +177,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::update
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:117
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:166
  * @route '/hr/training/{id}'
  */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -187,7 +187,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
     /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::update
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:117
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:166
  * @route '/hr/training/{id}'
  */
     const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -202,7 +202,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
             /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::update
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:117
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:166
  * @route '/hr/training/{id}'
  */
         updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -218,7 +218,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
     update.form = updateForm
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::destroy
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:165
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:230
  * @route '/hr/training/{id}'
  */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -233,7 +233,7 @@ destroy.definition = {
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::destroy
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:165
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:230
  * @route '/hr/training/{id}'
  */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -261,7 +261,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::destroy
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:165
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:230
  * @route '/hr/training/{id}'
  */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -271,7 +271,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
     /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::destroy
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:165
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:230
  * @route '/hr/training/{id}'
  */
     const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -286,7 +286,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
             /**
 * @see \App\Features\Training\Http\Controllers\HR\TrainingController::destroy
- * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:165
+ * @see app/Features/Training/Http/Controllers/HR/TrainingController.php:230
  * @route '/hr/training/{id}'
  */
         destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

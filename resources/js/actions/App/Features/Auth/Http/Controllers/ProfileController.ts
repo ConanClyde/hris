@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 const show2b603298152ec5dd9b14768a8a90e70d = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show2b603298152ec5dd9b14768a8a90e70d.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 show2b603298152ec5dd9b14768a8a90e70d.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show2b603298152ec5dd9b14768a8a90e70d.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 show2b603298152ec5dd9b14768a8a90e70d.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ show2b603298152ec5dd9b14768a8a90e70d.get = (options?: RouteQueryOptions): RouteD
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 show2b603298152ec5dd9b14768a8a90e70d.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ show2b603298152ec5dd9b14768a8a90e70d.head = (options?: RouteQueryOptions): Route
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
     const show2b603298152ec5dd9b14768a8a90e70dForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ show2b603298152ec5dd9b14768a8a90e70d.head = (options?: RouteQueryOptions): Route
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
         show2b603298152ec5dd9b14768a8a90e70dForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ show2b603298152ec5dd9b14768a8a90e70d.head = (options?: RouteQueryOptions): Route
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
         show2b603298152ec5dd9b14768a8a90e70dForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ show2b603298152ec5dd9b14768a8a90e70d.head = (options?: RouteQueryOptions): Route
     show2b603298152ec5dd9b14768a8a90e70d.form = show2b603298152ec5dd9b14768a8a90e70dForm
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
 const showd2645a0b46c24ab47de650117e769cf7 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ showd2645a0b46c24ab47de650117e769cf7.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
 showd2645a0b46c24ab47de650117e769cf7.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ showd2645a0b46c24ab47de650117e769cf7.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
 showd2645a0b46c24ab47de650117e769cf7.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ showd2645a0b46c24ab47de650117e769cf7.get = (options?: RouteQueryOptions): RouteD
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
 showd2645a0b46c24ab47de650117e769cf7.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ showd2645a0b46c24ab47de650117e769cf7.head = (options?: RouteQueryOptions): Route
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
     const showd2645a0b46c24ab47de650117e769cf7Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ showd2645a0b46c24ab47de650117e769cf7.head = (options?: RouteQueryOptions): Route
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
         showd2645a0b46c24ab47de650117e769cf7Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ showd2645a0b46c24ab47de650117e769cf7.head = (options?: RouteQueryOptions): Route
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/hr/profile'
  */
         showd2645a0b46c24ab47de650117e769cf7Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ showd2645a0b46c24ab47de650117e769cf7.head = (options?: RouteQueryOptions): Route
     showd2645a0b46c24ab47de650117e769cf7.form = showd2645a0b46c24ab47de650117e769cf7Form
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
 const showf111ba1dba6158532c68538988b2b61c = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ showf111ba1dba6158532c68538988b2b61c.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
 showf111ba1dba6158532c68538988b2b61c.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ showf111ba1dba6158532c68538988b2b61c.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
 showf111ba1dba6158532c68538988b2b61c.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ showf111ba1dba6158532c68538988b2b61c.get = (options?: RouteQueryOptions): RouteD
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
 showf111ba1dba6158532c68538988b2b61c.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ showf111ba1dba6158532c68538988b2b61c.head = (options?: RouteQueryOptions): Route
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
     const showf111ba1dba6158532c68538988b2b61cForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ showf111ba1dba6158532c68538988b2b61c.head = (options?: RouteQueryOptions): Route
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
         showf111ba1dba6158532c68538988b2b61cForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ showf111ba1dba6158532c68538988b2b61c.head = (options?: RouteQueryOptions): Route
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::show
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/employee/profile'
  */
         showf111ba1dba6158532c68538988b2b61cForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -242,7 +242,7 @@ export const show = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
 const update2b603298152ec5dd9b14768a8a90e70d = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -257,7 +257,7 @@ update2b603298152ec5dd9b14768a8a90e70d.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
 update2b603298152ec5dd9b14768a8a90e70d.url = (options?: RouteQueryOptions) => {
@@ -266,7 +266,7 @@ update2b603298152ec5dd9b14768a8a90e70d.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
 update2b603298152ec5dd9b14768a8a90e70d.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -275,7 +275,7 @@ update2b603298152ec5dd9b14768a8a90e70d.put = (options?: RouteQueryOptions): Rout
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
 update2b603298152ec5dd9b14768a8a90e70d.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -285,7 +285,7 @@ update2b603298152ec5dd9b14768a8a90e70d.patch = (options?: RouteQueryOptions): Ro
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
     const update2b603298152ec5dd9b14768a8a90e70dForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -300,7 +300,7 @@ update2b603298152ec5dd9b14768a8a90e70d.patch = (options?: RouteQueryOptions): Ro
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
         update2b603298152ec5dd9b14768a8a90e70dForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -314,7 +314,7 @@ update2b603298152ec5dd9b14768a8a90e70d.patch = (options?: RouteQueryOptions): Ro
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/admin/profile'
  */
         update2b603298152ec5dd9b14768a8a90e70dForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -330,7 +330,7 @@ update2b603298152ec5dd9b14768a8a90e70d.patch = (options?: RouteQueryOptions): Ro
     update2b603298152ec5dd9b14768a8a90e70d.form = update2b603298152ec5dd9b14768a8a90e70dForm
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
 const updated2645a0b46c24ab47de650117e769cf7 = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -345,7 +345,7 @@ updated2645a0b46c24ab47de650117e769cf7.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
 updated2645a0b46c24ab47de650117e769cf7.url = (options?: RouteQueryOptions) => {
@@ -354,7 +354,7 @@ updated2645a0b46c24ab47de650117e769cf7.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
 updated2645a0b46c24ab47de650117e769cf7.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -363,7 +363,7 @@ updated2645a0b46c24ab47de650117e769cf7.put = (options?: RouteQueryOptions): Rout
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
 updated2645a0b46c24ab47de650117e769cf7.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -373,7 +373,7 @@ updated2645a0b46c24ab47de650117e769cf7.patch = (options?: RouteQueryOptions): Ro
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
     const updated2645a0b46c24ab47de650117e769cf7Form = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -388,7 +388,7 @@ updated2645a0b46c24ab47de650117e769cf7.patch = (options?: RouteQueryOptions): Ro
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
         updated2645a0b46c24ab47de650117e769cf7Form.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -402,7 +402,7 @@ updated2645a0b46c24ab47de650117e769cf7.patch = (options?: RouteQueryOptions): Ro
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/hr/profile'
  */
         updated2645a0b46c24ab47de650117e769cf7Form.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -418,7 +418,7 @@ updated2645a0b46c24ab47de650117e769cf7.patch = (options?: RouteQueryOptions): Ro
     updated2645a0b46c24ab47de650117e769cf7.form = updated2645a0b46c24ab47de650117e769cf7Form
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
 const updatef111ba1dba6158532c68538988b2b61c = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -433,7 +433,7 @@ updatef111ba1dba6158532c68538988b2b61c.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
 updatef111ba1dba6158532c68538988b2b61c.url = (options?: RouteQueryOptions) => {
@@ -442,7 +442,7 @@ updatef111ba1dba6158532c68538988b2b61c.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
 updatef111ba1dba6158532c68538988b2b61c.put = (options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -451,7 +451,7 @@ updatef111ba1dba6158532c68538988b2b61c.put = (options?: RouteQueryOptions): Rout
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
 updatef111ba1dba6158532c68538988b2b61c.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -461,7 +461,7 @@ updatef111ba1dba6158532c68538988b2b61c.patch = (options?: RouteQueryOptions): Ro
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
     const updatef111ba1dba6158532c68538988b2b61cForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +476,7 @@ updatef111ba1dba6158532c68538988b2b61c.patch = (options?: RouteQueryOptions): Ro
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
         updatef111ba1dba6158532c68538988b2b61cForm.put = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -490,7 +490,7 @@ updatef111ba1dba6158532c68538988b2b61c.patch = (options?: RouteQueryOptions): Ro
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::update
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:62
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:65
  * @route '/employee/profile'
  */
         updatef111ba1dba6158532c68538988b2b61cForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -513,7 +513,7 @@ export const update = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/admin/profile/password'
  */
 const changePasswordf80fad1a7f3fe5580dfd4f25459504ed = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -528,7 +528,7 @@ changePasswordf80fad1a7f3fe5580dfd4f25459504ed.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/admin/profile/password'
  */
 changePasswordf80fad1a7f3fe5580dfd4f25459504ed.url = (options?: RouteQueryOptions) => {
@@ -537,7 +537,7 @@ changePasswordf80fad1a7f3fe5580dfd4f25459504ed.url = (options?: RouteQueryOption
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/admin/profile/password'
  */
 changePasswordf80fad1a7f3fe5580dfd4f25459504ed.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -547,7 +547,7 @@ changePasswordf80fad1a7f3fe5580dfd4f25459504ed.post = (options?: RouteQueryOptio
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/admin/profile/password'
  */
     const changePasswordf80fad1a7f3fe5580dfd4f25459504edForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -557,7 +557,7 @@ changePasswordf80fad1a7f3fe5580dfd4f25459504ed.post = (options?: RouteQueryOptio
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/admin/profile/password'
  */
         changePasswordf80fad1a7f3fe5580dfd4f25459504edForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -568,7 +568,7 @@ changePasswordf80fad1a7f3fe5580dfd4f25459504ed.post = (options?: RouteQueryOptio
     changePasswordf80fad1a7f3fe5580dfd4f25459504ed.form = changePasswordf80fad1a7f3fe5580dfd4f25459504edForm
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/hr/profile/password'
  */
 const changePassword59c7bb994b3b9689495243f852195800 = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -583,7 +583,7 @@ changePassword59c7bb994b3b9689495243f852195800.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/hr/profile/password'
  */
 changePassword59c7bb994b3b9689495243f852195800.url = (options?: RouteQueryOptions) => {
@@ -592,7 +592,7 @@ changePassword59c7bb994b3b9689495243f852195800.url = (options?: RouteQueryOption
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/hr/profile/password'
  */
 changePassword59c7bb994b3b9689495243f852195800.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -602,7 +602,7 @@ changePassword59c7bb994b3b9689495243f852195800.post = (options?: RouteQueryOptio
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/hr/profile/password'
  */
     const changePassword59c7bb994b3b9689495243f852195800Form = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -612,7 +612,7 @@ changePassword59c7bb994b3b9689495243f852195800.post = (options?: RouteQueryOptio
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/hr/profile/password'
  */
         changePassword59c7bb994b3b9689495243f852195800Form.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -623,7 +623,7 @@ changePassword59c7bb994b3b9689495243f852195800.post = (options?: RouteQueryOptio
     changePassword59c7bb994b3b9689495243f852195800.form = changePassword59c7bb994b3b9689495243f852195800Form
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/employee/profile/password'
  */
 const changePassword8c74fa418f5b1aa2dc1372d932c84fba = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -638,7 +638,7 @@ changePassword8c74fa418f5b1aa2dc1372d932c84fba.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/employee/profile/password'
  */
 changePassword8c74fa418f5b1aa2dc1372d932c84fba.url = (options?: RouteQueryOptions) => {
@@ -647,7 +647,7 @@ changePassword8c74fa418f5b1aa2dc1372d932c84fba.url = (options?: RouteQueryOption
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/employee/profile/password'
  */
 changePassword8c74fa418f5b1aa2dc1372d932c84fba.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -657,7 +657,7 @@ changePassword8c74fa418f5b1aa2dc1372d932c84fba.post = (options?: RouteQueryOptio
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/employee/profile/password'
  */
     const changePassword8c74fa418f5b1aa2dc1372d932c84fbaForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -667,7 +667,7 @@ changePassword8c74fa418f5b1aa2dc1372d932c84fba.post = (options?: RouteQueryOptio
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::changePassword
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:119
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:124
  * @route '/employee/profile/password'
  */
         changePassword8c74fa418f5b1aa2dc1372d932c84fbaForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -685,7 +685,7 @@ export const changePassword = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/admin/profile'
  */
 const destroy2b603298152ec5dd9b14768a8a90e70d = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -700,7 +700,7 @@ destroy2b603298152ec5dd9b14768a8a90e70d.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/admin/profile'
  */
 destroy2b603298152ec5dd9b14768a8a90e70d.url = (options?: RouteQueryOptions) => {
@@ -709,7 +709,7 @@ destroy2b603298152ec5dd9b14768a8a90e70d.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/admin/profile'
  */
 destroy2b603298152ec5dd9b14768a8a90e70d.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -719,7 +719,7 @@ destroy2b603298152ec5dd9b14768a8a90e70d.delete = (options?: RouteQueryOptions): 
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/admin/profile'
  */
     const destroy2b603298152ec5dd9b14768a8a90e70dForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -734,7 +734,7 @@ destroy2b603298152ec5dd9b14768a8a90e70d.delete = (options?: RouteQueryOptions): 
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/admin/profile'
  */
         destroy2b603298152ec5dd9b14768a8a90e70dForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -750,7 +750,7 @@ destroy2b603298152ec5dd9b14768a8a90e70d.delete = (options?: RouteQueryOptions): 
     destroy2b603298152ec5dd9b14768a8a90e70d.form = destroy2b603298152ec5dd9b14768a8a90e70dForm
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/hr/profile'
  */
 const destroyd2645a0b46c24ab47de650117e769cf7 = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -765,7 +765,7 @@ destroyd2645a0b46c24ab47de650117e769cf7.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/hr/profile'
  */
 destroyd2645a0b46c24ab47de650117e769cf7.url = (options?: RouteQueryOptions) => {
@@ -774,7 +774,7 @@ destroyd2645a0b46c24ab47de650117e769cf7.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/hr/profile'
  */
 destroyd2645a0b46c24ab47de650117e769cf7.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -784,7 +784,7 @@ destroyd2645a0b46c24ab47de650117e769cf7.delete = (options?: RouteQueryOptions): 
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/hr/profile'
  */
     const destroyd2645a0b46c24ab47de650117e769cf7Form = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -799,7 +799,7 @@ destroyd2645a0b46c24ab47de650117e769cf7.delete = (options?: RouteQueryOptions): 
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/hr/profile'
  */
         destroyd2645a0b46c24ab47de650117e769cf7Form.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -815,7 +815,7 @@ destroyd2645a0b46c24ab47de650117e769cf7.delete = (options?: RouteQueryOptions): 
     destroyd2645a0b46c24ab47de650117e769cf7.form = destroyd2645a0b46c24ab47de650117e769cf7Form
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/employee/profile'
  */
 const destroyf111ba1dba6158532c68538988b2b61c = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -830,7 +830,7 @@ destroyf111ba1dba6158532c68538988b2b61c.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/employee/profile'
  */
 destroyf111ba1dba6158532c68538988b2b61c.url = (options?: RouteQueryOptions) => {
@@ -839,7 +839,7 @@ destroyf111ba1dba6158532c68538988b2b61c.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/employee/profile'
  */
 destroyf111ba1dba6158532c68538988b2b61c.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -849,7 +849,7 @@ destroyf111ba1dba6158532c68538988b2b61c.delete = (options?: RouteQueryOptions): 
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/employee/profile'
  */
     const destroyf111ba1dba6158532c68538988b2b61cForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -864,7 +864,7 @@ destroyf111ba1dba6158532c68538988b2b61c.delete = (options?: RouteQueryOptions): 
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::destroy
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:137
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:145
  * @route '/employee/profile'
  */
         destroyf111ba1dba6158532c68538988b2b61cForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

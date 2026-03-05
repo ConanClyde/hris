@@ -18,6 +18,9 @@ class OrganizationalUnitSeeder extends Seeder
                     'Legal Unit',
                     'Planning Unit',
                     'Information and Communications Technology Unit',
+                    'Public Health Unit',
+                    'Quality Strategic Management Office',
+                    'Health Information Management Section/TRAIS',
                 ],
             ],
             'Treatment and Rehabilitation Division' => [
@@ -25,10 +28,20 @@ class OrganizationalUnitSeeder extends Seeder
                     'Non-Residential Treatment & Rehabilitation' => [
                         'Medical Section',
                         'Nursing Section',
+                        'Medical Social Work Section',
+                        'Psychological Section',
+                        'Dormitory Management Section',
                     ],
                     'Residential Treatment & Rehabilitation' => [
                         'Medical Section',
                         'Nursing Section',
+                        'Medical Social Work Section',
+                        'Psychological Section',
+                        'Dormitory Management Section',
+                    ],
+                    'Ancillary Services' => [
+                        'Nutrition and Dietetics Section',
+                        'Clinical Laboratory Section',
                     ],
                 ],
                 'sections' => [],
@@ -38,7 +51,11 @@ class OrganizationalUnitSeeder extends Seeder
                 'sections' => [
                     'Human Resource Management Section',
                     'Procurement Section',
+                    'Materials Management Section',
+                    'General Services Section',
                     'Accounting Section',
+                    'Budget Section',
+                    'Cash, Billing, & Claim Section',
                 ],
             ],
         ];

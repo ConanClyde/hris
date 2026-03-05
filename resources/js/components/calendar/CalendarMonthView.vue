@@ -13,7 +13,7 @@ if (!calendar) {
 const weekStartsOn = 0;
 
 const gridStart = computed(() => {
-    const d = calendar.date.value;
+    const d = calendar!.date.value;
     return startOfWeek(startOfMonth(d), { weekStartsOn });
 });
 
@@ -38,7 +38,7 @@ interface MultiDaySegment {
 /** Multi-day events as spanning bars, grouped by week index (0-5). */
 const multiDaySegmentsByWeek = computed(() => {
     const start = gridStart.value;
-    const events = calendar.events.value;
+    const events = calendar!.events.value;
     const result: MultiDaySegment[][] = [[], [], [], [], [], []];
 
     for (const evt of events) {
@@ -64,14 +64,14 @@ const multiDaySegmentsByWeek = computed(() => {
 
 /** Single-day events only (for rendering inside day cells). */
 function singleDayEventsForDay(day: Date) {
-    return calendar.events.value.filter((evt) => {
+    return calendar!.events.value.filter((evt) => {
         if (differenceInDays(evt.end, evt.start) > 0) return false; // multi-day: skip
         return isSameDay(evt.start, day);
     });
 }
 
 function isToday(date: Date) {
-    return isSameDay(date, calendar.today);
+    return isSameDay(date, calendar!.today);
 }
 
 function getWeekDays(weekIndex: number) {

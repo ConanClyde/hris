@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Head, Link, Form, router } from '@inertiajs/vue3';
+import { Head, Form, router } from '@inertiajs/vue3';
 import { Download, RotateCcw, Trash2, Eye } from 'lucide-vue-next';
 import { ref } from 'vue';
+import Pagination from '@/components/Pagination.vue';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -211,28 +212,7 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
             </div>
 
             <!-- Pagination -->
-            <div
-                v-if="backups.last_page > 1"
-                class="flex flex-wrap items-center justify-center gap-2"
-            >
-                <template v-for="(link, i) in backups.links" :key="i">
-                    <span
-                        v-if="!link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-gray-200 px-3 text-sm text-gray-400 dark:border-neutral-700"
-                        v-html="link.label"
-                    />
-                    <Link
-                        v-else
-                        :href="link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active
-                            ? 'border-brand bg-brand text-white dark:border-brand-light dark:bg-brand-light dark:text-gray-900'
-                            : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
-                    >
-                        <span v-html="link.label" />
-                    </Link>
-                </template>
-            </div>
+            <Pagination :meta="backups" />
         </div>
 
         <!-- Run Backup Modal -->

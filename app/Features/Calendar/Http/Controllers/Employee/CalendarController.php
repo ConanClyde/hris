@@ -46,7 +46,7 @@ class CalendarController extends Controller
         // Employee's own leave
         if ($employeeId && ($category === 'all' || $category === 'leave')) {
             $leaveQuery = LeaveApplication::query()
-                ->where('employee_id', $employeeId);
+                ->where('employee_fk', $employeeId);
 
             if ($start && $end) {
                 $leaveQuery->whereBetween('date_from', [$start, $end]);
@@ -81,7 +81,7 @@ class CalendarController extends Controller
         // Employee's own training
         if ($employeeId && ($category === 'all' || $category === 'training')) {
             $trainingQuery = Training::query()
-                ->where('employee_id', $employeeId);
+                ->where('employee_fk', $employeeId);
 
             if ($start && $end) {
                 $trainingQuery->whereBetween('date_from', [$start, $end]);

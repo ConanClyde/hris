@@ -21,6 +21,7 @@ class LeaveApplication extends Model
 
     protected $fillable = [
         'employee_id',
+        'employee_fk',
         'employee_name',
         'type',
         'date_from',
@@ -38,11 +39,12 @@ class LeaveApplication extends Model
         'total_days' => 'float',
         'attachments' => 'array',
         'legacy_attachment' => 'array',
+        'employee_fk' => 'integer',
     ];
 
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class, 'employee_fk');
     }
 
     public function scopePending(Builder $query): Builder
@@ -58,5 +60,10 @@ class LeaveApplication extends Model
     public function scopeForEmployee(Builder $query, string $employeeId): Builder
     {
         return $query->where('employee_id', $employeeId);
+    }
+
+    public function scopeForEmployeePk(Builder $query, int $employeeId): Builder
+    {
+        return $query->where('employee_fk', $employeeId);
     }
 }

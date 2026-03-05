@@ -28,7 +28,7 @@ class BackupController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'backup_file' => 'required|file|max:102400',
+            'backup_file' => 'required|file|mimes:sql,zip,sqlite,db|max:102400',
         ]);
 
         return redirect()->route('admin.backup.index')->with('success', 'Backup uploaded.');

@@ -7,6 +7,7 @@ use App\Features\Pds\Models\Pds;
 use App\Features\Training\Models\Training;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -70,11 +71,28 @@ class DashboardController extends Controller
                 $query->where('role', '!=', 'admin');
             })->count();
 
+        $today = Carbon::today()->toDateString();
+        $outToday = LeaveApplication::with(['employee.user', 'employee.division'])
+            ->where('status', 'approved')
+            ->where('date_from', '<=', $today)
+            ->where('date_to', '>=', $today)
+            ->get()
+            ->map(function ($leave) {
+                return [
+                    'id' => $leave->id,
+                    'employee_name' => $leave->employee->full_name ?? 'Unknown Employee',
+                    'department' => $leave->employee->division->name ?? 'Unassigned',
+                    'leave_type' => $leave->type ?? 'Leave',
+                    'avatar' => $leave->employee->user->avatar ?? null,
+                ];
+            });
+
         return Inertia::render('HR/Dashboard', [
             'totalUsers' => $totalUsers,
             'pendingLeaveCount' => $pendingLeaveCount,
             'pendingTrainingCount' => $pendingTrainingCount,
             'pdsPendingCount' => $pdsPendingCount,
+            'outToday' => $outToday,
             'user' => $user ? ['first_name' => $user->first_name ?? 'User'] : null,
         ]);
     }
@@ -87,17 +105,38 @@ class DashboardController extends Controller
         $leaveCount = 0;
         $trainingCount = 0;
         $pdsStatus = null;
+        $badges = [];
+
         if ($employeeId !== null) {
-            $leaveCount = LeaveApplication::where('employee_id', $employeeId)->count();
-            $trainingCount = Training::where('employee_id', $employeeId)->count();
+            $leaveCount = LeaveApplication::where('employee_fk', $employeeId)->count();
+            $trainingCount = Training::where('employee_fk', $employeeId)->count();
             $pds = Pds::where('employee_id', $employeeId)->first();
             $pdsStatus = $pds?->status ?? null;
+            $badges = $user->employee->badges ?? [];
         }
+
+        $today = Carbon::today()->toDateString();
+        $outToday = LeaveApplication::with(['employee.user', 'employee.division'])
+            ->where('status', 'approved')
+            ->where('date_from', '<=', $today)
+            ->where('date_to', '>=', $today)
+            ->get()
+            ->map(function ($leave) {
+                return [
+                    'id' => $leave->id,
+                    'employee_name' => $leave->employee->full_name ?? 'Unknown Employee',
+                    'department' => $leave->employee->division->name ?? 'Unassigned',
+                    'leave_type' => $leave->type ?? 'Leave',
+                    'avatar' => $leave->employee->user->avatar ?? null,
+                ];
+            });
 
         return Inertia::render('Employee/Dashboard', [
             'leaveCount' => $leaveCount,
             'trainingCount' => $trainingCount,
             'pdsStatus' => $pdsStatus,
+            'badges' => $badges,
+            'outToday' => $outToday,
             'user' => $user ? ['first_name' => $user->first_name ?? 'User'] : null,
         ]);
     }

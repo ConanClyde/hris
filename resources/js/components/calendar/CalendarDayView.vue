@@ -15,10 +15,10 @@ const ROW_HEIGHT_PX = 56;
 const totalHeight = 24 * ROW_HEIGHT_PX;
 
 const dayEvents = computed(() => {
-    const d = calendar.date.value;
+    const d = calendar!.date.value;
     const dayStart = startOfDay(d);
     const dayEnd = endOfDay(d);
-    return calendar.events.value.filter(
+    return calendar!.events.value.filter(
         (evt) =>
             (evt.start >= dayStart && evt.start <= dayEnd) ||
             (evt.end >= dayStart && evt.end <= dayEnd) ||
@@ -27,7 +27,7 @@ const dayEvents = computed(() => {
 });
 
 function eventStyle(evt: CalendarEventNormalized) {
-    const d = calendar.date.value;
+    const d = calendar!.date.value;
     const dayStart = startOfDay(d);
     const dayEnd = endOfDay(d);
     const start = evt.start < dayStart ? dayStart : evt.start;

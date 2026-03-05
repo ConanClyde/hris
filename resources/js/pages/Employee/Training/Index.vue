@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
 import { Eye, Pencil, Download } from 'lucide-vue-next';
 import { ref, watch, computed } from 'vue';
+import Pagination from '@/components/Pagination.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +36,7 @@ type TrainingItem = {
     date_to?: string | null;
     hours?: number | string | null;
     type?: string | null;
+    category?: string | null;
     provider?: string | null;
     status: string;
     created_at: string;
@@ -84,12 +86,16 @@ const addDateFrom = ref('');
 const addDateTo = ref('');
 const addHours = ref('');
 const addProvider = ref('');
+const addType = ref('');
+const addCategory = ref('');
 
 const editTitle = ref('');
 const editDateFrom = ref('');
 const editDateTo = ref('');
 const editHours = ref('');
 const editProvider = ref('');
+const editType = ref('');
+const editCategory = ref('');
 
 const statusOptionsEntries = computed(() => Object.entries(props.statusOptions));
 
@@ -102,11 +108,15 @@ watch(
     { immediate: true }
 );
 
+let filterDebounce: ReturnType<typeof setTimeout> | null = null;
 watch([filterStatus, filterType], () => {
-    const query: Record<string, string> = {};
-    if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
-    if (filterType.value) query.type = filterType.value;
-    router.get(employee.training.index.url(), query, { preserveState: true });
+    if (filterDebounce) clearTimeout(filterDebounce);
+    filterDebounce = setTimeout(() => {
+        const query: Record<string, string> = {};
+        if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
+        if (filterType.value) query.type = filterType.value;
+        router.get(employee.training.index.url(), query, { preserveState: true });
+    }, 300);
 });
 
 watch(editingTraining, (t) => {
@@ -116,6 +126,8 @@ watch(editingTraining, (t) => {
         editDateTo.value = t.date_to ? String(t.date_to).slice(0, 10) : '';
         editHours.value = t.hours != null ? String(t.hours) : '';
         editProvider.value = t.provider ?? '';
+        editType.value = t.type ?? '';
+        editCategory.value = t.category ?? '';
     }
 }, { immediate: true });
 
@@ -136,6 +148,8 @@ function openAdd() {
     addDateTo.value = '';
     addHours.value = '';
     addProvider.value = '';
+    addType.value = '';
+    addCategory.value = '';
     addModalOpen.value = true;
 }
 
@@ -162,6 +176,8 @@ function submitAdd(e: Event) {
         date_to: addDateTo.value || null,
         hours: addHours.value ? Number(addHours.value) : null,
         provider: addProvider.value || null,
+        type: addType.value || null,
+        category: addCategory.value || null,
     }, { onSuccess: () => { addModalOpen.value = false; } });
 }
 
@@ -174,6 +190,8 @@ function submitEdit(e: Event) {
         date_to: editDateTo.value || null,
         hours: editHours.value ? Number(editHours.value) : null,
         provider: editProvider.value || null,
+        type: editType.value || null,
+        category: editCategory.value || null,
     }, { onSuccess: () => closeEdit() });
 }
 
@@ -203,7 +221,7 @@ function inclusiveDates(t: TrainingItem) {
     <Head title="Learning & Development" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-4 p-4">
+        <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
@@ -281,6 +299,7 @@ function inclusiveDates(t: TrainingItem) {
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Inclusive Dates</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Hours</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Type</th>
+                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Category</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Provider</th>
                                 <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Status</th>
                                 <th class="text-right font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Actions</th>
@@ -296,6 +315,7 @@ function inclusiveDates(t: TrainingItem) {
                                 <td class="px-4 py-3 text-muted-foreground">{{ inclusiveDates(t) }}</td>
                                 <td class="px-4 py-3">{{ t.hours ?? '—' }}</td>
                                 <td class="px-4 py-3">{{ t.type ?? '—' }}</td>
+                                <td class="px-4 py-3">{{ t.category ?? '—' }}</td>
                                 <td class="px-4 py-3">{{ t.provider ?? '—' }}</td>
                                 <td class="px-4 py-3">
                                     <Badge :variant="statusVariant(t.status)">
@@ -339,26 +359,7 @@ function inclusiveDates(t: TrainingItem) {
                 </div>
             </div>
 
-            <div
-                v-if="trainings.last_page > 1"
-                class="flex flex-wrap items-center justify-center gap-2"
-            >
-                <template v-for="(link, i) in trainings.links" :key="i">
-                    <span
-                        v-if="!link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border border-gray-200 px-3 text-sm text-gray-400 dark:border-neutral-700"
-                        v-html="link.label"
-                    />
-                    <Link
-                        v-else
-                        :href="link.url"
-                        class="inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-3 text-sm transition-colors"
-                        :class="link.active ? 'border-primary bg-primary text-primary-foreground' : 'border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-gray-300 dark:hover:bg-neutral-800'"
-                    >
-                        <span v-html="link.label" />
-                    </Link>
-                </template>
-            </div>
+            <Pagination :meta="trainings" />
         </div>
 
         <!-- View modal -->
@@ -387,6 +388,10 @@ function inclusiveDates(t: TrainingItem) {
                         <div>
                             <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Type</dt>
                             <dd class="mt-0.5">{{ viewingTraining.type ?? '—' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</dt>
+                            <dd class="mt-0.5">{{ viewingTraining.category ?? '—' }}</dd>
                         </div>
                         <div>
                             <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Provider</dt>
@@ -441,6 +446,14 @@ function inclusiveDates(t: TrainingItem) {
                             <Input id="add-hours" v-model="addHours" type="number" step="0.5" min="0" />
                         </div>
                         <div class="grid gap-2">
+                            <Label for="add-type">Type (optional)</Label>
+                            <Input id="add-type" v-model="addType" />
+                        </div>
+                        <div class="grid gap-2">
+                            <Label for="add-category">Category (optional)</Label>
+                            <Input id="add-category" v-model="addCategory" />
+                        </div>
+                        <div class="grid gap-2">
                             <Label for="add-provider">Provider (optional)</Label>
                             <Input id="add-provider" v-model="addProvider" />
                         </div>
@@ -481,6 +494,14 @@ function inclusiveDates(t: TrainingItem) {
                         <div class="grid gap-2">
                             <Label for="edit-hours">Hours</Label>
                             <Input id="edit-hours" v-model="editHours" type="number" step="0.5" min="0" />
+                        </div>
+                        <div class="grid gap-2">
+                            <Label for="edit-type">Type (optional)</Label>
+                            <Input id="edit-type" v-model="editType" />
+                        </div>
+                        <div class="grid gap-2">
+                            <Label for="edit-category">Category (optional)</Label>
+                            <Input id="edit-category" v-model="editCategory" />
                         </div>
                         <div class="grid gap-2">
                             <Label for="edit-provider">Provider (optional)</Label>

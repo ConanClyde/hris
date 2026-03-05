@@ -5,12 +5,12 @@ import users48860f from './users'
 import activityLogs from './activity-logs'
 import performance from './performance'
 import backup from './backup'
-import notices from './notices'
 import notifications1ce82a from './notifications'
+import posts from './posts'
 import profile937a89 from './profile'
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -25,7 +25,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -34,7 +34,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -43,7 +43,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -53,7 +53,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -72,7 +72,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
  * @route '/admin/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -166,7 +166,7 @@ calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     calendar.form = calendarForm
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
 export const users = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -181,7 +181,7 @@ users.definition = {
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
 users.url = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -213,7 +213,7 @@ users.url = (args?: { status?: string | number } | [status: string | number ] | 
 
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
 users.get = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -222,7 +222,7 @@ users.get = (args?: { status?: string | number } | [status: string | number ] | 
 })
 /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
 users.head = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -232,7 +232,7 @@ users.head = (args?: { status?: string | number } | [status: string | number ] |
 
     /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
     const usersForm = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -242,7 +242,7 @@ users.head = (args?: { status?: string | number } | [status: string | number ] |
 
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
         usersForm.get = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -251,7 +251,7 @@ users.head = (args?: { status?: string | number } | [status: string | number ] |
         })
             /**
 * @see \App\Features\Users\Http\Controllers\Admin\UserController::users
- * @see app/Features/Users/Http/Controllers/Admin/UserController.php:24
+ * @see app/Features/Users/Http/Controllers/Admin/UserController.php:27
  * @route '/admin/users/{status?}'
  */
         usersForm.head = (args?: { status?: string | number } | [status: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -267,7 +267,7 @@ users.head = (args?: { status?: string | number } | [status: string | number ] |
     users.form = usersForm
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
 export const notifications = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -282,7 +282,7 @@ notifications.definition = {
 
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
 notifications.url = (options?: RouteQueryOptions) => {
@@ -291,7 +291,7 @@ notifications.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
 notifications.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -300,7 +300,7 @@ notifications.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
 notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -310,7 +310,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
     /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
     const notificationsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -320,7 +320,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
 
             /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
         notificationsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -329,7 +329,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
         })
             /**
 * @see \App\Features\Notifications\Http\Controllers\NotificationController::notifications
- * @see app/Features/Notifications/Http/Controllers/NotificationController.php:13
+ * @see app/Features/Notifications/Http/Controllers/NotificationController.php:20
  * @route '/admin/notifications'
  */
         notificationsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -344,7 +344,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     
     notifications.form = notificationsForm
 /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
 export const settings = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -358,7 +358,7 @@ settings.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
 settings.url = (options?: RouteQueryOptions) => {
@@ -366,7 +366,7 @@ settings.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
 settings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -374,7 +374,7 @@ settings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
 settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -383,7 +383,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
     const settingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -392,7 +392,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
         settingsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,7 +400,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web/admin.php:76
+ * @see routes/web/admin.php:79
  * @route '/admin/settings'
  */
         settingsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -416,7 +416,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     settings.form = settingsForm
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 export const profile = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -431,7 +431,7 @@ profile.definition = {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 profile.url = (options?: RouteQueryOptions) => {
@@ -440,7 +440,7 @@ profile.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 profile.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -449,7 +449,7 @@ profile.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
 profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -459,7 +459,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
     const profileForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -469,7 +469,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
         profileForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -478,7 +478,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Auth\Http\Controllers\ProfileController::profile
- * @see app/Features/Auth/Http/Controllers/ProfileController.php:17
+ * @see app/Features/Auth/Http/Controllers/ProfileController.php:18
  * @route '/admin/profile'
  */
         profileForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -494,7 +494,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     profile.form = profileForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
 export const reports = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -509,7 +509,7 @@ reports.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
 reports.url = (options?: RouteQueryOptions) => {
@@ -518,7 +518,7 @@ reports.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
 reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -527,7 +527,7 @@ reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
 reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -537,7 +537,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
     const reportsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -547,7 +547,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
         reportsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -556,7 +556,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:15
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
  * @route '/admin/reports'
  */
         reportsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -578,8 +578,8 @@ users: Object.assign(users, users48860f),
 activityLogs: Object.assign(activityLogs, activityLogs),
 performance: Object.assign(performance, performance),
 backup: Object.assign(backup, backup),
-notices: Object.assign(notices, notices),
 notifications: Object.assign(notifications, notifications1ce82a),
+posts: Object.assign(posts, posts),
 settings: Object.assign(settings, settings),
 profile: Object.assign(profile, profile937a89),
 reports: Object.assign(reports, reports),

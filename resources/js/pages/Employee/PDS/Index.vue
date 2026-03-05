@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
-import { FileText, Save, Send, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Plus, Trash2 } from 'lucide-vue-next';
+import { FileText, Save, Send, CheckCircle2, Clock, XCircle, ChevronDown, ChevronUp, Plus, Trash2, Wand2, Loader2 } from 'lucide-vue-next';
 import { ref, reactive, computed } from 'vue';
+import { toast } from 'vue-sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -169,6 +170,7 @@ type PdsRecord = {
 
 const props = defineProps<{
     pds: PdsRecord | null;
+    pendingRevision?: any;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Personal Data Sheet' }];
@@ -307,13 +309,35 @@ if (references.value.length === 0) {
 
 const activeTab = ref<'c1' | 'c2' | 'c3' | 'c4'>('c1');
 
-const openSections = reactive({ personal: true, contact: true, govt: true });
+const openSections = reactive({
+    personal: true,
+    address: true,
+    contact: true,
+    govt: true,
+    family: true,
+    children: true,
+    education: true,
+    csc: true,
+    work: true,
+    voluntary: true,
+    training: true,
+    otherInfo: true,
+    references: true,
+});
 function toggle(section: keyof typeof openSections) {
     openSections[section] = !openSections[section];
 }
 
 const status = computed(() => props.pds?.status ?? null);
-const canEdit = computed(() => !status.value || status.value === 'draft' || status.value === 'rejected');
+const isRevisionPending = computed(() => props.pendingRevision?.status === 'pending');
+const isRevisionDraft = computed(() => props.pendingRevision?.status === 'draft');
+
+const canEdit = computed(() => {
+    if (isRevisionPending.value) return false;
+    if (!status.value || status.value === 'draft' || status.value === 'rejected') return true;
+    if (status.value === 'approved') return true;
+    return false;
+});
 
 function statusVariant(s: string | null): 'default' | 'secondary' | 'destructive' | 'outline' {
     if (s === 'approved') return 'default';
@@ -382,6 +406,205 @@ function submitPds() {
         {}
     );
 }
+
+// AI PDF Extraction Logic
+const isExtracting = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
+
+function triggerPdfUpload() {
+    if (!canEdit.value) return;
+    fileInput.value?.click();
+}
+
+async function handlePdfUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    if (file.type !== 'application/pdf') {
+        toast.error('Please upload a valid PDF file.');
+        return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+        toast.error('File size must be less than 10MB.');
+        return;
+    }
+
+    isExtracting.value = true;
+    toast.info('Extracting PDS data via AI...', { description: 'This may take up to 30 seconds.' });
+
+    const formData = new FormData();
+    formData.append('pds_file', file);
+
+    try {
+        const response = await fetch(employee.pds.parse.url(), {
+            method: 'POST',
+            body: formData,
+            headers: {
+                // Remove Content-Type so the browser sets it dynamically with the boundary
+                'X-CSRF-TOKEN': document.head.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || 'Failed to extract PDF.');
+        }
+
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            mapExtractedData(result.data);
+            toast.success('PDS successfully auto-filled!', {
+                description: 'Please review all extracted fields carefully before saving.'
+            });
+        }
+    } catch (error: any) {
+        toast.error('Extraction failed', { description: error.message });
+    } finally {
+        isExtracting.value = false;
+        if (fileInput.value) fileInput.value.value = ''; // Reset input
+    }
+}
+
+function mapExtractedData(data: any) {
+    // Merge personal data
+    if (data.personal) {
+        Object.assign(form, {
+            surname: data.personal.surname || form.surname,
+            first_name: data.personal.first_name || form.first_name,
+            middle_name: data.personal.middle_name || form.middle_name,
+            name_extension: data.personal.name_extension || form.name_extension,
+            dob: data.personal.date_of_birth || form.dob,
+            place_of_birth: data.personal.place_of_birth || form.place_of_birth,
+            sex: data.personal.sex || form.sex,
+            civil_status: data.personal.civil_status || form.civil_status,
+            height: data.personal.height || form.height,
+            weight: data.personal.weight || form.weight,
+            blood_type: data.personal.blood_type || form.blood_type,
+            gsis: data.personal.gsis_id_no || form.gsis,
+            pag_ibig: data.personal.pagibig_id_no || form.pag_ibig,
+            philhealth: data.personal.philhealth_no || form.philhealth,
+            sss: data.personal.sss_no || form.sss,
+            tin: data.personal.tin_no || form.tin,
+            agency_employee_no: data.personal.agency_employee_no || form.agency_employee_no,
+            citizenship_type: data.personal.citizenship || form.citizenship_type,
+            phone: data.personal.telephone_no || form.phone,
+            mobile: data.personal.mobile_no || form.mobile,
+            email: data.personal.email_address || form.email,
+        });
+
+        if (form.residential_address !== undefined) {
+            form.residential_address!.house_no = data.personal.residential_house_block_no || form.residential_address!.house_no;
+            form.residential_address!.street = data.personal.residential_street || form.residential_address!.street;
+            form.residential_address!.subdivision = data.personal.residential_subdivision_village || form.residential_address!.subdivision;
+            form.residential_address!.barangay = data.personal.residential_barangay || form.residential_address!.barangay;
+            form.residential_address!.city = data.personal.residential_city_municipality || form.residential_address!.city;
+            form.residential_address!.province = data.personal.residential_province || form.residential_address!.province;
+            form.residential_address!.zip_code = data.personal.residential_zipcode || form.residential_address!.zip_code;
+        }
+
+        if (form.permanent_address !== undefined) {
+            form.permanent_address!.house_no = data.personal.permanent_house_block_no || form.permanent_address!.house_no;
+            form.permanent_address!.street = data.personal.permanent_street || form.permanent_address!.street;
+            form.permanent_address!.subdivision = data.personal.permanent_subdivision_village || form.permanent_address!.subdivision;
+            form.permanent_address!.barangay = data.personal.permanent_barangay || form.permanent_address!.barangay;
+            form.permanent_address!.city = data.personal.permanent_city_municipality || form.permanent_address!.city;
+            form.permanent_address!.province = data.personal.permanent_province || form.permanent_address!.province;
+            form.permanent_address!.zip_code = data.personal.permanent_zipcode || form.permanent_address!.zip_code;
+        }
+    }
+
+    // Merge family data
+    if (data.family) {
+        Object.assign(family, {
+            spouse_surname: data.family.spouse_surname || family.spouse_surname,
+            spouse_first_name: data.family.spouse_first_name || family.spouse_first_name,
+            spouse_middle_name: data.family.spouse_middle_name || family.spouse_middle_name,
+            spouse_name_extension: data.family.spouse_name_extension || family.spouse_name_extension,
+            spouse_occupation: data.family.spouse_occupation || family.spouse_occupation,
+            spouse_employer: data.family.spouse_employer_business_name || family.spouse_employer,
+            spouse_business_address: data.family.spouse_business_address || family.spouse_business_address,
+            spouse_telephone: data.family.spouse_telephone_no || family.spouse_telephone,
+            father_surname: data.family.father_surname || family.father_surname,
+            father_first_name: data.family.father_first_name || family.father_first_name,
+            father_middle_name: data.family.father_middle_name || family.father_middle_name,
+            father_name_extension: data.family.father_name_extension || family.father_name_extension,
+            mother_maiden_surname: data.family.mother_maiden_surname || family.mother_maiden_surname,
+            mother_maiden_first_name: data.family.mother_first_name || family.mother_maiden_first_name,
+            mother_maiden_middle_name: data.family.mother_middle_name || family.mother_maiden_middle_name,
+        });
+    }
+
+    // Merge Arrays (Only if data exists and is not empty)
+    if (data.children && Array.isArray(data.children) && data.children.length > 0) {
+        children.value = data.children.map((c: any) => ({ name: c.name || '', dob: c.date_of_birth || '' }));
+    }
+
+    if (data.education && Array.isArray(data.education) && data.education.length > 0) {
+        education.value = data.education.map((e: any) => ({
+            level: e.level || '',
+            school_name: e.school_name || '',
+            degree_course: e.basic_education_degree_course || '',
+            period_from: e.period_from || '',
+            period_to: e.period_to || '',
+            highest_level: e.highest_level_units_earned || '',
+            year_graduated: e.year_graduated || '',
+            scholarship_honors: e.scholarship_academic_honors || '',
+            awards: ''
+        }));
+    }
+
+    if (data.csc_eligibility && Array.isArray(data.csc_eligibility) && data.csc_eligibility.length > 0) {
+        cscEligibility.value = data.csc_eligibility.map((c: any) => ({
+            license_name: c.license_name || '',
+            rating: c.rating || '',
+            date_of_examination: c.date_of_examination || '',
+            place_of_examination: c.place_of_examination || '',
+            license_no: c.license_number || '',
+            date_of_validity: c.license_date_of_validity || ''
+        }));
+    }
+
+    if (data.work_experience && Array.isArray(data.work_experience) && data.work_experience.length > 0) {
+        workExperience.value = data.work_experience.map((w: any) => ({
+            employed_from: w.employed_from || '',
+            employed_to: w.employed_to === 'Present' ? '' : w.employed_to || '',
+            position_title: w.position_title || '',
+            department: w.department || '',
+            salary: w.salary ? String(w.salary).replace(/[^0-9.]/g, '') : '',
+            salary_grade: w.salary_grade || '',
+            appointment_status: w.status_of_appointment || '',
+            is_government: w.is_government || false
+        }));
+    }
+    
+    if (data.voluntary_work && Array.isArray(data.voluntary_work) && data.voluntary_work.length > 0) {
+        voluntaryWork.value = data.voluntary_work.map((v: any) => ({
+            org_name_address: v.org_name_address || '',
+            volunteer_from: v.volunteer_from || '',
+            volunteer_to: v.volunteer_to || '',
+            number_of_hours: v.number_of_hours || '',
+            nature_of_work: v.nature_of_work || '',
+        }));
+    }
+}
+
+if (props.pendingRevision && props.pendingRevision.changes) {
+    const changes = props.pendingRevision.changes;
+    if (changes.personal) Object.assign(form, changes.personal);
+    if (changes.family) Object.assign(family, changes.family);
+    if (changes.children) children.value = changes.children;
+    if (changes.education) education.value = changes.education;
+    if (changes.csc_eligibility) cscEligibility.value = changes.csc_eligibility;
+    if (changes.work_experience) workExperience.value = changes.work_experience;
+    if (changes.voluntary_work) voluntaryWork.value = changes.voluntary_work;
+    if (changes.training) training.value = changes.training;
+    if (changes.other_info) otherInfo.value = changes.other_info;
+    if (changes.references) references.value = changes.references;
+}
 </script>
 
 <template>
@@ -396,17 +619,72 @@ function submitPds() {
                     <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">Personal Data Sheet</h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Fill in your personal information and submit for HR review.</p>
                 </div>
+
+            <!-- Revision Banners -->
+            <div v-if="isRevisionPending" class="rounded-md bg-amber-50 p-4 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-900/50 mt-4 max-w-7xl">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <Clock class="h-5 w-5 text-amber-400" aria-hidden="true" />
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-amber-800 dark:text-amber-200">Revision Request Pending</h3>
+                        <div class="mt-2 text-sm text-amber-700 dark:text-amber-300">
+                            <p>You have submitted a revision request for your PDS. Your requested changes are shown below and are currently locked until HR reviews them. If you wish to make further changes, please wait for HR's decision.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div v-else-if="isRevisionDraft" class="rounded-md bg-blue-50 p-4 border border-blue-200 dark:bg-blue-900/20 dark:border-blue-900/50 mt-4 max-w-7xl">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <Save class="h-5 w-5 text-blue-400" aria-hidden="true" />
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Draft Revision Request</h3>
+                        <div class="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                            <p>You have an unsubmitted draft for your PDS revision. Submit it when you are ready to request these changes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
-                    <Badge v-if="status" :variant="statusVariant(status)" class="capitalize gap-1.5 px-3 py-1 text-sm">
+                    <input 
+                        type="file" 
+                        ref="fileInput" 
+                        accept="application/pdf" 
+                        class="hidden" 
+                        @change="handlePdfUpload" 
+                    />
+                    <Button 
+                        v-if="canEdit"
+                        type="button" 
+                        variant="default"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-sm shadow-indigo-200 dark:shadow-none"
+                        :disabled="isExtracting"
+                        @click="triggerPdfUpload"
+                    >
+                        <Loader2 v-if="isExtracting" class="size-4 animate-spin" />
+                        <Wand2 v-else class="size-4" />
+                        {{ isExtracting ? 'Extracting...' : 'Auto-Fill from PDF' }}
+                    </Button>
+                    <Badge v-if="status" :variant="statusVariant(status)" class="capitalize gap-1.5 px-3 py-1.5 text-sm">
                         <CheckCircle2 v-if="status === 'approved'" class="size-3.5" />
                         <Clock v-else-if="status === 'submitted'" class="size-3.5" />
                         <XCircle v-else-if="status === 'rejected'" class="size-3.5" />
                         {{ status }}
                     </Badge>
+                    <a
+                        v-if="status === 'approved'"
+                        :href="employee.pds.export.url()"
+                        target="_blank"
+                        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-gray-200 dark:hover:bg-neutral-700 h-9"
+                    >
+                        <FileText class="size-4 text-red-500" /> Export to CS Form 212
+                    </a>
                     <Link
                         v-if="pds?.id"
                         :href="employee.pds.preview.url()"
-                        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-gray-200 dark:hover:bg-neutral-700"
+                        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-gray-200 dark:hover:bg-neutral-700 h-9"
                     >
                         <FileText class="size-4" /> Preview
                     </Link>
@@ -464,11 +742,12 @@ function submitPds() {
                         class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
                         @click="toggle('personal')"
                     >
-                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">I. Personal Information</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Personal Information</span>
                         <ChevronUp v-if="openSections.personal" class="size-4 text-muted-foreground" />
                         <ChevronDown v-else class="size-4 text-muted-foreground" />
                     </button>
-                    <div v-show="openSections.personal" class="bg-white p-5 dark:bg-neutral-900">
+                    <Transition name="collapse">
+                        <div v-show="openSections.personal" class="bg-white p-5 dark:bg-neutral-900">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div class="space-y-1.5">
                                 <Label for="surname">Surname</Label>
@@ -550,83 +829,101 @@ function submitPds() {
                             </div>
                         </div>
 
-                        <!-- Residential address -->
-                        <div class="mt-5 space-y-3">
-                            <p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Residential address</p>
-                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                <div class="space-y-1.5">
-                                    <Label for="res_house_no">House / Block / Lot No.</Label>
-                                    <Input id="res_house_no" v-model="form.residential_address!.house_no" :disabled="!canEdit" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="res_street">Street</Label>
-                                    <Input id="res_street" v-model="form.residential_address!.street" :disabled="!canEdit" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="res_subdivision">Subdivision / Village</Label>
-                                    <Input id="res_subdivision" v-model="form.residential_address!.subdivision" :disabled="!canEdit" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="res_barangay">Barangay</Label>
-                                    <Input id="res_barangay" v-model="form.residential_address!.barangay" :disabled="!canEdit" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="res_city">City / Municipality</Label>
-                                    <Input id="res_city" v-model="form.residential_address!.city" :disabled="!canEdit" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="res_province">Province</Label>
-                                    <Input id="res_province" v-model="form.residential_address!.province" :disabled="!canEdit" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="res_zip">ZIP code</Label>
-                                    <Input id="res_zip" v-model="form.residential_address!.zip_code" :disabled="!canEdit" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Permanent address -->
-                        <div class="mt-5 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <p class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Permanent address</p>
-                                <label v-if="canEdit" class="flex cursor-pointer items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                                    <input v-model="sameAsResidential" type="checkbox" class="h-4 w-4 rounded border-gray-300" @change="applySameAddress" />
-                                    Same as residential
-                                </label>
-                            </div>
-                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                                <div class="space-y-1.5">
-                                    <Label for="perm_house_no">House / Block / Lot No.</Label>
-                                    <Input id="perm_house_no" v-model="form.permanent_address!.house_no" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="perm_street">Street</Label>
-                                    <Input id="perm_street" v-model="form.permanent_address!.street" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="perm_subdivision">Subdivision / Village</Label>
-                                    <Input id="perm_subdivision" v-model="form.permanent_address!.subdivision" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="perm_barangay">Barangay</Label>
-                                    <Input id="perm_barangay" v-model="form.permanent_address!.barangay" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="perm_city">City / Municipality</Label>
-                                    <Input id="perm_city" v-model="form.permanent_address!.city" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="perm_province">Province</Label>
-                                    <Input id="perm_province" v-model="form.permanent_address!.province" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                                <div class="space-y-1.5">
-                                    <Label for="perm_zip">ZIP code</Label>
-                                    <Input id="perm_zip" v-model="form.permanent_address!.zip_code" :disabled="!canEdit || sameAsResidential" />
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                </div>
+                </Transition>
+            </div>
+
+                <!-- Address -->
+                <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('address')"
+                    >
+                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Address</span>
+                        <ChevronUp v-if="openSections.address" class="size-4 text-muted-foreground" />
+                        <ChevronDown v-else class="size-4 text-muted-foreground" />
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.address" class="bg-white p-5 dark:bg-neutral-900">
+                            <!-- Residential address -->
+                            <div>
+                                <p class="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Residential Address</p>
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div class="space-y-1.5">
+                                        <Label for="res_house_no">House / Block / Lot No.</Label>
+                                        <Input id="res_house_no" v-model="form.residential_address!.house_no" :disabled="!canEdit" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="res_street">Street</Label>
+                                        <Input id="res_street" v-model="form.residential_address!.street" :disabled="!canEdit" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="res_subdivision">Subdivision / Village</Label>
+                                        <Input id="res_subdivision" v-model="form.residential_address!.subdivision" :disabled="!canEdit" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="res_barangay">Barangay</Label>
+                                        <Input id="res_barangay" v-model="form.residential_address!.barangay" :disabled="!canEdit" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="res_city">City / Municipality</Label>
+                                        <Input id="res_city" v-model="form.residential_address!.city" :disabled="!canEdit" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="res_province">Province</Label>
+                                        <Input id="res_province" v-model="form.residential_address!.province" :disabled="!canEdit" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="res_zip">ZIP code</Label>
+                                        <Input id="res_zip" v-model="form.residential_address!.zip_code" :disabled="!canEdit" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Permanent address -->
+                            <div class="mt-6">
+                                <div class="mb-3 flex items-center justify-between">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Permanent Address</p>
+                                    <label v-if="canEdit" class="flex cursor-pointer items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <input v-model="sameAsResidential" type="checkbox" class="h-4 w-4 rounded border-gray-300" @change="applySameAddress" />
+                                        Same as residential
+                                    </label>
+                                </div>
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_house_no">House / Block / Lot No.</Label>
+                                        <Input id="perm_house_no" v-model="form.permanent_address!.house_no" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_street">Street</Label>
+                                        <Input id="perm_street" v-model="form.permanent_address!.street" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_subdivision">Subdivision / Village</Label>
+                                        <Input id="perm_subdivision" v-model="form.permanent_address!.subdivision" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_barangay">Barangay</Label>
+                                        <Input id="perm_barangay" v-model="form.permanent_address!.barangay" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_city">City / Municipality</Label>
+                                        <Input id="perm_city" v-model="form.permanent_address!.city" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_province">Province</Label>
+                                        <Input id="perm_province" v-model="form.permanent_address!.province" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="perm_zip">ZIP code</Label>
+                                        <Input id="perm_zip" v-model="form.permanent_address!.zip_code" :disabled="!canEdit || sameAsResidential" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </Transition>
+            </div>
 
                 <!-- Contact -->
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
@@ -635,27 +932,29 @@ function submitPds() {
                         class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
                         @click="toggle('contact')"
                     >
-                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">II. Contact Information</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Contact Information</span>
                         <ChevronUp v-if="openSections.contact" class="size-4 text-muted-foreground" />
                         <ChevronDown v-else class="size-4 text-muted-foreground" />
                     </button>
-                    <div v-show="openSections.contact" class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <div class="space-y-1.5">
-                                <Label for="phone">Telephone number</Label>
-                                <Input id="phone" v-model="form.phone" :disabled="!canEdit" placeholder="e.g. (02) 8123 4567" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="mobile">Mobile number</Label>
-                                <Input id="mobile" v-model="form.mobile" :disabled="!canEdit" placeholder="e.g. 09XX XXX XXXX" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="email">Email address</Label>
-                                <Input id="email" v-model="form.email" type="email" :disabled="!canEdit" placeholder="your@email.com" />
+                    <Transition name="collapse">
+                        <div v-show="openSections.contact" class="bg-white p-5 dark:bg-neutral-900">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div class="space-y-1.5">
+                                    <Label for="phone">Telephone number</Label>
+                                    <Input id="phone" v-model="form.phone" :disabled="!canEdit" placeholder="e.g. (02) 8123 4567" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="mobile">Mobile number</Label>
+                                    <Input id="mobile" v-model="form.mobile" :disabled="!canEdit" placeholder="e.g. 09XX XXX XXXX" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="email">Email address</Label>
+                                    <Input id="email" v-model="form.email" type="email" :disabled="!canEdit" placeholder="your@email.com" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </Transition>
+            </div>
 
                 <!-- Government IDs -->
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
@@ -664,50 +963,59 @@ function submitPds() {
                         class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
                         @click="toggle('govt')"
                     >
-                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">III. Government IDs</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Government IDs</span>
                         <ChevronUp v-if="openSections.govt" class="size-4 text-muted-foreground" />
                         <ChevronDown v-else class="size-4 text-muted-foreground" />
                     </button>
-                    <div v-show="openSections.govt" class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <div class="space-y-1.5">
-                                <Label for="cs_id">CS / Plantilla No.</Label>
-                                <Input id="cs_id" v-model="form.cs_id" :disabled="!canEdit" placeholder="Civil Service / Plantilla No." />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="agency_employee_no">Agency Employee No.</Label>
-                                <Input id="agency_employee_no" v-model="form.agency_employee_no" :disabled="!canEdit" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="gsis">GSIS ID No.</Label>
-                                <Input id="gsis" v-model="form.gsis" :disabled="!canEdit" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="pag_ibig">Pag-IBIG ID No.</Label>
-                                <Input id="pag_ibig" v-model="form.pag_ibig" :disabled="!canEdit" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="philhealth">PhilHealth No.</Label>
-                                <Input id="philhealth" v-model="form.philhealth" :disabled="!canEdit" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="sss">SSS No.</Label>
-                                <Input id="sss" v-model="form.sss" :disabled="!canEdit" />
-                            </div>
-                            <div class="space-y-1.5">
-                                <Label for="tin">TIN</Label>
-                                <Input id="tin" v-model="form.tin" :disabled="!canEdit" />
+                    <Transition name="collapse">
+                        <div v-show="openSections.govt" class="bg-white p-5 dark:bg-neutral-900">
+                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div class="space-y-1.5">
+                                    <Label for="cs_id">CS / Plantilla No.</Label>
+                                    <Input id="cs_id" v-model="form.cs_id" :disabled="!canEdit" placeholder="Civil Service / Plantilla No." />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="agency_employee_no">Agency Employee No.</Label>
+                                    <Input id="agency_employee_no" v-model="form.agency_employee_no" :disabled="!canEdit" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="gsis">GSIS ID No.</Label>
+                                    <Input id="gsis" v-model="form.gsis" :disabled="!canEdit" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="pag_ibig">Pag-IBIG ID No.</Label>
+                                    <Input id="pag_ibig" v-model="form.pag_ibig" :disabled="!canEdit" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="philhealth">PhilHealth No.</Label>
+                                    <Input id="philhealth" v-model="form.philhealth" :disabled="!canEdit" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="sss">SSS No.</Label>
+                                    <Input id="sss" v-model="form.sss" :disabled="!canEdit" />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="tin">TIN</Label>
+                                    <Input id="tin" v-model="form.tin" :disabled="!canEdit" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </Transition>
+            </div>
 
                 <!-- Family -->
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('family')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Family Background</span>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
+                        <ChevronUp v-if="openSections.family" class="size-4 text-muted-foreground" />
+                        <ChevronDown v-else class="size-4 text-muted-foreground" />
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.family" class="bg-white p-5 dark:bg-neutral-900">
                         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div class="space-y-1.5"><Label>Spouse Surname</Label><Input v-model="family.spouse_surname" :disabled="!canEdit" /></div>
                             <div class="space-y-1.5"><Label>Spouse First Name</Label><Input v-model="family.spouse_first_name" :disabled="!canEdit" /></div>
@@ -727,79 +1035,90 @@ function submitPds() {
                             <div class="space-y-1.5"><Label>Mother Maiden First Name</Label><Input v-model="family.mother_maiden_first_name" :disabled="!canEdit" /></div>
                             <div class="space-y-1.5"><Label>Mother Maiden Middle Name</Label><Input v-model="family.mother_maiden_middle_name" :disabled="!canEdit" /></div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Children -->
-                <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
-                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Children</span>
-                        <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="children.push({ name: '', dob: '' })">
-                            <Plus class="mr-1 size-4" /> Add
-                        </Button>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Name</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Date of Birth</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(c, i) in children" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="c.name" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="c.dob" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2 text-right">
-                                            <Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="children.splice(i, 1)">
-                                                <Trash2 class="size-4" />
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <!-- Children subsection -->
+                        <div class="mt-6">
+                            <p class="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">Children</p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Name</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Date of Birth</th>
+                                            <th class="w-12 px-3 py-2" />
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(c, i) in children" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="c.name" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="c.dob" type="date" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2 text-right">
+                                                <Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="children.splice(i, 1)">
+                                                    <Trash2 class="size-4" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="children.push({ name: '', dob: '' })">
+                                    <Plus class="mr-1 size-4" /> Add
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </Transition>
+            </div>
 
                 <!-- Education -->
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('education')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Education</span>
-                        <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="education.push({ level: '', school_name: '', degree_course: '', period_from: '', period_to: '', highest_level: '', year_graduated: '', scholarship_honors: '', awards: '' })">
-                            <Plus class="mr-1 size-4" /> Add
-                        </Button>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Level</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">School</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Degree</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Year</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(e, i) in education" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="e.level" :disabled="!canEdit" placeholder="Elementary/Secondary/etc" /></td>
-                                        <td class="px-3 py-2"><Input v-model="e.school_name" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="e.degree_course" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="e.year_graduated" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2 text-right">
-                                            <Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="education.splice(i, 1)">
-                                                <Trash2 class="size-4" />
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.education" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.education" class="bg-white p-5 dark:bg-neutral-900">
+                            <div v-if="canEdit" class="mb-3 flex justify-end">
+                                <Button type="button" size="sm" variant="outline" @click="education.push({ level: '', school_name: '', degree_course: '', period_from: '', period_to: '', highest_level: '', year_graduated: '', scholarship_honors: '', awards: '' })">
+                                    <Plus class="mr-1 size-4" /> Add
+                                </Button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Level</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">School</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Degree</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Year</th>
+                                            <th class="w-12 px-3 py-2" />
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(e, i) in education" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="e.level" :disabled="!canEdit" placeholder="Elementary/Secondary/etc" /></td>
+                                            <td class="px-3 py-2"><Input v-model="e.school_name" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="e.degree_course" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="e.year_graduated" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2 text-right">
+                                                <Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="education.splice(i, 1)">
+                                                    <Trash2 class="size-4" />
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <!-- Action Buttons -->
@@ -819,78 +1138,102 @@ function submitPds() {
             <!-- TAB C2 -->
             <div v-show="activeTab === 'c2'" class="space-y-5">
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('csc')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Civil Service Eligibility</span>
-                        <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="cscEligibility.push({ license_name: '', rating: '', date_of_examination: '', place_of_examination: '', license_no: '', date_of_validity: '' })">
-                            <Plus class="mr-1 size-4" /> Add
-                        </Button>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">License/Career</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Rating</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Exam Date</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Place</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(r, i) in cscEligibility" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="r.license_name" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="r.rating" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="r.date_of_examination" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="r.place_of_examination" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2 text-right">
-                                            <Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="cscEligibility.splice(i, 1)"><Trash2 class="size-4" /></Button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.csc" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.csc" class="bg-white p-5 dark:bg-neutral-900">
+                            <div v-if="canEdit" class="mb-3 flex justify-end">
+                                <Button type="button" size="sm" variant="outline" @click="cscEligibility.push({ license_name: '', rating: '', date_of_examination: '', place_of_examination: '', license_no: '', date_of_validity: '' })">
+                                    <Plus class="mr-1 size-4" /> Add
+                                </Button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">License/Career</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Rating</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Exam Date</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Place</th>
+                                            <th class="w-12 px-3 py-2" />
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(r, i) in cscEligibility" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="r.license_name" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="r.rating" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="r.date_of_examination" type="date" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="r.place_of_examination" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2 text-right">
+                                                <Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="cscEligibility.splice(i, 1)"><Trash2 class="size-4" /></Button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('work')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Work Experience</span>
-                        <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="workExperience.push({ employed_from: '', employed_to: '', position_title: '', department: '', salary: '', salary_grade: '', appointment_status: '', is_government: false })">
-                            <Plus class="mr-1 size-4" /> Add
-                        </Button>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">From</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">To</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Position</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Department</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Gov't</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(w, i) in workExperience" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="w.employed_from" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="w.employed_to" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="w.position_title" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="w.department" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2">
-                                            <select v-model="w.is_government" :disabled="!canEdit" class="h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                                                <option :value="false">N</option>
-                                                <option :value="true">Y</option>
-                                            </select>
-                                        </td>
-                                        <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="workExperience.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.work" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.work" class="bg-white p-5 dark:bg-neutral-900">
+                            <div v-if="canEdit" class="mb-3 flex justify-end">
+                                <Button type="button" size="sm" variant="outline" @click="workExperience.push({ employed_from: '', employed_to: '', position_title: '', department: '', salary: '', salary_grade: '', appointment_status: '', is_government: false })">
+                                    <Plus class="mr-1 size-4" /> Add
+                                </Button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">From</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">To</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Position</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Department</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Gov't</th>
+                                            <th class="w-12 px-3 py-2" />
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(w, i) in workExperience" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="w.employed_from" type="date" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="w.employed_to" type="date" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="w.position_title" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="w.department" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2">
+                                                <select v-model="w.is_government" :disabled="!canEdit" class="h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                                    <option :value="false">N</option>
+                                                    <option :value="true">Y</option>
+                                                </select>
+                                            </td>
+                                            <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="workExperience.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <div v-if="canEdit" class="flex flex-wrap items-center justify-end gap-3 pt-1">
@@ -908,71 +1251,89 @@ function submitPds() {
             <!-- TAB C3 -->
             <div v-show="activeTab === 'c3'" class="space-y-5">
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('voluntary')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Voluntary Work</span>
-                        <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="voluntaryWork.push({ org_name_address: '', volunteer_from: '', volunteer_to: '', number_of_hours: '', nature_of_work: '' })">
-                            <Plus class="mr-1 size-4" /> Add
-                        </Button>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Organization</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">From</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">To</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Hours</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Nature</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(v, i) in voluntaryWork" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="v.org_name_address" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="v.volunteer_from" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="v.volunteer_to" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="v.number_of_hours" type="number" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="v.nature_of_work" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="voluntaryWork.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.voluntary" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.voluntary" class="bg-white p-5 dark:bg-neutral-900">
+                            <div v-if="canEdit" class="mb-3 flex justify-end">
+                                <Button type="button" size="sm" variant="outline" @click="voluntaryWork.push({ org_name_address: '', volunteer_from: '', volunteer_to: '', number_of_hours: '', nature_of_work: '' })">
+                                    <Plus class="mr-1 size-4" /> Add
+                                </Button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Organization</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">From</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">To</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Hours</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Nature</th>
+                                            <th class="w-12 px-3 py-2" />
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(v, i) in voluntaryWork" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="v.org_name_address" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="v.volunteer_from" type="date" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="v.volunteer_to" type="date" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="v.number_of_hours" type="number" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="v.nature_of_work" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="voluntaryWork.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('training')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Learning & Development</span>
-                        <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="training.push({ title: '', training_from: '', training_to: '', number_of_hours: '', training_type: '', sponsor: '' })">
-                            <Plus class="mr-1 size-4" /> Add
-                        </Button>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Title</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">From</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">To</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Hours</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(t, i) in training" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="t.title" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="t.training_from" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="t.training_to" type="date" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="t.number_of_hours" type="number" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="training.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.training" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.training" class="bg-white p-5 dark:bg-neutral-900">
+                            <p class="mb-3 text-xs text-muted-foreground">Synced from Training module (approved only). To edit, update your training record in the Training page.</p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Title</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">From</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">To</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Hours</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(t, i) in training" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="t.title" disabled /></td>
+                                            <td class="px-3 py-2"><Input v-model="t.training_from" type="date" disabled /></td>
+                                            <td class="px-3 py-2"><Input v-model="t.training_to" type="date" disabled /></td>
+                                            <td class="px-3 py-2"><Input v-model="t.number_of_hours" type="number" disabled /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <div v-if="canEdit" class="flex flex-wrap items-center justify-end gap-3 pt-1">
@@ -990,62 +1351,82 @@ function submitPds() {
             <!-- TAB C4 -->
             <div v-show="activeTab === 'c4'" class="space-y-5">
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('otherInfo')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">Other Information</span>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Skills</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Recognition</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Membership</th>
-                                        <th class="w-12 px-3 py-2" />
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(o, i) in otherInfo" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="o.skills" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="o.recognition" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="o.membership" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="otherInfo.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.otherInfo" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.otherInfo" class="bg-white p-5 dark:bg-neutral-900">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Skills</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Recognition</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Membership</th>
+                                            <th class="w-12 px-3 py-2" />
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(o, i) in otherInfo" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="o.skills" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="o.recognition" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="o.membership" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2 text-right"><Button v-if="canEdit" type="button" variant="ghost" size="icon" class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300" @click="otherInfo.splice(i, 1)"><Trash2 class="size-4" /></Button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3 flex justify-end">
+                                <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="otherInfo.push({ skills: '', recognition: '', membership: '' })">
+                                    <Plus class="mr-1 size-4" /> Add Row
+                                </Button>
+                            </div>
                         </div>
-                        <div class="mt-3 flex justify-end">
-                            <Button v-if="canEdit" type="button" size="sm" variant="outline" @click="otherInfo.push({ skills: '', recognition: '', membership: '' })">
-                                <Plus class="mr-1 size-4" /> Add Row
-                            </Button>
-                        </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
-                    <div class="border-b border-gray-200 bg-gray-50 px-5 py-3 dark:border-neutral-700 dark:bg-neutral-800/60">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between border-b border-gray-200 bg-gray-50 px-5 py-3 text-left transition-colors hover:bg-gray-100 dark:border-neutral-700 dark:bg-neutral-800/60 dark:hover:bg-neutral-700/60"
+                        @click="toggle('references')"
+                    >
                         <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">References (max 3)</span>
-                    </div>
-                    <div class="bg-white p-5 dark:bg-neutral-900">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
-                                <thead class="bg-gray-50 dark:bg-neutral-800">
-                                    <tr>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Name</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Address</th>
-                                        <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Telephone</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
-                                    <tr v-for="(r, i) in references.slice(0, 3)" :key="i">
-                                        <td class="px-3 py-2"><Input v-model="r.reference_name" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="r.reference_address" :disabled="!canEdit" /></td>
-                                        <td class="px-3 py-2"><Input v-model="r.reference_telno" :disabled="!canEdit" /></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <span class="ml-auto inline-flex items-center">
+                            <ChevronUp v-if="openSections.references" class="size-4 text-muted-foreground" />
+                            <ChevronDown v-else class="size-4 text-muted-foreground" />
+                        </span>
+                    </button>
+                    <Transition name="collapse">
+                        <div v-show="openSections.references" class="bg-white p-5 dark:bg-neutral-900">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full border border-gray-200 text-sm dark:border-neutral-700">
+                                    <thead class="bg-gray-50 dark:bg-neutral-800">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Name</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Address</th>
+                                            <th class="px-3 py-2 text-left text-xs font-medium uppercase text-muted-foreground">Telephone</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                                        <tr v-for="(r, i) in references.slice(0, 3)" :key="i">
+                                            <td class="px-3 py-2"><Input v-model="r.reference_name" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="r.reference_address" :disabled="!canEdit" /></td>
+                                            <td class="px-3 py-2"><Input v-model="r.reference_telno" :disabled="!canEdit" /></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                    </div>
+                    </Transition>
                 </div>
 
                 <div v-if="canEdit" class="flex flex-wrap items-center justify-end gap-3 pt-1">
@@ -1084,3 +1465,19 @@ function submitPds() {
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+.collapse-enter-active,
+.collapse-leave-active {
+    transition: max-height 0.3s ease, opacity 0.25s ease, padding 0.25s ease;
+    max-height: 2000px;
+    overflow: hidden;
+}
+.collapse-enter-from,
+.collapse-leave-to {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+</style>

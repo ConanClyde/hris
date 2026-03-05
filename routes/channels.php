@@ -1,56 +1,70 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+Broadcast::channel('App.Models.User.{id}', function (User $user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('users.{userId}', function ($user, string $userId) {
-    return (string) $user->id === $userId;
+Broadcast::channel('users.{userId}', function (User $user, string $userId) {
+    return (string) $user->id === (string) $userId;
 });
 
-Broadcast::channel('role.{role}', function ($user, string $role) {
+Broadcast::channel('role.{role}', function (User $user, string $role) {
     return is_string($user->role ?? null) && $user->role === $role;
 });
 
-Broadcast::channel('leave.management', function ($user) {
+Broadcast::channel('leave.management', function (User $user) {
     return $user->isAdminOrHr();
 });
 
-Broadcast::channel('training.management', function ($user) {
+Broadcast::channel('training.management', function (User $user) {
     return $user->isAdminOrHr();
 });
 
-Broadcast::channel('pds.management', function ($user) {
+Broadcast::channel('pds.management', function (User $user) {
     return $user->isAdminOrHr();
 });
 
-Broadcast::channel('calendar.holidays', function ($user) {
+Broadcast::channel('calendar.holidays', function (User $user) {
     return $user->isAdminOrHr();
 });
 
 // Admin dashboard channel
-Broadcast::channel('admin.dashboard', function ($user) {
+Broadcast::channel('admin.dashboard', function (User $user) {
     return $user->isAdmin();
 });
 
 // HR dashboard channel
-Broadcast::channel('hr.dashboard', function ($user) {
+Broadcast::channel('hr.dashboard', function (User $user) {
     return $user->isAdminOrHr();
 });
 
 // Employee-wide channel
-Broadcast::channel('employees', function ($user) {
-    return auth()->check();
+Broadcast::channel('employees', function (User $user) {
+    return true;
+});
+
+// Posts / announcements realtime channels
+Broadcast::channel('posts.all', function (User $user) {
+    return true;
+});
+
+Broadcast::channel('posts.hr', function (User $user) {
+    return $user->isAdminOrHr();
+});
+
+Broadcast::channel('posts.employee', function (User $user) {
+    return true;
 });
 
 // Calendar updates channel
-Broadcast::channel('calendar', function ($user) {
-    return auth()->check();
+Broadcast::channel('calendar', function (User $user) {
+    return true;
 });
 
-// Avatar updates channel (public - for real-time avatar sync)
-Broadcast::channel('avatar-updates', function ($user) {
-    return true; // Public channel, anyone can listen
+// Avatar updates channel
+Broadcast::channel('avatar-updates', function (User $user) {
+    return true;
 });

@@ -6,9 +6,20 @@ import { createApp, h } from 'vue';
 import '../css/app.css';
 import { initializeTheme } from './composables/useAppearance';
 import { useRealtimeAvatar } from './composables/useRealtimeAvatar';
+import { useRealtimeUserIdentity } from './composables/useRealtimeUserIdentity';
 
 configureEcho({
     broadcaster: 'reverb',
+    authEndpoint: '/broadcasting/auth',
+    csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || undefined,
+    withCredentials: true,
+    auth: {
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            'X-XSRF-TOKEN': decodeURIComponent((document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '')),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    },
 });
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
@@ -29,6 +40,10 @@ createInertiaApp({
         // Start listening for real-time avatar updates
         const { startListening } = useRealtimeAvatar();
         startListening();
+
+        // Start listening for real-time user identity updates
+        const { startListening: startIdentityListening } = useRealtimeUserIdentity();
+        startIdentityListening();
     },
     progress: {
         color: '#4B5563',
