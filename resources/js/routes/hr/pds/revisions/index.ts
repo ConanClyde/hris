@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../wayfinder'
 /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::approve
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:271
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:292
  * @route '/hr/pds/revisions/{id}/approve'
  */
 export const approve = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ approve.definition = {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::approve
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:271
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:292
  * @route '/hr/pds/revisions/{id}/approve'
  */
 approve.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ approve.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::approve
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:271
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:292
  * @route '/hr/pds/revisions/{id}/approve'
  */
 approve.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -54,7 +54,7 @@ approve.post = (args: { id: string | number } | [id: string | number ] | string 
 
     /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::approve
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:271
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:292
  * @route '/hr/pds/revisions/{id}/approve'
  */
     const approveForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -64,7 +64,7 @@ approve.post = (args: { id: string | number } | [id: string | number ] | string 
 
             /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::approve
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:271
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:292
  * @route '/hr/pds/revisions/{id}/approve'
  */
         approveForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -75,7 +75,7 @@ approve.post = (args: { id: string | number } | [id: string | number ] | string 
     approve.form = approveForm
 /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::reject
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:478
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:509
  * @route '/hr/pds/revisions/{id}/reject'
  */
 export const reject = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -90,7 +90,7 @@ reject.definition = {
 
 /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::reject
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:478
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:509
  * @route '/hr/pds/revisions/{id}/reject'
  */
 reject.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -118,7 +118,7 @@ reject.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::reject
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:478
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:509
  * @route '/hr/pds/revisions/{id}/reject'
  */
 reject.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -128,7 +128,7 @@ reject.post = (args: { id: string | number } | [id: string | number ] | string |
 
     /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::reject
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:478
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:509
  * @route '/hr/pds/revisions/{id}/reject'
  */
     const rejectForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -138,7 +138,7 @@ reject.post = (args: { id: string | number } | [id: string | number ] | string |
 
             /**
 * @see \App\Features\Pds\Http\Controllers\HR\PdsController::reject
- * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:478
+ * @see app/Features/Pds/Http/Controllers/HR/PdsController.php:509
  * @route '/hr/pds/revisions/{id}/reject'
  */
         rejectForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -47,6 +47,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Performance metrics
     Route::get('/admin/performance', [AdminPerformanceController::class, 'index'])->name('admin.performance.index');
+    Route::post('/admin/performance/diagnostics', [AdminPerformanceController::class, 'diagnostics'])->name('admin.performance.diagnostics');
 
     // Backup management
     Route::prefix('admin/backup')->group(function () {
@@ -88,4 +89,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // Reports
     Route::get('/admin/reports', [AdminReportsController::class, 'index'])->name('admin.reports');
+
+    Route::get('/admin/reports/export/analytics', [AdminReportsController::class, 'exportAdminAnalytics'])
+        ->name('admin.reports.export.analytics');
 });

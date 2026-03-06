@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::index
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:33
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:32
  * @route '/hr/onboarding'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initChecklist
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:66
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:65
  * @route '/hr/onboarding/{employeeId}/init'
  */
 export const initChecklist = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ initChecklist.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initChecklist
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:66
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:65
  * @route '/hr/onboarding/{employeeId}/init'
  */
 initChecklist.url = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -122,7 +122,7 @@ initChecklist.url = (args: { employeeId: string | number } | [employeeId: string
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initChecklist
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:66
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:65
  * @route '/hr/onboarding/{employeeId}/init'
  */
 initChecklist.post = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -132,7 +132,7 @@ initChecklist.post = (args: { employeeId: string | number } | [employeeId: strin
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initChecklist
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:66
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:65
  * @route '/hr/onboarding/{employeeId}/init'
  */
     const initChecklistForm = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -142,7 +142,7 @@ initChecklist.post = (args: { employeeId: string | number } | [employeeId: strin
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initChecklist
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:66
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:65
  * @route '/hr/onboarding/{employeeId}/init'
  */
         initChecklistForm.post = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -153,7 +153,7 @@ initChecklist.post = (args: { employeeId: string | number } | [employeeId: strin
     initChecklist.form = initChecklistForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::toggleItem
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:82
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:81
  * @route '/hr/onboarding/toggle/{id}'
  */
 export const toggleItem = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -168,7 +168,7 @@ toggleItem.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::toggleItem
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:82
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:81
  * @route '/hr/onboarding/toggle/{id}'
  */
 toggleItem.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -196,7 +196,7 @@ toggleItem.url = (args: { id: string | number } | [id: string | number ] | strin
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::toggleItem
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:82
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:81
  * @route '/hr/onboarding/toggle/{id}'
  */
 toggleItem.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -206,7 +206,7 @@ toggleItem.post = (args: { id: string | number } | [id: string | number ] | stri
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::toggleItem
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:82
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:81
  * @route '/hr/onboarding/toggle/{id}'
  */
     const toggleItemForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -216,7 +216,7 @@ toggleItem.post = (args: { id: string | number } | [id: string | number ] | stri
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::toggleItem
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:82
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:81
  * @route '/hr/onboarding/toggle/{id}'
  */
         toggleItemForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -227,7 +227,7 @@ toggleItem.post = (args: { id: string | number } | [id: string | number ] | stri
     toggleItem.form = toggleItemForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
 export const offboardingIndex = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -242,7 +242,7 @@ offboardingIndex.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
 offboardingIndex.url = (options?: RouteQueryOptions) => {
@@ -251,7 +251,7 @@ offboardingIndex.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
 offboardingIndex.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -260,7 +260,7 @@ offboardingIndex.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => 
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
 offboardingIndex.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -270,7 +270,7 @@ offboardingIndex.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
     const offboardingIndexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -280,7 +280,7 @@ offboardingIndex.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
         offboardingIndexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ offboardingIndex.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::offboardingIndex
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:108
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:107
  * @route '/hr/offboarding'
  */
         offboardingIndexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -305,7 +305,7 @@ offboardingIndex.head = (options?: RouteQueryOptions): RouteDefinition<'head'> =
     offboardingIndex.form = offboardingIndexForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:144
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:145
  * @route '/hr/offboarding/{employeeId}/init'
  */
 export const initClearance = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -320,7 +320,7 @@ initClearance.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:144
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:145
  * @route '/hr/offboarding/{employeeId}/init'
  */
 initClearance.url = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -348,7 +348,7 @@ initClearance.url = (args: { employeeId: string | number } | [employeeId: string
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:144
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:145
  * @route '/hr/offboarding/{employeeId}/init'
  */
 initClearance.post = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -358,7 +358,7 @@ initClearance.post = (args: { employeeId: string | number } | [employeeId: strin
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:144
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:145
  * @route '/hr/offboarding/{employeeId}/init'
  */
     const initClearanceForm = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -368,7 +368,7 @@ initClearance.post = (args: { employeeId: string | number } | [employeeId: strin
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::initClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:144
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:145
  * @route '/hr/offboarding/{employeeId}/init'
  */
         initClearanceForm.post = (args: { employeeId: string | number } | [employeeId: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -379,7 +379,7 @@ initClearance.post = (args: { employeeId: string | number } | [employeeId: strin
     initClearance.form = initClearanceForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::updateClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:159
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:160
  * @route '/hr/offboarding/clearance/{id}'
  */
 export const updateClearance = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -394,7 +394,7 @@ updateClearance.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::updateClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:159
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:160
  * @route '/hr/offboarding/clearance/{id}'
  */
 updateClearance.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -422,7 +422,7 @@ updateClearance.url = (args: { id: string | number } | [id: string | number ] | 
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::updateClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:159
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:160
  * @route '/hr/offboarding/clearance/{id}'
  */
 updateClearance.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -432,7 +432,7 @@ updateClearance.post = (args: { id: string | number } | [id: string | number ] |
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::updateClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:159
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:160
  * @route '/hr/offboarding/clearance/{id}'
  */
     const updateClearanceForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -442,7 +442,7 @@ updateClearance.post = (args: { id: string | number } | [id: string | number ] |
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\OnboardingController::updateClearance
- * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:159
+ * @see app/Features/Dashboard/Http/Controllers/OnboardingController.php:160
  * @route '/hr/offboarding/clearance/{id}'
  */
         updateClearanceForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

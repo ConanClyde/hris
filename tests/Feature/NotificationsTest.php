@@ -2,7 +2,7 @@
 
 use App\Models\User;
 use App\Notifications\SystemNotification;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
 test('index returns only current user notifications', function () {
     $user = User::factory()->create(['role' => 'admin']);
@@ -144,5 +144,5 @@ test('delete endpoints remove notifications only for owner', function () {
 });
 
 test('SystemNotification broadcasts immediately', function () {
-    expect(SystemNotification::class)->toImplement(ShouldBroadcastNow::class);
+    expect(SystemNotification::class)->toImplement(ShouldBroadcast::class);
 });

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Head, Form, router } from '@inertiajs/vue3';
-import { Download, RotateCcw, Trash2, Eye } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { Download, Trash2, Eye } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import Pagination from '@/components/Pagination.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -12,6 +13,7 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import { useAutoReloadOnCondition } from '@/composables/useAutoReloadOnCondition';
 import AppLayout from '@/layouts/AppLayout.vue';
 import admin from '@/routes/admin';
 import type { BreadcrumbItem } from '@/types';
@@ -22,6 +24,8 @@ type BackupItem = {
     created_at: string;
     notes?: string;
     size?: string;
+    status?: string;
+    completed_at?: string | null;
 };
 
 type PaginatedData = {
@@ -31,13 +35,11 @@ type PaginatedData = {
     links: { url: string | null; label: string; active: boolean }[];
 };
 
-defineProps<{
+const props = defineProps<{
     backups: PaginatedData;
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Backup' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Backup' }];
 
 function formatDate(value: string) {
     try {
@@ -55,22 +57,11 @@ function closeRunBackupModal() {
     runBackupModalOpen.value = false;
 }
 function confirmRunBackup() {
-    router.post(admin.backup.run.url(), {}, { onSuccess: () => closeRunBackupModal() });
-}
-
-const restoreModalOpen = ref(false);
-const restoringBackup = ref<BackupItem | null>(null);
-function openRestoreModal(backup: BackupItem) {
-    restoringBackup.value = backup;
-    restoreModalOpen.value = true;
-}
-function closeRestoreModal() {
-    restoreModalOpen.value = false;
-    restoringBackup.value = null;
-}
-function confirmRestore() {
-    if (!restoringBackup.value) return;
-    router.post(admin.backup.restore.url(restoringBackup.value.id), {}, { onSuccess: () => closeRestoreModal() });
+    router.post(
+        admin.backup.run.url(),
+        {},
+        { onSuccess: () => closeRunBackupModal() },
+    );
 }
 
 const deleteModalOpen = ref(false);
@@ -97,10 +88,18 @@ function closeDeleteBackup() {
 }
 function confirmDeleteBackup() {
     if (!deletingBackup.value) return;
-    router.delete(admin.backup.destroy.url(deletingBackup.value.id), { onSuccess: () => closeDeleteBackup() });
+    router.delete(admin.backup.destroy.url(deletingBackup.value.id), {
+        onSuccess: () => closeDeleteBackup(),
+    });
 }
 
 const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const hasPendingBackups = computed(() =>
+    props.backups.data.some((b) => b.status === 'pending'),
+);
+
+useAutoReloadOnCondition(hasPendingBackups, 3000);
 </script>
 
 <template>
@@ -108,9 +107,13 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div
+                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            >
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                    <h1
+                        class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                    >
                         Backup
                     </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -118,49 +121,134 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <Button type="button" @click="openRunBackupModal">Run Backup</Button>
+                    <Button type="button" @click="openRunBackupModal"
+                        >Run Backup</Button
+                    >
                     <Form
                         :action="admin.backup.upload.url()"
                         method="post"
                         enctype="multipart/form-data"
                         class="inline"
                     >
-                        <input ref="fileInputRef" type="file" name="backup_file" accept=".sql,.zip,.sqlite" class="hidden" @change="(e: Event) => (e.target as HTMLInputElement).form?.submit()" />
-                        <Button type="button" variant="outline" @click="fileInputRef?.click()">
+                        <input
+                            ref="fileInputRef"
+                            type="file"
+                            name="backup_file"
+                            accept=".sql,.zip,.sqlite"
+                            class="hidden"
+                            @change="
+                                (e: Event) =>
+                                    (
+                                        e.target as HTMLInputElement
+                                    ).form?.submit()
+                            "
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="fileInputRef?.click()"
+                        >
                             Upload
                         </Button>
                     </Form>
                 </div>
             </div>
 
-            <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
+            <div
+                class="overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-700"
+            >
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[560px] border-collapse text-sm">
-                        <thead class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                        <thead
+                            class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50"
+                        >
                             <tr>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Filename</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Created</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Notes</th>
-                                <th class="text-right font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Actions</th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Filename
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Created
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Status
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Size
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Notes
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                        <tbody
+                            class="divide-y divide-gray-200 dark:divide-neutral-700"
+                        >
                             <tr
                                 v-for="backup in backups.data"
                                 :key="backup.id"
                                 class="hover:bg-gray-50 dark:hover:bg-neutral-800/50"
                             >
-                                <td class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
+                                <td
+                                    class="px-4 py-3 font-medium text-gray-900 dark:text-gray-100"
+                                >
                                     {{ backup.filename }}
                                 </td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                <td
+                                    class="px-4 py-3 text-gray-600 dark:text-gray-400"
+                                >
                                     {{ formatDate(backup.created_at) }}
                                 </td>
-                                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                                <td
+                                    class="px-4 py-3 text-gray-600 dark:text-gray-400"
+                                >
+                                    <Badge
+                                        v-if="backup.status"
+                                        :variant="
+                                            backup.status === 'failed'
+                                                ? 'destructive'
+                                                : backup.status === 'pending'
+                                                  ? 'secondary'
+                                                  : 'outline'
+                                        "
+                                        :class="
+                                            backup.status === 'completed'
+                                                ? 'border-emerald-200 text-emerald-700 dark:border-emerald-900 dark:text-emerald-300'
+                                                : ''
+                                        "
+                                    >
+                                        {{ backup.status }}
+                                    </Badge>
+                                    <span v-else>—</span>
+                                </td>
+                                <td
+                                    class="px-4 py-3 text-gray-600 dark:text-gray-400"
+                                >
+                                    {{ backup.size ?? '—' }}
+                                </td>
+                                <td
+                                    class="px-4 py-3 text-gray-600 dark:text-gray-400"
+                                >
                                     {{ backup.notes ?? '—' }}
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <div class="flex items-center justify-end gap-1">
+                                    <div
+                                        class="flex items-center justify-end gap-1"
+                                    >
                                         <Button
                                             type="button"
                                             variant="ghost"
@@ -171,21 +259,16 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
                                             <Eye class="size-4" />
                                         </Button>
                                         <a
-                                            :href="admin.backup.download.url(backup.id)"
+                                            :href="
+                                                admin.backup.download.url(
+                                                    backup.id,
+                                                )
+                                            "
                                             class="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:text-primary"
                                             title="Download"
                                         >
                                             <Download class="size-4" />
                                         </a>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon-sm"
-                                            title="Restore"
-                                            @click="openRestoreModal(backup)"
-                                        >
-                                            <RotateCcw class="size-4" />
-                                        </Button>
                                         <Button
                                             type="button"
                                             variant="ghost"
@@ -216,65 +299,82 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
         </div>
 
         <!-- Run Backup Modal -->
-        <Dialog v-model:open="runBackupModalOpen" @update:open="(v: boolean) => !v && closeRunBackupModal()">
+        <Dialog
+            v-model:open="runBackupModalOpen"
+            @update:open="(v: boolean) => !v && closeRunBackupModal()"
+        >
             <DialogContent :show-close-button="true" class="max-w-md">
                 <DialogHeader>
                     <DialogTitle>Run Backup</DialogTitle>
                     <DialogDescription class="sr-only">
                         Confirm creating a new system backup.
                     </DialogDescription>
-                    <p class="text-sm text-muted-foreground mt-0.5">
+                    <p class="mt-0.5 text-sm text-muted-foreground">
                         Create a new backup? This may take a moment.
                     </p>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeRunBackupModal">Cancel</Button>
-                    <Button type="button" @click="confirmRunBackup">Run Backup</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-
-        <!-- Restore Backup Modal -->
-        <Dialog v-model:open="restoreModalOpen" @update:open="(v: boolean) => !v && closeRestoreModal()">
-            <DialogContent v-if="restoringBackup" :show-close-button="true" class="max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Restore from Backup</DialogTitle>
-                    <DialogDescription class="sr-only">
-                        Confirm restoring system from a backup file.
-                    </DialogDescription>
-                    <p class="text-sm text-muted-foreground mt-0.5">
-                        Restore from <strong>{{ restoringBackup.filename }}</strong>? This will replace current data. This action cannot be undone.
-                    </p>
-                </DialogHeader>
-                <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeRestoreModal">Cancel</Button>
-                    <Button type="button" variant="destructive" @click="confirmRestore">Restore</Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="closeRunBackupModal"
+                        >Cancel</Button
+                    >
+                    <Button type="button" @click="confirmRunBackup"
+                        >Run Backup</Button
+                    >
                 </DialogFooter>
             </DialogContent>
         </Dialog>
 
         <!-- Delete Backup Modal -->
-        <Dialog v-model:open="deleteModalOpen" @update:open="(v: boolean) => !v && closeDeleteBackup()">
-            <DialogContent v-if="deletingBackup" :show-close-button="true" class="max-w-md">
+        <Dialog
+            v-model:open="deleteModalOpen"
+            @update:open="(v: boolean) => !v && closeDeleteBackup()"
+        >
+            <DialogContent
+                v-if="deletingBackup"
+                :show-close-button="true"
+                class="max-w-md"
+            >
                 <DialogHeader>
                     <DialogTitle>Delete Backup</DialogTitle>
                     <DialogDescription class="sr-only">
                         Confirm deletion of a backup file.
                     </DialogDescription>
-                    <p class="text-sm text-muted-foreground mt-0.5">
-                        Are you sure you want to delete <strong>{{ deletingBackup.filename }}</strong>? This action cannot be undone.
+                    <p class="mt-0.5 text-sm text-muted-foreground">
+                        Are you sure you want to delete
+                        <strong>{{ deletingBackup.filename }}</strong
+                        >? This action cannot be undone.
                     </p>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeDeleteBackup">Cancel</Button>
-                    <Button type="button" variant="destructive" @click="confirmDeleteBackup">Delete</Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="closeDeleteBackup"
+                        >Cancel</Button
+                    >
+                    <Button
+                        type="button"
+                        variant="destructive"
+                        @click="confirmDeleteBackup"
+                        >Delete</Button
+                    >
                 </DialogFooter>
             </DialogContent>
         </Dialog>
 
         <!-- Backup Detail Modal -->
-        <Dialog v-model:open="detailModalOpen" @update:open="(v: boolean) => !v && closeDetailModal()">
-            <DialogContent v-if="detailBackup" :show-close-button="true" class="max-w-md">
+        <Dialog
+            v-model:open="detailModalOpen"
+            @update:open="(v: boolean) => !v && closeDetailModal()"
+        >
+            <DialogContent
+                v-if="detailBackup"
+                :show-close-button="true"
+                class="max-w-md"
+            >
                 <DialogHeader>
                     <DialogTitle>Backup Detail</DialogTitle>
                     <DialogDescription class="sr-only">
@@ -288,7 +388,9 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-sm">
                         <span class="text-muted-foreground">Path:</span>
-                        <span class="col-span-2 truncate">{{ detailBackup.filename }}</span>
+                        <span class="col-span-2 truncate">{{
+                            detailBackup.filename
+                        }}</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-sm">
                         <span class="text-muted-foreground">Disk:</span>
@@ -296,15 +398,24 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-sm">
                         <span class="text-muted-foreground">Size:</span>
-                        <span class="col-span-2">{{ detailBackup.size ?? 'Unknown' }}</span>
+                        <span class="col-span-2">{{
+                            detailBackup.size ?? 'Unknown'
+                        }}</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2 text-sm">
                         <span class="text-muted-foreground">Created at:</span>
-                        <span class="col-span-2">{{ formatDate(detailBackup.created_at) }}</span>
+                        <span class="col-span-2">{{
+                            formatDate(detailBackup.created_at)
+                        }}</span>
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeDetailModal">Close</Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        @click="closeDetailModal"
+                        >Close</Button
+                    >
                 </DialogFooter>
             </DialogContent>
         </Dialog>

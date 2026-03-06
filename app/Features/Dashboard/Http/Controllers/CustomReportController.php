@@ -73,7 +73,7 @@ class CustomReportController extends Controller
                 ->select($columns),
         };
 
-        $filename = "custom-report-{$source}-" . now()->format('Y-m-d') . '.csv';
+        $filename = "custom-report-{$source}-".now()->format('Y-m-d').'.csv';
 
         return response()->streamDownload(function () use ($query, $columns) {
             $out = fopen('php://output', 'w');

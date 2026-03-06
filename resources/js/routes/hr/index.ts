@@ -16,7 +16,7 @@ import onboarding from './onboarding'
 import offboarding from './offboarding'
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -31,7 +31,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -40,7 +40,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -49,7 +49,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -59,7 +59,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -69,7 +69,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -78,7 +78,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:52
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:72
  * @route '/hr/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -172,7 +172,7 @@ calendar.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     calendar.form = calendarForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 export const reports = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -187,7 +187,7 @@ reports.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 reports.url = (options?: RouteQueryOptions) => {
@@ -196,7 +196,7 @@ reports.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -205,7 +205,7 @@ reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -215,7 +215,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
     const reportsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -225,7 +225,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
         reportsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -234,7 +234,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
         reportsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

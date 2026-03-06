@@ -12,8 +12,8 @@ class AIResponseValidatorService
     /**
      * Validate that counts mentioned in the response match the source data.
      *
-     * @param string $response The AI's response text
-     * @param array $contextData The context data that was provided to the AI
+     * @param  string  $response  The AI's response text
+     * @param  array  $contextData  The context data that was provided to the AI
      * @return array{valid: bool, issues: string[], corrected_response: string|null}
      */
     public function validateResponse(string $response, array $contextData): array
@@ -29,9 +29,9 @@ class AIResponseValidatorService
 
         // Validate leave counts
         $actualPendingLeaves = $contextData['leave_applications']['pending'] ?? null;
-        if ($actualPendingLeaves !== null && !empty($leaveMatches[1])) {
+        if ($actualPendingLeaves !== null && ! empty($leaveMatches[1])) {
             foreach ($leaveMatches[1] as $mentionedCount) {
-                if ((int)$mentionedCount !== $actualPendingLeaves) {
+                if ((int) $mentionedCount !== $actualPendingLeaves) {
                     $issues[] = "Leave count mismatch: AI said {$mentionedCount}, but actual pending is {$actualPendingLeaves}";
                     $valid = false;
                 }
@@ -40,9 +40,9 @@ class AIResponseValidatorService
 
         // Validate training counts
         $actualPendingTraining = $contextData['training']['pending_approval'] ?? null;
-        if ($actualPendingTraining !== null && !empty($trainingMatches[1])) {
+        if ($actualPendingTraining !== null && ! empty($trainingMatches[1])) {
             foreach ($trainingMatches[1] as $mentionedCount) {
-                if ((int)$mentionedCount !== $actualPendingTraining) {
+                if ((int) $mentionedCount !== $actualPendingTraining) {
                     $issues[] = "Training count mismatch: AI said {$mentionedCount}, but actual pending is {$actualPendingTraining}";
                     $valid = false;
                 }
@@ -50,7 +50,7 @@ class AIResponseValidatorService
         }
 
         // Log validation results
-        if (!$valid) {
+        if (! $valid) {
             Log::warning('AI Response Validation Failed', [
                 'issues' => $issues,
                 'context_data' => $contextData,
@@ -70,8 +70,8 @@ class AIResponseValidatorService
      */
     private function generateCorrection(string $originalResponse, array $issues, array $contextData): string
     {
-        $correction = "I need to correct my previous response. Based on the system data as of ";
-        $correction .= ($contextData['timestamp'] ?? now()->toDateTimeString()) . ":\n\n";
+        $correction = 'I need to correct my previous response. Based on the system data as of ';
+        $correction .= ($contextData['timestamp'] ?? now()->toDateTimeString()).":\n\n";
 
         foreach ($issues as $issue) {
             $correction .= "- {$issue}\n";
@@ -80,13 +80,13 @@ class AIResponseValidatorService
         $correction .= "\nLet me provide the accurate information:\n";
 
         if (isset($contextData['leave_applications'])) {
-            $correction .= "- Pending leave applications: " . $contextData['leave_applications']['pending'] . "\n";
+            $correction .= '- Pending leave applications: '.$contextData['leave_applications']['pending']."\n";
         }
         if (isset($contextData['training'])) {
-            $correction .= "- Pending training applications: " . $contextData['training']['pending_approval'] . "\n";
+            $correction .= '- Pending training applications: '.$contextData['training']['pending_approval']."\n";
         }
         if (isset($contextData['users'])) {
-            $correction .= "- Total users: " . $contextData['users']['total'] . "\n";
+            $correction .= '- Total users: '.$contextData['users']['total']."\n";
         }
 
         return $correction;
@@ -128,6 +128,7 @@ class AIResponseValidatorService
             preg_match_all('/\b([A-Z][a-z]+\s[A-Z][a-z]+)\b/', $contextData['employee_list'], $matches);
             $names = $matches[1] ?? [];
         }
+
         return $names;
     }
 

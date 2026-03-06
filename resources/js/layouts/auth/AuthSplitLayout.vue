@@ -35,20 +35,28 @@ const toggleDark = () => {
 <template>
     <div class="flex min-h-dvh flex-col lg:flex-row">
         <aside
-            class="relative hidden flex-1 flex-col justify-between border-r border-gray-200 bg-gradient-to-br from-brand via-brand-dark to-brand-light p-6 lg:flex lg:p-10"
+            class="relative hidden flex-1 flex-col justify-between bg-transparent p-6 lg:flex lg:p-10"
         >
-            <div class="flex items-center gap-3">
-                <div
-                    class="flex size-10 items-center justify-center rounded-lg border border-white/40 bg-white/10"
-                >
-                    <span class="text-xl font-bold text-white">H</span>
-                </div>
+            <!-- Background image -->
+            <div
+                class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                style="background-image: url('/images/background.jpg')"
+            />
+            <!-- Dark overlay for readability -->
+            <div class="absolute inset-0 bg-white/60 dark:bg-black/70" />
+
+            <div class="relative z-10 flex items-center gap-3">
+                <img
+                    src="/images/hris_logo.png"
+                    alt="HRIS Logo"
+                    class="size-10 object-contain"
+                />
                 <span class="text-xl font-semibold text-white">{{
                     appName
                 }}</span>
             </div>
 
-            <div class="mt-auto">
+            <div class="relative z-10 mt-auto">
                 <ul v-if="features?.length" class="space-y-4">
                     <li
                         v-for="feature in features"
@@ -84,11 +92,11 @@ const toggleDark = () => {
                 class="absolute top-[max(1.5rem,env(safe-area-inset-top))] right-6 left-6 flex items-center justify-between lg:hidden"
             >
                 <div class="flex items-center gap-3">
-                    <div
-                        class="flex size-8 items-center justify-center rounded-lg bg-brand"
-                    >
-                        <span class="text-sm font-bold text-white">H</span>
-                    </div>
+                    <img
+                        src="/images/hris_logo.png"
+                        alt="HRIS Logo"
+                        class="size-8 object-contain"
+                    />
                     <span
                         class="text-lg font-semibold text-gray-900 dark:text-gray-100"
                         >{{ appName }}</span

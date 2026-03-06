@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::stream
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:378
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:384
  * @route '/ai-chatbot/chat/stream'
  */
 export const stream = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ stream.definition = {
 
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::stream
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:378
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:384
  * @route '/ai-chatbot/chat/stream'
  */
 stream.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ stream.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::stream
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:378
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:384
  * @route '/ai-chatbot/chat/stream'
  */
 stream.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ stream.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::stream
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:378
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:384
  * @route '/ai-chatbot/chat/stream'
  */
     const streamForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ stream.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::stream
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:378
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:384
  * @route '/ai-chatbot/chat/stream'
  */
         streamForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

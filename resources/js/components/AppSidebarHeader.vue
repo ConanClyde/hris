@@ -52,17 +52,21 @@ function formatTime(dateStr: string) {
 
 function getNotificationColor(type: string) {
     switch (type) {
-        case 'success': return 'bg-emerald-500';
-        case 'warning': return 'bg-amber-500';
-        case 'error': return 'bg-red-500';
-        default: return 'bg-blue-500';
+        case 'success':
+            return 'bg-emerald-500';
+        case 'warning':
+            return 'bg-amber-500';
+        case 'error':
+            return 'bg-red-500';
+        default:
+            return 'bg-blue-500';
     }
 }
 </script>
 
 <template>
     <header
-        class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 pl-[max(1.5rem,env(safe-area-inset-left))] pr-[max(1.5rem,env(safe-area-inset-right))] transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
+        class="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border/70 pr-[max(1.5rem,env(safe-area-inset-right))] pl-[max(1.5rem,env(safe-area-inset-left))] transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 md:px-4"
     >
         <div class="flex items-center gap-2">
             <SidebarTrigger class="-ml-1" />
@@ -80,20 +84,20 @@ function getNotificationColor(type: string) {
                         <Bell class="h-5 w-5" />
                         <Badge
                             v-if="unreadCount > 0"
-                            class="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                            class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-xs"
                         >
                             {{ unreadCount }}
                         </Badge>
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent class="w-80 p-0" align="end">
-                    <div class="flex items-center justify-between p-3 border-b">
-                        <h4 class="font-semibold text-sm">Notifications</h4>
+                    <div class="flex items-center justify-between border-b p-3">
+                        <h4 class="text-sm font-semibold">Notifications</h4>
                         <Button
                             v-if="unreadCount > 0"
                             variant="ghost"
                             size="sm"
-                            class="h-auto py-1 px-2 text-xs"
+                            class="h-auto px-2 py-1 text-xs"
                             @click="markAllAsRead"
                         >
                             Mark all read
@@ -103,17 +107,25 @@ function getNotificationColor(type: string) {
                         <div
                             v-for="notif in notifications"
                             :key="notif.id"
-                            class="flex items-start gap-3 p-3 border-b last:border-0 hover:bg-muted/50 transition-colors"
+                            class="flex items-start gap-3 border-b p-3 transition-colors last:border-0 hover:bg-muted/50"
                             :class="{ 'opacity-60': notif.read }"
                         >
                             <div
-                                class="mt-1 h-2 w-2 rounded-full shrink-0"
+                                class="mt-1 h-2 w-2 shrink-0 rounded-full"
                                 :class="getNotificationColor(notif.type)"
                             />
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium truncate">{{ notif.title }}</p>
-                                <p class="text-xs text-muted-foreground line-clamp-2">{{ notif.message }}</p>
-                                <p class="text-xs text-muted-foreground mt-1">{{ formatTime(notif.created_at) }}</p>
+                            <div class="min-w-0 flex-1">
+                                <p class="truncate text-sm font-medium">
+                                    {{ notif.title }}
+                                </p>
+                                <p
+                                    class="line-clamp-2 text-xs text-muted-foreground"
+                                >
+                                    {{ notif.message }}
+                                </p>
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    {{ formatTime(notif.created_at) }}
+                                </p>
                             </div>
                             <div class="flex flex-col gap-1">
                                 <Button
@@ -135,7 +147,10 @@ function getNotificationColor(type: string) {
                                 </Button>
                             </div>
                         </div>
-                        <div v-if="notifications.length === 0" class="p-8 text-center text-muted-foreground text-sm">
+                        <div
+                            v-if="notifications.length === 0"
+                            class="p-8 text-center text-sm text-muted-foreground"
+                        >
                             No notifications
                         </div>
                     </div>
@@ -146,7 +161,11 @@ function getNotificationColor(type: string) {
             <Button
                 variant="ghost"
                 size="icon"
-                :title="appearance === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+                :title="
+                    appearance === 'dark'
+                        ? 'Switch to light mode'
+                        : 'Switch to dark mode'
+                "
                 @click="toggleTheme"
             >
                 <Sun v-if="appearance === 'dark'" class="h-5 w-5" />

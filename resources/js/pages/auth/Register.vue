@@ -34,7 +34,11 @@ import { store } from '@/routes/register';
 type DivisionOption = {
     id: number;
     name: string;
-    subdivisions: { id: number; name: string; sections: { id: number; name: string }[] }[];
+    subdivisions: {
+        id: number;
+        name: string;
+        sections: { id: number; name: string }[];
+    }[];
     sections: { id: number; name: string }[];
 };
 
@@ -94,7 +98,8 @@ const layoutTitle = computed(() => {
 const layoutDescription = computed(() => {
     if (currentStep.value === 1) return 'Select your role to get started';
     if (currentStep.value === 2) return 'Enter your personal details.';
-    if (currentStep.value === 3 && isEmployee.value) return 'Enter employment and organizational details.';
+    if (currentStep.value === 3 && isEmployee.value)
+        return 'Enter employment and organizational details.';
     return 'Set up your login credentials.';
 });
 
@@ -107,11 +112,13 @@ const canProceedNext = computed(() => {
     if (currentStep.value === 1) return false;
 
     if (currentStep.value === 2) {
-        const baseOk = Boolean(formData.value.first_name?.trim())
-            && Boolean(formData.value.surname?.trim());
+        const baseOk =
+            Boolean(formData.value.first_name?.trim()) &&
+            Boolean(formData.value.surname?.trim());
         if (!baseOk) return false;
-        return Boolean(formData.value.sex)
-            && Boolean(formData.value.date_of_birth);
+        return (
+            Boolean(formData.value.sex) && Boolean(formData.value.date_of_birth)
+        );
     }
 
     if (currentStep.value === 3) {
@@ -158,7 +165,7 @@ const sectionOptions = computed(() => {
     if (!div) return [];
     const subId = formData.value.subdivision_id;
     const fromSub = subId
-        ? div.subdivisions.find((s) => s.id === Number(subId))?.sections ?? []
+        ? (div.subdivisions.find((s) => s.id === Number(subId))?.sections ?? [])
         : [];
     if (fromSub.length) return fromSub;
     if (subdivisionOptions.value.length) return [];
@@ -166,10 +173,26 @@ const sectionOptions = computed(() => {
 });
 
 const registerFeatures = [
-    { icon: Users, title: 'management', description: 'People directory and org structure' },
-    { icon: Calendar, title: 'Leave & time-off', description: 'Apply, approve, and track leave' },
-    { icon: GraduationCap, title: 'Training & development', description: 'Training records and compliance' },
-    { icon: FileText, title: 'PDS & documents', description: 'Personal Data Sheet and file management' },
+    {
+        icon: Users,
+        title: 'Management',
+        description: 'People directory and org structure',
+    },
+    {
+        icon: Calendar,
+        title: 'Leave & time-off',
+        description: 'Apply, approve, and track leave',
+    },
+    {
+        icon: GraduationCap,
+        title: 'Training & development',
+        description: 'Training records and compliance',
+    },
+    {
+        icon: FileText,
+        title: 'PDS & documents',
+        description: 'Personal Data Sheet and file management',
+    },
 ];
 
 const roleOptions = [
@@ -231,11 +254,17 @@ const errorsList = (errors: Record<string, string>) => {
     <AuthBase
         :title="layoutTitle"
         :description="layoutDescription"
-        :header-link="currentStep === 1 ? { href: login().url, label: 'Sign in' } : undefined"
+        :header-link="
+            currentStep === 1
+                ? { href: login().url, label: 'Sign in' }
+                : undefined
+        "
         :show-progress="currentStep > 1"
         :progress-step="displayStep"
         :total-steps="totalSteps"
-        :step-label="currentStep > 1 ? `Step ${displayStep} of ${totalSteps}` : undefined"
+        :step-label="
+            currentStep > 1 ? `Step ${displayStep} of ${totalSteps}` : undefined
+        "
         :features="registerFeatures"
     >
         <Head title="Register" />
@@ -253,13 +282,19 @@ const errorsList = (errors: Record<string, string>) => {
             />
 
             <!-- Step 1: Role Selection (auto-advance, no Next button) -->
-            <div v-show="currentStep === 1" class="flex flex-col gap-6 min-w-0">
+            <div v-show="currentStep === 1" class="flex min-w-0 flex-col gap-6">
                 <Alert
                     class="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20"
                 >
-                    <AlertTriangle class="size-4 shrink-0 !text-orange-500 dark:!text-orange-400" />
-                    <AlertDescription class="text-amber-800 dark:text-amber-200">
-                        <span class="font-semibold">Approval Required.</span> Your registration will be reviewed before your account is activated.
+                    <AlertTriangle
+                        class="size-4 shrink-0 !text-orange-500 dark:!text-orange-400"
+                    />
+                    <AlertDescription
+                        class="text-amber-800 dark:text-amber-200"
+                    >
+                        <span class="font-semibold">Approval Required.</span>
+                        Your registration will be reviewed before your account
+                        is activated.
                     </AlertDescription>
                 </Alert>
                 <div class="space-y-3">
@@ -267,7 +302,7 @@ const errorsList = (errors: Record<string, string>) => {
                         v-for="role in roleOptions"
                         :key="role.value"
                         type="button"
-                        class="flex w-full items-center gap-3 rounded-lg border p-4 text-left cursor-pointer transition-colors hover:border-gray-300 dark:hover:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-800/50"
+                        class="flex w-full cursor-pointer items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:border-gray-300 hover:bg-gray-50 dark:hover:border-neutral-600 dark:hover:bg-neutral-800/50"
                         :class="
                             formData.role === role.value
                                 ? 'border-brand bg-brand/5'
@@ -294,7 +329,9 @@ const errorsList = (errors: Record<string, string>) => {
                             />
                         </div>
                         <div class="min-w-0 flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <p
+                                class="text-sm font-medium text-gray-900 dark:text-gray-100"
+                            >
                                 {{ role.title }}
                             </p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -304,9 +341,7 @@ const errorsList = (errors: Record<string, string>) => {
                         <ChevronRight
                             class="size-5 shrink-0 text-gray-400"
                             :class="
-                                formData.role === role.value
-                                    ? 'text-brand'
-                                    : ''
+                                formData.role === role.value ? 'text-brand' : ''
                             "
                         />
                     </button>
@@ -315,7 +350,7 @@ const errorsList = (errors: Record<string, string>) => {
             </div>
 
             <!-- Step 2: Personal Information -->
-            <div v-show="currentStep === 2" class="flex flex-col gap-6 min-w-0">
+            <div v-show="currentStep === 2" class="flex min-w-0 flex-col gap-6">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="grid gap-2">
                         <Label for="first_name">First name</Label>
@@ -368,7 +403,12 @@ const errorsList = (errors: Record<string, string>) => {
                         <Label>Sex</Label>
                         <Select
                             :model-value="formData.sex"
-                            @update:model-value="(val) => formData.sex = (val ? (val as 'male' | 'female') : '')"
+                            @update:model-value="
+                                (val) =>
+                                    (formData.sex = val
+                                        ? (val as 'male' | 'female')
+                                        : '')
+                            "
                         >
                             <SelectTrigger class="w-full">
                                 <SelectValue placeholder="Select sex" />
@@ -380,7 +420,7 @@ const errorsList = (errors: Record<string, string>) => {
                         </Select>
                         <input type="hidden" name="sex" :value="formData.sex" />
                     </div>
-                    <div class="grid gap-2 min-w-0">
+                    <div class="grid min-w-0 gap-2">
                         <Label for="date_of_birth">Date of birth</Label>
                         <Input
                             id="date_of_birth"
@@ -395,7 +435,11 @@ const errorsList = (errors: Record<string, string>) => {
             </div>
 
             <!-- Step 3: Employment (Employee only) -->
-            <div v-if="isEmployee" v-show="currentStep === 3" class="flex flex-col gap-6 min-w-0">
+            <div
+                v-if="isEmployee"
+                v-show="currentStep === 3"
+                class="flex min-w-0 flex-col gap-6"
+            >
                 <div class="grid gap-4">
                     <div class="grid gap-2">
                         <Label for="date_hired">Date hired</Label>
@@ -411,8 +455,15 @@ const errorsList = (errors: Record<string, string>) => {
                     <div class="grid gap-2">
                         <Label>Division</Label>
                         <Select
-                            :model-value="formData.division_id?.toString() ?? ''"
-                            @update:model-value="(val) => formData.division_id = val ? Number(val) : null"
+                            :model-value="
+                                formData.division_id?.toString() ?? ''
+                            "
+                            @update:model-value="
+                                (val) =>
+                                    (formData.division_id = val
+                                        ? Number(val)
+                                        : null)
+                            "
                         >
                             <SelectTrigger class="w-full">
                                 <SelectValue placeholder="Select division" />
@@ -427,13 +478,24 @@ const errorsList = (errors: Record<string, string>) => {
                                 </SelectItem>
                             </SelectContent>
                         </Select>
-                        <input type="hidden" name="division_id" :value="formData.division_id ?? ''" />
+                        <input
+                            type="hidden"
+                            name="division_id"
+                            :value="formData.division_id ?? ''"
+                        />
                     </div>
                     <div v-if="subdivisionOptions.length" class="grid gap-2">
                         <Label>Subdivision</Label>
                         <Select
-                            :model-value="formData.subdivision_id?.toString() ?? ''"
-                            @update:model-value="(val) => formData.subdivision_id = val ? Number(val) : null"
+                            :model-value="
+                                formData.subdivision_id?.toString() ?? ''
+                            "
+                            @update:model-value="
+                                (val) =>
+                                    (formData.subdivision_id = val
+                                        ? Number(val)
+                                        : null)
+                            "
                         >
                             <SelectTrigger class="w-full">
                                 <SelectValue placeholder="Select subdivision" />
@@ -448,13 +510,22 @@ const errorsList = (errors: Record<string, string>) => {
                                 </SelectItem>
                             </SelectContent>
                         </Select>
-                        <input type="hidden" name="subdivision_id" :value="formData.subdivision_id ?? ''" />
+                        <input
+                            type="hidden"
+                            name="subdivision_id"
+                            :value="formData.subdivision_id ?? ''"
+                        />
                     </div>
                     <div v-if="sectionOptions.length" class="grid gap-2">
                         <Label>Section</Label>
                         <Select
                             :model-value="formData.section_id?.toString() ?? ''"
-                            @update:model-value="(val) => formData.section_id = val ? Number(String(val)) : null"
+                            @update:model-value="
+                                (val) =>
+                                    (formData.section_id = val
+                                        ? Number(String(val))
+                                        : null)
+                            "
                         >
                             <SelectTrigger class="w-full">
                                 <SelectValue placeholder="Select section" />
@@ -469,7 +540,11 @@ const errorsList = (errors: Record<string, string>) => {
                                 </SelectItem>
                             </SelectContent>
                         </Select>
-                        <input type="hidden" name="section_id" :value="formData.section_id ?? ''" />
+                        <input
+                            type="hidden"
+                            name="section_id"
+                            :value="formData.section_id ?? ''"
+                        />
                     </div>
                     <div class="grid gap-2">
                         <Label for="position">Position</Label>
@@ -485,24 +560,35 @@ const errorsList = (errors: Record<string, string>) => {
                         <Label>Classification</Label>
                         <Select
                             :model-value="formData.classification"
-                            @update:model-value="(val) => formData.classification = (val as string)"
+                            @update:model-value="
+                                (val) =>
+                                    (formData.classification = val as string)
+                            "
                         >
                             <SelectTrigger class="w-full">
-                                <SelectValue placeholder="Select classification" />
+                                <SelectValue
+                                    placeholder="Select classification"
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="Regular">Regular</SelectItem>
-                                <SelectItem value="Detailed">Detailed</SelectItem>
+                                <SelectItem value="Detailed"
+                                    >Detailed</SelectItem
+                                >
                                 <SelectItem value="COS">COS</SelectItem>
                             </SelectContent>
                         </Select>
-                        <input type="hidden" name="classification" :value="formData.classification" />
+                        <input
+                            type="hidden"
+                            name="classification"
+                            :value="formData.classification"
+                        />
                     </div>
                 </div>
             </div>
 
             <!-- Credentials step (step 4 for employee, step 3 for hr/admin) -->
-            <div v-show="isCredentialsStep" class="flex flex-col gap-6 min-w-0">
+            <div v-show="isCredentialsStep" class="flex min-w-0 flex-col gap-6">
                 <div class="grid gap-4">
                     <div class="grid gap-2">
                         <Label for="username">Username</Label>
@@ -540,7 +626,9 @@ const errorsList = (errors: Record<string, string>) => {
                         />
                     </div>
                     <div class="grid gap-2">
-                        <Label for="password_confirmation">Confirm Password</Label>
+                        <Label for="password_confirmation"
+                            >Confirm Password</Label
+                        >
                         <PasswordInput
                             id="password_confirmation"
                             v-model="formData.password_confirmation"
@@ -555,11 +643,7 @@ const errorsList = (errors: Record<string, string>) => {
 
             <!-- Navigation buttons (only after step 1) -->
             <div v-if="currentStep > 1" class="mt-4 flex justify-between gap-4">
-                <Button
-                    type="button"
-                    variant="outline"
-                    @click="prevStep"
-                >
+                <Button type="button" variant="outline" @click="prevStep">
                     Back
                 </Button>
                 <Button

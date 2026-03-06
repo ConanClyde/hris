@@ -98,7 +98,8 @@ function openNotification(notification: NotificationItem) {
                         variant="outline"
                         class="border-blue-200 bg-blue-50 text-xs font-medium text-blue-700 dark:border-blue-900/60 dark:bg-blue-900/20 dark:text-blue-300"
                     >
-                        Unread: {{
+                        Unread:
+                        {{
                             notifications.data.filter((n) => !n.is_read).length
                         }}
                     </Badge>

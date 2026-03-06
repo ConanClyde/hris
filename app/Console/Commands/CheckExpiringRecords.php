@@ -3,14 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Features\Training\Models\Training;
-use App\Mail\DailyDigestMail;
-use App\Models\User;
 use App\Services\WebhookNotificationService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 
 class CheckExpiringRecords extends Command
 {
@@ -55,7 +52,7 @@ class CheckExpiringRecords extends Command
             $daysLeft = $now->diffInDays(Carbon::parse($training->date_to));
             $expiringItems->push([
                 'type' => 'Training',
-                'name' => ($training->employee->full_name ?? 'Unknown') . ' — ' . $training->title,
+                'name' => ($training->employee->full_name ?? 'Unknown').' — '.$training->title,
                 'expires_at' => $training->date_to->format('M d, Y'),
                 'days_left' => $daysLeft,
             ]);
@@ -75,7 +72,7 @@ class CheckExpiringRecords extends Command
                 $lines[] = "• [{$item['type']}] {$item['name']} — expires {$item['expires_at']} ({$item['days_left']} days left)";
             }
             if ($count > 10) {
-                $lines[] = "...and " . ($count - 10) . " more.";
+                $lines[] = '...and '.($count - 10).' more.';
             }
             app(WebhookNotificationService::class)->send(
                 '⏰ Expiring Records Alert',

@@ -1,10 +1,20 @@
 <script setup lang="ts">
-import { addDays, differenceInDays, format, isSameDay, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
+import {
+    addDays,
+    differenceInDays,
+    format,
+    isSameDay,
+    isSameMonth,
+    startOfMonth,
+    startOfWeek,
+} from 'date-fns';
 import { computed, inject } from 'vue';
 import type { CalendarEventNormalized } from './types';
 import type { UseCalendarReturn } from './useCalendar';
 
-const calendar = inject<UseCalendarReturn & { onEventClick: (e: CalendarEventNormalized) => void }>('calendar');
+const calendar = inject<
+    UseCalendarReturn & { onEventClick: (e: CalendarEventNormalized) => void }
+>('calendar');
 
 if (!calendar) {
     throw new Error('CalendarMonthView must be used inside Calendar');
@@ -24,7 +34,9 @@ const gridDays = computed(() => {
 
 const weekDays = computed(() => {
     const start = startOfWeek(new Date(), { weekStartsOn });
-    return Array.from({ length: 7 }, (_, i) => format(addDays(start, i), 'EEE'));
+    return Array.from({ length: 7 }, (_, i) =>
+        format(addDays(start, i), 'EEE'),
+    );
 });
 
 /** Multi-day event segment for one week: event + start/end column (0-6) and lane (row within bar area). */
@@ -51,12 +63,25 @@ const multiDaySegmentsByWeek = computed(() => {
             const segEnd = Math.min(6, endDayIdx - w * 7);
             if (segStart > segEnd) continue;
             const weekSegs = result[w];
-            const overlap = (a: { startCol: number; endCol: number }, b: { startCol: number; endCol: number }) =>
-                a.startCol <= b.endCol && b.startCol <= a.endCol;
+            const overlap = (
+                a: { startCol: number; endCol: number },
+                b: { startCol: number; endCol: number },
+            ) => a.startCol <= b.endCol && b.startCol <= a.endCol;
             let lane = 0;
-            while (weekSegs.some((s) => s.lane === lane && overlap(s, { startCol: segStart, endCol: segEnd })))
+            while (
+                weekSegs.some(
+                    (s) =>
+                        s.lane === lane &&
+                        overlap(s, { startCol: segStart, endCol: segEnd }),
+                )
+            )
                 lane++;
-            weekSegs.push({ event: evt, startCol: segStart, endCol: segEnd, lane });
+            weekSegs.push({
+                event: evt,
+                startCol: segStart,
+                endCol: segEnd,
+                lane,
+            });
         }
     }
     return result;
@@ -85,31 +110,47 @@ function getWeekDays(weekIndex: number) {
             <div
                 v-for="label in weekDays"
                 :key="label"
-                class="border-b border-r border-border p-2 text-center font-medium text-muted-foreground last:border-r-0"
+                class="border-r border-b border-border p-2 text-center font-medium text-muted-foreground last:border-r-0"
             >
                 {{ label }}
             </div>
             <!-- Each week is one block: bar row at top, then 7 day cells inside the same block -->
-            <template v-for="(weekSegments, weekIndex) in multiDaySegmentsByWeek" :key="'week-' + weekIndex">
+            <template
+                v-for="(weekSegments, weekIndex) in multiDaySegmentsByWeek"
+                :key="'week-' + weekIndex"
+            >
                 <div
                     class="col-span-7 grid min-h-[100px] border-b border-border"
-                    style="grid-template-columns: repeat(7, 1fr); grid-template-rows: auto 1fr;"
+                    style="
+                        grid-template-columns: repeat(7, 1fr);
+                        grid-template-rows: auto 1fr;
+                    "
                 >
                     <!-- Multi-day bar row: inside this week block, above the date cells -->
                     <div
                         v-if="weekSegments.length > 0"
                         class="col-span-7 grid gap-0.5 px-0.5 pt-1"
-                        style="grid-template-columns: repeat(7, 1fr); grid-auto-rows: minmax(1.5rem, auto);"
+                        style="
+                            grid-template-columns: repeat(7, 1fr);
+                            grid-auto-rows: minmax(1.5rem, auto);
+                        "
                     >
                         <button
                             v-for="seg in weekSegments"
-                            :key="seg.event.id + '-' + weekIndex + '-' + seg.startCol"
+                            :key="
+                                seg.event.id +
+                                '-' +
+                                weekIndex +
+                                '-' +
+                                seg.startCol
+                            "
                             type="button"
-                            class="rounded px-2 py-0.5 text-left text-xs text-white transition-opacity hover:opacity-90 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+                            class="min-w-0 overflow-hidden rounded px-2 py-0.5 text-left text-xs text-ellipsis whitespace-nowrap text-white transition-opacity hover:opacity-90"
                             :style="{
                                 gridColumn: `${seg.startCol + 1} / ${seg.endCol + 2}`,
                                 gridRow: seg.lane + 1,
-                                backgroundColor: seg.event.color || 'hsl(var(--muted))',
+                                backgroundColor:
+                                    seg.event.color || 'hsl(var(--muted))',
                             }"
                             :title="seg.event.title"
                             @click="calendar.onEventClick(seg.event)"
@@ -123,14 +164,17 @@ function getWeekDays(weekIndex: number) {
                         :key="day.toISOString()"
                         class="border-r border-border p-2 last:border-r-0"
                         :class="{
-                            'bg-muted/30': !isSameMonth(day, calendar.date.value),
+                            'bg-muted/30': !isSameMonth(
+                                day,
+                                calendar.date.value,
+                            ),
                         }"
                     >
                         <div
                             class="mb-1 flex h-7 w-7 items-center justify-center rounded-full text-sm"
                             :class="
                                 isToday(day)
-                                    ? 'bg-primary text-primary-foreground font-semibold'
+                                    ? 'bg-primary font-semibold text-primary-foreground'
                                     : isSameMonth(day, calendar.date.value)
                                       ? 'text-foreground'
                                       : 'text-muted-foreground'
@@ -143,8 +187,12 @@ function getWeekDays(weekIndex: number) {
                                 v-for="evt in singleDayEventsForDay(day)"
                                 :key="evt.id"
                                 type="button"
-                                class="block w-full rounded px-2 py-0.5 text-left text-xs text-white transition-opacity hover:opacity-90 break-words whitespace-normal"
-                                :style="evt.color ? { backgroundColor: evt.color } : {}"
+                                class="block w-full rounded px-2 py-0.5 text-left text-xs break-words whitespace-normal text-white transition-opacity hover:opacity-90"
+                                :style="
+                                    evt.color
+                                        ? { backgroundColor: evt.color }
+                                        : {}
+                                "
                                 @click="calendar.onEventClick(evt)"
                             >
                                 {{ evt.title }}

@@ -7,7 +7,9 @@ use App\Features\Leave\Models\LeaveApplication;
 use App\Features\Leave\Models\LeaveCredit;
 use App\Features\Users\Enums\UserRole;
 use App\Http\Controllers\Controller;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
@@ -16,6 +18,25 @@ class LeaveReportsController extends Controller
     public function index(Request $request)
     {
         $year = (int) ($request->integer('year') ?: now()->year);
+
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        $fromDate = null;
+        $toDate = null;
+        try {
+            $fromDate = $from ? Carbon::parse((string) $from)->startOfDay() : null;
+        } catch (\Throwable) {
+            $fromDate = null;
+        }
+        try {
+            $toDate = $to ? Carbon::parse((string) $to)->endOfDay() : null;
+        } catch (\Throwable) {
+            $toDate = null;
+        }
+
+        $rangeStart = $fromDate ?: now()->setYear($year)->startOfYear()->startOfDay();
+        $rangeEnd = $toDate ?: now()->setYear($year)->endOfYear()->endOfDay();
 
         $creditsQuery = LeaveCredit::query()->with(['employee.user']);
         $appsQuery = LeaveApplication::query();
@@ -33,7 +54,7 @@ class LeaveReportsController extends Controller
 
         $usageRows = (clone $appsQuery)
             ->where('leave_applications.status', 'approved')
-            ->whereYear('leave_applications.date_from', $year)
+            ->whereBetween('leave_applications.date_from', [$rangeStart, $rangeEnd])
             ->selectRaw('leave_applications.employee_fk, leave_applications.employee_id, leave_applications.employee_name, leave_applications.type, SUM(leave_applications.total_days) as used_days')
             ->groupBy('leave_applications.employee_fk', 'leave_applications.employee_id', 'leave_applications.employee_name', 'leave_applications.type')
             ->get()
@@ -109,24 +130,64 @@ class LeaveReportsController extends Controller
             ];
         }, $employees));
 
-        // Build daily leave-count heatmap data for the year
+        // Build daily leave-count heatmap data for the year (distinct employees on leave per day)
         $heatmapQuery = LeaveApplication::query()
             ->where('leave_applications.status', 'approved')
-            ->whereYear('leave_applications.date_from', $year);
+            ->whereDate('leave_applications.date_from', '<=', $rangeEnd->toDateString())
+            ->whereDate('leave_applications.date_to', '>=', $rangeStart->toDateString());
 
         if (Auth::user()?->isHr()) {
             $heatmapQuery
                 ->leftJoin('employees', 'leave_applications.employee_fk', '=', 'employees.id')
                 ->leftJoin('users', 'employees.user_id', '=', 'users.id')
-                ->where('users.role', '!=', UserRole::Admin->value)
-                ->select('leave_applications.*');
+                ->where('users.role', '!=', UserRole::Admin->value);
         }
 
-        $heatmapRaw = $heatmapQuery
-            ->selectRaw('DATE(leave_applications.date_from) as leave_date, COUNT(*) as count')
-            ->groupBy('leave_date')
-            ->pluck('count', 'leave_date')
-            ->toArray();
+        $heatmapRows = $heatmapQuery
+            ->select([
+                'leave_applications.employee_fk',
+                'leave_applications.date_from',
+                'leave_applications.date_to',
+            ])
+            ->get();
+
+        $yearStart = $rangeStart->copy()->startOfDay();
+        $yearEnd = $rangeEnd->copy()->endOfDay();
+
+        $employeesPerDay = [];
+        foreach ($heatmapRows as $row) {
+            $employeeFk = (int) ($row->employee_fk ?? 0);
+            if ($employeeFk <= 0) {
+                continue;
+            }
+
+            $from = optional($row->date_from)?->copy();
+            $to = optional($row->date_to)?->copy();
+            if (! $from || ! $to) {
+                continue;
+            }
+
+            if ($from->lessThan($yearStart)) {
+                $from = $yearStart->copy();
+            }
+            if ($to->greaterThan($yearEnd)) {
+                $to = $yearEnd->copy();
+            }
+
+            if ($to->lessThan($from)) {
+                continue;
+            }
+
+            foreach (CarbonPeriod::create($from, $to) as $date) {
+                $key = $date->toDateString();
+                $employeesPerDay[$key][$employeeFk] = true;
+            }
+        }
+
+        $heatmapRaw = [];
+        foreach ($employeesPerDay as $date => $employeesSet) {
+            $heatmapRaw[$date] = count($employeesSet);
+        }
 
         return Inertia::render('HR/Reports/Leave', [
             'year' => $year,
@@ -135,6 +196,10 @@ class LeaveReportsController extends Controller
             'employees' => $employees,
             'forcedCompliance' => $forcedCompliance,
             'heatmapData' => $heatmapRaw,
+            'filters' => [
+                'from' => $fromDate?->toDateString(),
+                'to' => $toDate?->toDateString(),
+            ],
         ]);
     }
 
@@ -142,16 +207,35 @@ class LeaveReportsController extends Controller
     {
         $year = (int) ($request->integer('year') ?: now()->year);
 
+        $from = $request->input('from');
+        $to = $request->input('to');
+
+        $fromDate = null;
+        $toDate = null;
+        try {
+            $fromDate = $from ? Carbon::parse((string) $from)->startOfDay() : null;
+        } catch (\Throwable) {
+            $fromDate = null;
+        }
+        try {
+            $toDate = $to ? Carbon::parse((string) $to)->endOfDay() : null;
+        } catch (\Throwable) {
+            $toDate = null;
+        }
+
+        $rangeStart = $fromDate ?: now()->setYear($year)->startOfYear()->startOfDay();
+        $rangeEnd = $toDate ?: now()->setYear($year)->endOfYear()->endOfDay();
+
         $query = LeaveApplication::query()
             ->where('leave_applications.status', 'approved')
-            ->whereYear('leave_applications.date_from', $year);
+            ->whereDate('leave_applications.date_from', '<=', $rangeEnd->toDateString())
+            ->whereDate('leave_applications.date_to', '>=', $rangeStart->toDateString());
 
         if (Auth::user()?->isHr()) {
             $query
                 ->leftJoin('employees', 'leave_applications.employee_fk', '=', 'employees.id')
                 ->leftJoin('users', 'employees.user_id', '=', 'users.id')
-                ->where('users.role', '!=', UserRole::Admin->value)
-                ->select('leave_applications.*');
+                ->where('users.role', '!=', UserRole::Admin->value);
         }
 
         return response()->streamDownload(function () use ($query) {
@@ -169,7 +253,7 @@ class LeaveReportsController extends Controller
                         $leave->status ?? '',
                     ]);
                 }
-            });
+            }, 'leave_applications.id');
 
             fclose($out);
         }, "leave-report-{$year}.csv", ['Content-Type' => 'text/csv']);

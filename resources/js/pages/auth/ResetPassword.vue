@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import {
-    LifeBuoy,
-    Lock,
-    ShieldCheck,
-    Zap,
-} from 'lucide-vue-next';
+import { LifeBuoy, Lock, ShieldCheck, Zap } from 'lucide-vue-next';
 import { ref } from 'vue';
 import AlertError from '@/components/AlertError.vue';
 import PasswordInput from '@/components/auth/PasswordInput.vue';
@@ -18,10 +13,26 @@ import { login } from '@/routes';
 import { update } from '@/routes/password';
 
 const resetFeatures = [
-    { icon: Lock, title: 'Strong password', description: 'Use a unique, hard-to-guess password' },
-    { icon: ShieldCheck, title: 'Security tips', description: 'Avoid reusing passwords elsewhere' },
-    { icon: Zap, title: 'Instant activation', description: 'Your new password works right away' },
-    { icon: LifeBuoy, title: 'Support', description: 'Need help? Reach out anytime' },
+    {
+        icon: Lock,
+        title: 'Strong password',
+        description: 'Use a unique, hard-to-guess password',
+    },
+    {
+        icon: ShieldCheck,
+        title: 'Security tips',
+        description: 'Avoid reusing passwords elsewhere',
+    },
+    {
+        icon: Zap,
+        title: 'Instant activation',
+        description: 'Your new password works right away',
+    },
+    {
+        icon: LifeBuoy,
+        title: 'Support',
+        description: 'Need help? Reach out anytime',
+    },
 ];
 
 const props = defineProps<{

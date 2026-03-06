@@ -14,10 +14,12 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar';
 import UserInfo from '@/components/UserInfo.vue';
+import { useAuthStore } from '@/composables/useAuthStore';
 import UserMenuContent from './UserMenuContent.vue';
 
 const page = usePage();
-const user = computed(() => page.props.auth.user);
+const { authUser } = useAuthStore();
+const user = computed(() => authUser.value ?? page.props.auth.user);
 const { isMobile, state } = useSidebar();
 </script>
 

@@ -353,7 +353,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     
     dashboard.form = dashboardForm
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
 export const aiChatbot = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -367,7 +367,7 @@ aiChatbot.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
 aiChatbot.url = (options?: RouteQueryOptions) => {
@@ -375,7 +375,7 @@ aiChatbot.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
 aiChatbot.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -383,7 +383,7 @@ aiChatbot.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
 aiChatbot.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -392,7 +392,7 @@ aiChatbot.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
     const aiChatbotForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -401,7 +401,7 @@ aiChatbot.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
         aiChatbotForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -409,7 +409,7 @@ aiChatbot.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web.php:46
+ * @see routes/web.php:41
  * @route '/ai-chatbot'
  */
         aiChatbotForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

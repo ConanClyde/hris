@@ -4,10 +4,7 @@ import SettingsContent from '@/components/SettingsContent.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { BreadcrumbItem } from '@/types';
 
-const breadcrumbs: BreadcrumbItem[] = [
-
-    { title: 'Settings' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Settings' }];
 </script>
 
 <template>
@@ -16,7 +13,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div>
-                <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                <h1
+                    class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                >
                     Settings
                 </h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">

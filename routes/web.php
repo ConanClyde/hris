@@ -36,13 +36,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('force-password.update');
 });
 
-// Attendance / DTR Routes
+// Shared AI Chatbot
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('/attendance/clock-in', [\App\Http\Controllers\AttendanceController::class, 'clockIn'])->name('attendance.clock-in');
-    Route::post('/attendance/clock-out', [\App\Http\Controllers\AttendanceController::class, 'clockOut'])->name('attendance.clock-out');
-    Route::get('/attendance/history', [\App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.history');
-
-    // Shared AI Chatbot
     Route::get('/ai-chatbot', function () {
         return Inertia\Inertia::render('Shared/AIChatbot/Index');
     })->name('ai-chatbot');

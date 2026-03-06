@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { differenceInMinutes, endOfDay, format, setHours, startOfDay } from 'date-fns';
+import {
+    differenceInMinutes,
+    endOfDay,
+    format,
+    setHours,
+    startOfDay,
+} from 'date-fns';
 import { computed, inject } from 'vue';
 import type { CalendarEventNormalized } from './types';
 import type { UseCalendarReturn } from './useCalendar';
 
-const calendar = inject<UseCalendarReturn & { onEventClick: (e: CalendarEventNormalized) => void }>('calendar');
+const calendar = inject<
+    UseCalendarReturn & { onEventClick: (e: CalendarEventNormalized) => void }
+>('calendar');
 
 if (!calendar) {
     throw new Error('CalendarDayView must be used inside Calendar');
@@ -22,7 +30,7 @@ const dayEvents = computed(() => {
         (evt) =>
             (evt.start >= dayStart && evt.start <= dayEnd) ||
             (evt.end >= dayStart && evt.end <= dayEnd) ||
-            (evt.start <= dayStart && evt.end >= dayEnd)
+            (evt.start <= dayStart && evt.end >= dayEnd),
     );
 });
 
@@ -34,7 +42,10 @@ function eventStyle(evt: CalendarEventNormalized) {
     const end = evt.end > dayEnd ? dayEnd : evt.end;
     const totalMins = 24 * 60;
     const topPct = (differenceInMinutes(start, dayStart) / totalMins) * 100;
-    const heightPct = Math.max(2, (differenceInMinutes(end, start) / totalMins) * 100);
+    const heightPct = Math.max(
+        2,
+        (differenceInMinutes(end, start) / totalMins) * 100,
+    );
     return {
         top: `${topPct}%`,
         height: `${heightPct}%`,
@@ -44,7 +55,7 @@ function eventStyle(evt: CalendarEventNormalized) {
 </script>
 
 <template>
-    <div class="h-full rounded-lg border border-border bg-card overflow-auto">
+    <div class="h-full overflow-auto rounded-lg border border-border bg-card">
         <div class="mb-4 text-center text-lg font-semibold text-foreground">
             {{ format(calendar.date.value, 'EEEE, MMMM d, yyyy') }}
         </div>
@@ -61,12 +72,15 @@ function eventStyle(evt: CalendarEventNormalized) {
             </div>
             <div
                 class="relative border-l border-border"
-                :style="{ height: totalHeight + 'px', minHeight: totalHeight + 'px' }"
+                :style="{
+                    height: totalHeight + 'px',
+                    minHeight: totalHeight + 'px',
+                }"
             >
                 <div
                     v-for="evt in dayEvents"
                     :key="evt.id"
-                    class="absolute left-1 right-1 overflow-hidden rounded px-2 py-1 text-sm text-white cursor-pointer hover:opacity-90"
+                    class="absolute right-1 left-1 cursor-pointer overflow-hidden rounded px-2 py-1 text-sm text-white hover:opacity-90"
                     :style="eventStyle(evt)"
                     @click="calendar.onEventClick(evt)"
                 >

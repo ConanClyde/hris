@@ -19,11 +19,11 @@ withDefaults(
     >
         <div class="w-full max-w-md text-center">
             <div class="mb-8 flex justify-center">
-                <div
-                    class="flex size-16 items-center justify-center rounded-xl bg-brand"
-                >
-                    <span class="text-2xl font-bold text-white">HR</span>
-                </div>
+                <img
+                    src="/images/hris_logo.png"
+                    alt="HRIS Logo"
+                    class="size-16 object-contain"
+                />
             </div>
 
             <h1

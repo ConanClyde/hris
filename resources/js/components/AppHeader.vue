@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Bell } from 'lucide-vue-next';
+import {
+    BookOpen,
+    Folder,
+    LayoutGrid,
+    Menu,
+    Search,
+    Bell,
+} from 'lucide-vue-next';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -32,6 +39,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import UserMenuContent from '@/components/UserMenuContent.vue';
+import { useAuthStore } from '@/composables/useAuthStore';
 import { useBroadcasting } from '@/composables/useBroadcasting';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { getInitials, getInitialsFromName } from '@/composables/useInitials';
@@ -51,15 +59,25 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const page = usePage();
-const auth = computed(() => page.props.auth);
-const showAvatar = computed(() => typeof auth.value?.user?.avatar === 'string' && auth.value.user.avatar.trim() !== '');
+const { authUser } = useAuthStore();
+const auth = computed(() => ({
+    user: authUser.value ?? page.props.auth?.user,
+}));
+const showAvatar = computed(
+    () =>
+        typeof auth.value?.user?.avatar === 'string' &&
+        auth.value.user.avatar.trim() !== '',
+);
 const notificationsHref = computed(() => {
     const role = (auth.value?.user as { role?: string } | undefined)?.role;
     if (role === 'admin') return admin.notifications.url();
     if (role === 'hr') return hr.notifications.url();
     return employee.notifications.url();
 });
-const role = computed(() => (auth.value?.user as { role?: string } | undefined)?.role ?? 'employee');
+const role = computed(
+    () =>
+        (auth.value?.user as { role?: string } | undefined)?.role ?? 'employee',
+);
 
 const {
     notifications,
@@ -76,22 +94,29 @@ const unreadBadge = computed(() => {
 });
 
 function csrfToken(): string {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    return (
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content') || ''
+    );
 }
 
 async function markAllServerRead() {
     const safeRole = String(role.value || '').toLowerCase();
-    const url = safeRole === 'admin'
-        ? '/admin/notifications/mark-all-read'
-        : safeRole === 'hr'
-            ? '/hr/notifications/mark-all-read'
-            : '/employee/notifications/mark-all-read';
+    const url =
+        safeRole === 'admin'
+            ? '/admin/notifications/mark-all-read'
+            : safeRole === 'hr'
+              ? '/hr/notifications/mark-all-read'
+              : '/employee/notifications/mark-all-read';
 
     await fetch(url, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
             'X-CSRF-TOKEN': csrfToken(),
-            'Accept': 'application/json',
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
         },
     });
 
@@ -99,28 +124,35 @@ async function markAllServerRead() {
     await refreshNotificationsDropdown(role.value);
 }
 
-async function openNotification(n: { id: string; data?: Record<string, unknown> }) {
+async function openNotification(n: {
+    id: string;
+    data?: Record<string, unknown>;
+}) {
     const safeRole = String(role.value || '').toLowerCase();
-    const url = safeRole === 'admin'
-        ? `/admin/notifications/${n.id}/mark-as-read`
-        : safeRole === 'hr'
-            ? `/hr/notifications/${n.id}/mark-as-read`
-            : `/employee/notifications/${n.id}/mark-as-read`;
+    const url =
+        safeRole === 'admin'
+            ? `/admin/notifications/${n.id}/mark-as-read`
+            : safeRole === 'hr'
+              ? `/hr/notifications/${n.id}/mark-as-read`
+              : `/employee/notifications/${n.id}/mark-as-read`;
 
     await fetch(url, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
             'X-CSRF-TOKEN': csrfToken(),
-            'Accept': 'application/json',
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
         },
     });
 
     markAsRead(n.id);
     await refreshNotificationsDropdown(role.value);
 
-    const redirect = (n.data?.redirect_url as string | undefined)
-        ?? (n.data?.url as string | undefined)
-        ?? undefined;
+    const redirect =
+        (n.data?.redirect_url as string | undefined) ??
+        (n.data?.url as string | undefined) ??
+        undefined;
     if (redirect) {
         window.location.href = redirect;
     } else {
@@ -328,15 +360,19 @@ const rightNavItems: NavItem[] = [
                                 <Bell class="size-5" />
                                 <span
                                     v-if="unreadBadge > 0"
-                                    class="absolute -right-0.5 -top-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] font-semibold leading-5 text-white"
+                                    class="absolute -top-0.5 -right-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 text-[11px] leading-5 font-semibold text-white"
                                 >
                                     {{ unreadBadge > 99 ? '99+' : unreadBadge }}
                                 </span>
                             </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" class="w-96 p-0">
-                            <div class="flex items-center justify-between border-b px-3 py-2">
-                                <div class="text-sm font-semibold">Notifications</div>
+                            <div
+                                class="flex items-center justify-between border-b px-3 py-2"
+                            >
+                                <div class="text-sm font-semibold">
+                                    Notifications
+                                </div>
                                 <div class="flex items-center gap-2">
                                     <Button
                                         type="button"
@@ -361,21 +397,40 @@ const rightNavItems: NavItem[] = [
                                     :key="n.id"
                                     type="button"
                                     class="flex w-full items-start gap-3 border-b px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-neutral-800"
-                                    :class="!n.read ? 'bg-blue-50/60 dark:bg-blue-900/10' : ''"
+                                    :class="
+                                        !n.read
+                                            ? 'bg-blue-50/60 dark:bg-blue-900/10'
+                                            : ''
+                                    "
                                     @click="openNotification(n)"
                                 >
                                     <div class="min-w-0 flex-1">
-                                        <div class="flex items-center justify-between gap-2">
-                                            <p class="truncate text-sm font-medium">
+                                        <div
+                                            class="flex items-center justify-between gap-2"
+                                        >
+                                            <p
+                                                class="truncate text-sm font-medium"
+                                            >
                                                 {{ n.title }}
                                             </p>
-                                            <span v-if="!n.read" class="h-2 w-2 shrink-0 rounded-full bg-blue-600"></span>
+                                            <span
+                                                v-if="!n.read"
+                                                class="h-2 w-2 shrink-0 rounded-full bg-blue-600"
+                                            ></span>
                                         </div>
-                                        <p class="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
+                                        <p
+                                            class="mt-0.5 line-clamp-2 text-xs text-muted-foreground"
+                                        >
                                             {{ n.message }}
                                         </p>
-                                        <p class="mt-1 text-[11px] text-muted-foreground">
-                                            {{ new Date(n.created_at).toLocaleString() }}
+                                        <p
+                                            class="mt-1 text-[11px] text-muted-foreground"
+                                        >
+                                            {{
+                                                new Date(
+                                                    n.created_at,
+                                                ).toLocaleString()
+                                            }}
                                         </p>
                                     </div>
                                 </button>
@@ -405,9 +460,16 @@ const rightNavItems: NavItem[] = [
                                         :alt="auth.user.name"
                                     />
                                     <AvatarFallback
-                                        class="rounded-full bg-foreground text-background font-semibold"
+                                        class="rounded-full bg-foreground font-semibold text-background"
                                     >
-                                        {{ getInitialsFromName({ first_name: (auth.user as any)?.first_name, last_name: (auth.user as any)?.last_name }) || getInitials(auth.user?.name) }}
+                                        {{
+                                            getInitialsFromName({
+                                                first_name: (auth.user as any)
+                                                    ?.first_name,
+                                                last_name: (auth.user as any)
+                                                    ?.last_name,
+                                            }) || getInitials(auth.user?.name)
+                                        }}
                                     </AvatarFallback>
                                 </Avatar>
                             </Button>

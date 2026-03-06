@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Head, Form, router } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
-import { Eye, Check, X, FileText } from 'lucide-vue-next';
+import { Eye, FileText } from 'lucide-vue-next';
 import { ref, computed, watch, onMounted } from 'vue';
 import Pagination from '@/components/Pagination.vue';
 import TableUserCell from '@/components/TableUserCell.vue';
@@ -23,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useBroadcasting } from '@/composables/useBroadcasting';
 import AppLayout from '@/layouts/AppLayout.vue';
 import hr from '@/routes/hr';
@@ -82,11 +83,16 @@ const props = withDefaults(
     { filters: () => ({}), pdsDetail: null },
 );
 
-function safeListen(channelName: string, event: string, callback: (e: any) => void) {
+function safeListen(
+    channelName: string,
+    event: string,
+    callback: (e: any) => void,
+) {
     try {
         const echoAny = (window as any)?.Echo;
         if (!echoAny) return;
-        const channel = echoAny.private?.(channelName) ?? echoAny.channel?.(channelName);
+        const channel =
+            echoAny.private?.(channelName) ?? echoAny.channel?.(channelName);
         channel?.listen?.(event, callback);
     } catch {
         // ignore
@@ -107,6 +113,12 @@ if (pdsPendingCount.value === null) {
 const pendingCountComputed = computed(() => pdsPendingCount.value ?? 0);
 
 const pdsList = ref(props.pdsList);
+watch(
+    () => props.pdsList,
+    (next) => {
+        pdsList.value = next;
+    },
+);
 
 const statusOptions = computed<Record<string, string>>(() => ({
     ...props.statusOptions,
@@ -120,6 +132,70 @@ const previewLoading = ref(false);
 const previewError = ref<string | null>(null);
 const previewDetail = ref<PdsDetail | null>(null);
 
+const rejectDialogOpen = ref(false);
+const rejectTarget = ref<PdsItem | null>(null);
+const rejectRemarks = ref('');
+const rejectRemarksError = ref('');
+const actionLoading = ref(false);
+
+function openReject(item: PdsItem) {
+    rejectTarget.value = item;
+    rejectRemarks.value = '';
+    rejectRemarksError.value = '';
+    rejectDialogOpen.value = true;
+}
+
+function validateRejectRemarks(): boolean {
+    const trimmed = rejectRemarks.value.trim();
+    if (!trimmed) {
+        rejectRemarksError.value = 'Rejection remarks are required.';
+        return false;
+    }
+    if (trimmed.length < 10) {
+        rejectRemarksError.value = 'Remarks must be at least 10 characters.';
+        return false;
+    }
+    rejectRemarksError.value = '';
+    return true;
+}
+
+function submitApprove(item: PdsItem) {
+    actionLoading.value = true;
+    router.post(
+        hr.pds.status.url(),
+        {
+            pds_id: item.id,
+            status: 'approved',
+        },
+        {
+            onFinish: () => {
+                actionLoading.value = false;
+                previewModalOpen.value = false;
+            },
+        },
+    );
+}
+
+function submitReject() {
+    if (!validateRejectRemarks() || !rejectTarget.value) return;
+    actionLoading.value = true;
+    router.post(
+        hr.pds.status.url(),
+        {
+            pds_id: rejectTarget.value.id,
+            status: 'rejected',
+            remarks: rejectRemarks.value.trim(),
+        },
+        {
+            onFinish: () => {
+                actionLoading.value = false;
+                rejectDialogOpen.value = false;
+                previewModalOpen.value = false;
+            },
+        },
+    );
+}
+
 type PdsStatusUpdatedPayload = {
     id: number;
     employee_id: number;
@@ -131,7 +207,10 @@ function upsertOrRemoveFromTable(payload: PdsStatusUpdatedPayload) {
     const table = pdsList.value.data;
     const idx = table.findIndex((p: PdsItem) => p.id === payload.id);
     const statusFilter = (filterStatus.value || '').trim();
-    const shouldInclude = !statusFilter || statusFilter === 'all' || payload.status === statusFilter;
+    const shouldInclude =
+        !statusFilter ||
+        statusFilter === 'all' ||
+        payload.status === statusFilter;
 
     if (!shouldInclude) {
         if (idx !== -1) table.splice(idx, 1);
@@ -159,9 +238,13 @@ function upsertOrRemoveFromTable(payload: PdsStatusUpdatedPayload) {
 }
 
 onMounted(() => {
-    safeListen('pds.management', '.PdsStatusUpdated', (e: PdsStatusUpdatedPayload) => {
-        upsertOrRemoveFromTable(e);
-    });
+    safeListen(
+        'pds.management',
+        '.PdsStatusUpdated',
+        (e: PdsStatusUpdatedPayload) => {
+            upsertOrRemoveFromTable(e);
+        },
+    );
 });
 
 watch(
@@ -230,7 +313,9 @@ async function openPreview(item: PdsItem) {
     previewLoading.value = true;
 
     try {
-        const url = hr.pds.previewJson.url({ query: { pds_id: String(item.id) } } as any);
+        const url = hr.pds.previewJson.url({
+            query: { pds_id: String(item.id) },
+        } as any);
         const res = await fetch(url, {
             headers: {
                 Accept: 'application/json',
@@ -366,26 +451,77 @@ function openRevisionPreview(rev: any) {
 
             <!-- Pending Revisions Table -->
             <div v-if="revisionList?.data?.length" class="space-y-4">
-                <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Pending Revision Requests</h2>
-                <div class="overflow-hidden rounded-lg border border-amber-200 dark:border-amber-900/50">
+                <h2
+                    class="text-lg font-medium text-gray-900 dark:text-gray-100"
+                >
+                    Pending Revision Requests
+                </h2>
+                <div
+                    class="overflow-hidden rounded-lg border border-amber-200 dark:border-amber-900/50"
+                >
                     <div class="overflow-x-auto">
-                        <table class="w-full min-w-[520px] border-collapse text-sm">
-                            <thead class="border-b border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/20">
+                        <table
+                            class="w-full min-w-[520px] border-collapse text-sm"
+                        >
+                            <thead
+                                class="border-b border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-900/20"
+                            >
                                 <tr>
-                                    <th class="px-4 py-3 text-left font-medium text-amber-800 dark:text-amber-200">Employee</th>
-                                    <th class="px-4 py-3 text-left font-medium text-amber-800 dark:text-amber-200">Requested On</th>
-                                    <th class="px-4 py-3 text-right font-medium text-amber-800 dark:text-amber-200">Actions</th>
+                                    <th
+                                        class="px-4 py-3 text-left font-medium text-amber-800 dark:text-amber-200"
+                                    >
+                                        Employee
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-left font-medium text-amber-800 dark:text-amber-200"
+                                    >
+                                        Requested On
+                                    </th>
+                                    <th
+                                        class="px-4 py-3 text-right font-medium text-amber-800 dark:text-amber-200"
+                                    >
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-amber-200 dark:divide-amber-900/50">
-                                <tr v-for="rev in revisionList.data" :key="rev.id" class="hover:bg-amber-50/50 dark:hover:bg-amber-900/20">
+                            <tbody
+                                class="divide-y divide-amber-200 dark:divide-amber-900/50"
+                            >
+                                <tr
+                                    v-for="rev in revisionList.data"
+                                    :key="rev.id"
+                                    class="hover:bg-amber-50/50 dark:hover:bg-amber-900/20"
+                                >
                                     <td class="px-4 py-3">
-                                        <TableUserCell :name="employeeName(rev as any)" :avatar="rev.avatar" :subtitle="rev.user_id ? `User ID: ${rev.user_id}` : null" :user-id="rev.user_id" />
+                                        <TableUserCell
+                                            :name="employeeName(rev as any)"
+                                            :avatar="rev.avatar"
+                                            :subtitle="
+                                                rev.user_id
+                                                    ? `User ID: ${rev.user_id}`
+                                                    : null
+                                            "
+                                            :user-id="rev.user_id"
+                                        />
                                     </td>
-                                    <td class="px-4 py-3 text-amber-900 dark:text-amber-100">{{ formatDate(rev.created_at) }}</td>
+                                    <td
+                                        class="px-4 py-3 text-amber-900 dark:text-amber-100"
+                                    >
+                                        {{ formatDate(rev.created_at) }}
+                                    </td>
                                     <td class="px-4 py-3 text-right">
-                                        <div class="flex items-center justify-end gap-1">
-                                            <Button type="button" variant="outline" size="sm" @click="openRevisionPreview(rev)">Review Changes</Button>
+                                        <div
+                                            class="flex items-center justify-end gap-1"
+                                        >
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                @click="
+                                                    openRevisionPreview(rev)
+                                                "
+                                                >Review Changes</Button
+                                            >
                                         </div>
                                     </td>
                                 </tr>
@@ -439,7 +575,11 @@ function openRevisionPreview(rev: any) {
                                     <TableUserCell
                                         :name="employeeName(item)"
                                         :avatar="item.avatar"
-                                        :subtitle="item.user_id ? `User ID: ${item.user_id}` : null"
+                                        :subtitle="
+                                            item.user_id
+                                                ? `User ID: ${item.user_id}`
+                                                : null
+                                        "
                                         :user-id="item.user_id"
                                     />
                                 </td>
@@ -466,104 +606,11 @@ function openRevisionPreview(rev: any) {
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
-                                            title="Preview"
+                                            title="View"
                                             @click="openPreview(item)"
                                         >
                                             <Eye class="size-4" />
                                         </Button>
-                                        <Form
-                                            v-if="item.status === 'submitted'"
-                                            :action="hr.pds.status.url()"
-                                            method="post"
-                                            class="inline"
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="pds_id"
-                                                :value="item.id"
-                                            />
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="under_review"
-                                            />
-                                            <Button
-                                                type="submit"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                title="Mark under review"
-                                                class="text-amber-600 hover:text-amber-700"
-                                            >
-                                                <span class="sr-only">Under review</span>
-                                                <Eye class="size-4" />
-                                            </Button>
-                                        </Form>
-                                        <Form
-                                            v-if="item.status === 'submitted' || item.status === 'under_review'"
-                                            :action="hr.pds.status.url()"
-                                            method="post"
-                                            class="inline-flex gap-1"
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="pds_id"
-                                                :value="item.id"
-                                            />
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="approved"
-                                            />
-                                            <Button
-                                                type="submit"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                class="text-emerald-600 hover:text-emerald-700"
-                                            >
-                                                <span class="sr-only"
-                                                    >Approve</span
-                                                >
-                                                <Check class="size-4" />
-                                            </Button>
-                                        </Form>
-                                        <Form
-                                            v-if="item.status === 'submitted' || item.status === 'under_review'"
-                                            :action="hr.pds.status.url()"
-                                            method="post"
-                                            class="inline"
-                                        >
-                                            <input
-                                                type="hidden"
-                                                name="pds_id"
-                                                :value="item.id"
-                                            />
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="rejected"
-                                            />
-                                            <Button
-                                                type="submit"
-                                                variant="ghost"
-                                                size="icon-sm"
-                                                class="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                                            >
-                                                <span class="sr-only"
-                                                    >Reject</span
-                                                >
-                                                <X class="size-4" />
-                                            </Button>
-                                        </Form>
-                                        <a
-                                            v-if="item.status === 'approved'"
-                                            :href="hr.pds.export.url({ id: item.id })"
-                                            target="_blank"
-                                            title="Export to PDF"
-                                            class="inline-flex h-7 w-7 items-center justify-center rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/50 dark:hover:text-red-300"
-                                        >
-                                            <span class="sr-only">Export CS Form 212</span>
-                                            <FileText class="size-4" />
-                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -598,11 +645,17 @@ function openRevisionPreview(rev: any) {
                 </DialogHeader>
 
                 <div class="max-h-[75vh] space-y-4 overflow-y-auto p-2 sm:p-4">
-                    <div v-if="previewLoading" class="py-10 text-center text-sm text-muted-foreground">
+                    <div
+                        v-if="previewLoading"
+                        class="py-10 text-center text-sm text-muted-foreground"
+                    >
                         Loading...
                     </div>
 
-                    <div v-else-if="previewError" class="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
+                    <div
+                        v-else-if="previewError"
+                        class="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+                    >
                         {{ previewError }}
                     </div>
 
@@ -634,12 +687,20 @@ function openRevisionPreview(rev: any) {
                                         {{
                                             previewDetail.personal
                                                 ? [
-                                                      previewDetail.personal.first_name,
-                                                      previewDetail.personal.middle_name,
-                                                      previewDetail.personal.surname,
-                                                      previewDetail.personal.name_extension,
-                                                  ].filter(Boolean).join(' ')
-                                                : pdsDetailEmployeeName(previewDetail)
+                                                      previewDetail.personal
+                                                          .first_name,
+                                                      previewDetail.personal
+                                                          .middle_name,
+                                                      previewDetail.personal
+                                                          .surname,
+                                                      previewDetail.personal
+                                                          .name_extension,
+                                                  ]
+                                                      .filter(Boolean)
+                                                      .join(' ')
+                                                : pdsDetailEmployeeName(
+                                                      previewDetail,
+                                                  )
                                         }}
                                     </dd>
                                 </div>
@@ -652,7 +713,9 @@ function openRevisionPreview(rev: any) {
                                     <dd class="mt-0.5">
                                         <Badge
                                             :variant="
-                                                statusVariant(previewDetail.status)
+                                                statusVariant(
+                                                    previewDetail.status,
+                                                )
                                             "
                                         >
                                             {{
@@ -669,10 +732,12 @@ function openRevisionPreview(rev: any) {
                                     >
                                         Submitted
                                     </dt>
-                                    <dd
-                                        class="mt-0.5 text-sm"
-                                    >
-                                        {{ formatDate(previewDetail.submitted_at) }}
+                                    <dd class="mt-0.5 text-sm">
+                                        {{
+                                            formatDate(
+                                                previewDetail.submitted_at,
+                                            )
+                                        }}
                                     </dd>
                                 </div>
                                 <div>
@@ -681,10 +746,12 @@ function openRevisionPreview(rev: any) {
                                     >
                                         Reviewed
                                     </dt>
-                                    <dd
-                                        class="mt-0.5 text-sm"
-                                    >
-                                        {{ formatDate(previewDetail.reviewed_at) }}
+                                    <dd class="mt-0.5 text-sm">
+                                        {{
+                                            formatDate(
+                                                previewDetail.reviewed_at,
+                                            )
+                                        }}
                                     </dd>
                                 </div>
                             </dl>
@@ -716,8 +783,10 @@ function openRevisionPreview(rev: any) {
                                     >
                                         {{
                                             [
-                                                previewDetail.personal.first_name,
-                                                previewDetail.personal.middle_name,
+                                                previewDetail.personal
+                                                    .first_name,
+                                                previewDetail.personal
+                                                    .middle_name,
                                                 previewDetail.personal.surname,
                                                 previewDetail.personal
                                                     .name_extension,
@@ -738,12 +807,16 @@ function openRevisionPreview(rev: any) {
                                     >
                                         {{
                                             formatDate(
-                                                String(previewDetail.personal.dob),
+                                                String(
+                                                    previewDetail.personal.dob,
+                                                ),
                                             )
                                         }}
                                     </dd>
                                 </div>
-                                <div v-if="previewDetail.personal.place_of_birth">
+                                <div
+                                    v-if="previewDetail.personal.place_of_birth"
+                                >
                                     <dt
                                         class="text-xs font-medium text-gray-500 dark:text-gray-400"
                                     >
@@ -752,7 +825,10 @@ function openRevisionPreview(rev: any) {
                                     <dd
                                         class="mt-0.5 text-sm text-gray-700 dark:text-gray-300"
                                     >
-                                        {{ previewDetail.personal.place_of_birth }}
+                                        {{
+                                            previewDetail.personal
+                                                .place_of_birth
+                                        }}
                                     </dd>
                                 </div>
                                 <div v-if="previewDetail.personal.sex">
@@ -776,7 +852,9 @@ function openRevisionPreview(rev: any) {
                                     <dd
                                         class="mt-0.5 text-sm text-gray-700 dark:text-gray-300"
                                     >
-                                        {{ previewDetail.personal.civil_status }}
+                                        {{
+                                            previewDetail.personal.civil_status
+                                        }}
                                     </dd>
                                 </div>
                                 <div v-if="previewDetail.personal.email">
@@ -826,7 +904,7 @@ function openRevisionPreview(rev: any) {
                     </template>
                 </div>
 
-                <DialogFooter>
+                <DialogFooter class="flex-wrap gap-2">
                     <Button
                         type="button"
                         variant="outline"
@@ -835,43 +913,111 @@ function openRevisionPreview(rev: any) {
                         Close
                     </Button>
 
-                    <Form
-                        v-if="previewDetail && (previewDetail.status === 'submitted' || previewDetail.status === 'under_review')"
-                        :action="hr.pds.status.url()"
-                        method="post"
-                        class="inline"
+                    <a
+                        v-if="
+                            previewDetail && previewDetail.status === 'approved'
+                        "
+                        :href="hr.pds.export.url({ id: previewDetail.id })"
+                        target="_blank"
+                        class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-gray-200 dark:hover:bg-neutral-700"
                     >
-                        <input
-                            type="hidden"
-                            name="pds_id"
-                            :value="previewDetail.id"
-                        />
-                        <input
-                            type="hidden"
-                            name="status"
-                            value="approved"
-                        />
-                        <Button type="submit">Approve</Button>
-                    </Form>
-                    <Form
-                        v-if="previewDetail && (previewDetail.status === 'submitted' || previewDetail.status === 'under_review')"
-                        :action="hr.pds.status.url()"
-                        method="post"
-                        class="inline"
+                        <FileText class="size-4 text-red-500" />
+                        Export CS Form 212
+                    </a>
+
+                    <Button
+                        v-if="
+                            previewDetail &&
+                            (previewDetail.status === 'submitted' ||
+                                previewDetail.status === 'under_review')
+                        "
+                        type="button"
+                        :disabled="actionLoading"
+                        @click="submitApprove(previewDetail)"
                     >
-                        <input
-                            type="hidden"
-                            name="pds_id"
-                            :value="previewDetail.id"
-                        />
-                        <input
-                            type="hidden"
-                            name="status"
-                            value="rejected"
-                        />
-                        <Button type="submit" variant="destructive">Reject</Button>
-                    </Form>
+                        {{ actionLoading ? 'Processing...' : 'Approve' }}
+                    </Button>
+                    <Button
+                        v-if="
+                            previewDetail &&
+                            (previewDetail.status === 'submitted' ||
+                                previewDetail.status === 'under_review')
+                        "
+                        type="button"
+                        variant="destructive"
+                        :disabled="actionLoading"
+                        @click="openReject(previewDetail)"
+                    >
+                        Reject
+                    </Button>
                 </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
+        <Dialog v-model:open="rejectDialogOpen">
+            <DialogContent class="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Reject PDS</DialogTitle>
+                    <DialogDescription>
+                        Please provide remarks so the employee knows what to
+                        correct. This field is required.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div v-if="rejectTarget" class="space-y-4">
+                    <div class="space-y-1.5">
+                        <label
+                            for="reject-remarks"
+                            class="text-sm font-medium text-gray-700 dark:text-gray-300"
+                        >
+                            Rejection remarks
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <Textarea
+                            id="reject-remarks"
+                            v-model="rejectRemarks"
+                            placeholder="e.g. Please correct your address (missing barangay), missing signature, etc."
+                            class="min-h-[120px]"
+                            :class="{
+                                'border-red-500 focus-visible:ring-red-500':
+                                    rejectRemarksError,
+                            }"
+                            @input="rejectRemarksError = ''"
+                        />
+                        <p
+                            v-if="rejectRemarksError"
+                            class="text-xs text-red-500"
+                        >
+                            {{ rejectRemarksError }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ rejectRemarks.trim().length }} / 10 minimum
+                            characters
+                        </p>
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            :disabled="actionLoading"
+                            @click="rejectDialogOpen = false"
+                            >Cancel</Button
+                        >
+                        <Button
+                            type="button"
+                            variant="destructive"
+                            :disabled="actionLoading"
+                            @click="submitReject"
+                        >
+                            {{
+                                actionLoading
+                                    ? 'Processing...'
+                                    : 'Confirm Rejection'
+                            }}
+                        </Button>
+                    </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     </AppLayout>

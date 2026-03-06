@@ -14,6 +14,7 @@ use Inertia\Inertia;
 // Employee-scoped routes
 Route::prefix('employee')->group(function () {
     Route::middleware(['auth', 'role:employee'])->group(function () {
+
         // Calendar
         Route::get('/calendar', [EmployeeCalendarController::class, 'index'])->name('employee.calendar');
         Route::get('/calendar/events', [EmployeeCalendarController::class, 'events'])->name('employee.calendar.events');

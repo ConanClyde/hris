@@ -2,7 +2,13 @@
 import { Head, Link, Form, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
 import { useEcho } from '@laravel/echo-vue';
-import { Eye, Trash2, ChevronDown, CheckCircle2, XCircle } from 'lucide-vue-next';
+import {
+    Eye,
+    Trash2,
+    ChevronDown,
+    CheckCircle2,
+    XCircle,
+} from 'lucide-vue-next';
 import { ref, computed, watch, onMounted } from 'vue';
 import AlertError from '@/components/AlertError.vue';
 import ListFiltersBar from '@/components/ListFiltersBar.vue';
@@ -95,7 +101,8 @@ if (leavesPendingCount.value === null) {
 
 const pendingCountComputed = computed(() => leavesPendingCount.value ?? 0);
 
-const { errorMessages, setErrors, setErrorMessage, clearErrors } = useRequestFeedback();
+const { errorMessages, setErrors, setErrorMessage, clearErrors } =
+    useRequestFeedback();
 
 const searchInput = ref(props.filters?.search ?? '');
 const filterType = ref(props.filters?.type ?? '');
@@ -117,8 +124,9 @@ const attachmentError = ref('');
 const approvalProcessing = ref<'approved' | 'rejected' | null>(null);
 
 const csrfToken =
-    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ??
-    '';
+    document
+        .querySelector('meta[name="csrf-token"]')
+        ?.getAttribute('content') ?? '';
 
 const statusOptionsEntries = computed(() =>
     Object.entries(props.statusOptions),
@@ -359,7 +367,8 @@ async function deleteAttachment(leaveId: number, path: string | null) {
 
     if (!res.ok) {
         const payload = await res.json().catch(() => ({}));
-        attachmentError.value = payload?.message || 'Failed to delete attachment.';
+        attachmentError.value =
+            payload?.message || 'Failed to delete attachment.';
         setErrorMessage(attachmentError.value);
         return;
     }
@@ -755,7 +764,13 @@ function viewApprovalData(status: 'approved' | 'rejected') {
                                     {{ viewApplication.reason }}
                                 </dd>
                             </div>
-                            <div v-if="normalizeAttachments(viewApplication.attachments).length">
+                            <div
+                                v-if="
+                                    normalizeAttachments(
+                                        viewApplication.attachments,
+                                    ).length
+                                "
+                            >
                                 <dt
                                     class="font-medium text-gray-500 dark:text-gray-400"
                                 >
@@ -763,7 +778,9 @@ function viewApprovalData(status: 'approved' | 'rejected') {
                                 </dt>
                                 <dd class="mt-1 space-y-2">
                                     <div
-                                        v-for="att in normalizeAttachments(viewApplication.attachments)"
+                                        v-for="att in normalizeAttachments(
+                                            viewApplication.attachments,
+                                        )"
                                         :key="att.url"
                                         class="flex items-center justify-between gap-2"
                                     >
@@ -776,17 +793,28 @@ function viewApprovalData(status: 'approved' | 'rejected') {
                                             {{ att.name }}
                                         </a>
                                         <Button
-                                            v-if="viewApplication.status === 'pending'"
+                                            v-if="
+                                                viewApplication.status ===
+                                                'pending'
+                                            "
                                             type="button"
                                             variant="ghost"
                                             size="icon-sm"
                                             class="text-red-500 hover:text-red-600"
-                                            @click="deleteAttachment(viewApplication.id, att.path)"
+                                            @click="
+                                                deleteAttachment(
+                                                    viewApplication.id,
+                                                    att.path,
+                                                )
+                                            "
                                         >
                                             <Trash2 class="size-4" />
                                         </Button>
                                     </div>
-                                    <p v-if="attachmentError" class="text-sm text-red-500">
+                                    <p
+                                        v-if="attachmentError"
+                                        class="text-sm text-red-500"
+                                    >
                                         {{ attachmentError }}
                                     </p>
                                 </dd>
@@ -828,7 +856,10 @@ function viewApprovalData(status: 'approved' | 'rejected') {
                                         :disabled="approvalProcessing !== null"
                                         as-child
                                     >
-                                        <button type="submit" class="flex w-full items-center">
+                                        <button
+                                            type="submit"
+                                            class="flex w-full items-center"
+                                        >
                                             <CheckCircle2 class="mr-2 size-4" />
                                             Approve
                                         </button>
@@ -854,7 +885,10 @@ function viewApprovalData(status: 'approved' | 'rejected') {
                                         :disabled="approvalProcessing !== null"
                                         as-child
                                     >
-                                        <button type="submit" class="flex w-full items-center">
+                                        <button
+                                            type="submit"
+                                            class="flex w-full items-center"
+                                        >
                                             <XCircle class="mr-2 size-4" />
                                             Reject
                                         </button>

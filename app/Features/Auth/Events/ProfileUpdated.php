@@ -3,9 +3,9 @@
 namespace App\Features\Auth\Events;
 
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ProfileUpdated implements ShouldBroadcastNow
+class ProfileUpdated implements ShouldBroadcast
 {
     public function __construct(
         public int $userId,

@@ -2,6 +2,7 @@
 
 namespace App\Features\Pds\Http\Controllers\Employee;
 
+use App\Features\ActivityLogs\Services\ActivityLogger;
 use App\Features\Pds\Events\PdsStatusUpdated;
 use App\Features\Pds\Models\Pds;
 use App\Features\Pds\Models\PdsBackgroundInfo;
@@ -21,6 +22,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
@@ -29,6 +31,8 @@ use Symfony\Component\Process\Process;
 
 class PdsController extends Controller
 {
+    public function __construct(protected ActivityLogger $logger) {}
+
     private function getEmployeeId()
     {
         return Auth::user()?->employee?->id;
@@ -114,6 +118,7 @@ class PdsController extends Controller
 
         $validated = $request->validate([
             'data' => 'required|array',
+            'data.status' => 'sometimes|string|in:draft,submitted',
             'data.personal' => 'sometimes|array',
             'data.personal.height' => 'nullable|numeric|min:0',
             'data.personal.weight' => 'nullable|numeric|min:0',
@@ -135,6 +140,11 @@ class PdsController extends Controller
         $data = $validated['data'];
         $status = $data['status'] ?? 'draft';
 
+        Log::info('PDS store request received', [
+            'employee_id' => $employeeId,
+            'requested_status' => $status,
+        ]);
+
         $oldStatus = (string) (Pds::where('employee_id', $employeeId)->value('status') ?? '');
 
         if ($oldStatus === 'approved') {
@@ -150,12 +160,23 @@ class PdsController extends Controller
                     'changes' => $data,
                 ]);
             } else {
-                \App\Features\Pds\Models\PdsRevisionRequest::create([
+                $existingRevision = \App\Features\Pds\Models\PdsRevisionRequest::create([
                     'employee_id' => $employeeId,
                     'pds_id' => Pds::where('employee_id', $employeeId)->value('id'),
                     'status' => $revisionStatus,
                     'changes' => $data, // Casts as JSON automatically
                 ]);
+            }
+
+            if ($revisionStatus === 'pending') {
+                $this->logger->log(
+                    action: 'pds_revision_submitted',
+                    subjectType: 'App\Features\Pds\Models\PdsRevisionRequest',
+                    subjectId: $existingRevision->id,
+                    metadata: [
+                        'employee_id' => $employeeId,
+                    ]
+                );
             }
 
             return redirect()->route('employee.pds.index')->with('success', $status === 'submitted' ? 'Revision request submitted successfully. Waiting for HR approval.' : 'Revision request saved as draft.');
@@ -171,6 +192,24 @@ class PdsController extends Controller
                 ['employee_id' => $employeeId],
                 $pdsAttrs
             );
+
+            if ($status === 'submitted') {
+                $this->logger->log(
+                    action: 'pds_submitted',
+                    subjectType: Pds::class,
+                    subjectId: $pds->id,
+                    metadata: [
+                        'employee_id' => $employeeId,
+                    ]
+                );
+            }
+
+            Log::info('PDS stored', [
+                'employee_id' => $employeeId,
+                'pds_id' => $pds->id,
+                'stored_status' => (string) $pds->status,
+                'submitted_at' => $pds->submitted_at,
+            ]);
 
             if (! empty($data['personal']) && is_array($data['personal'])) {
                 $personalAttrs = array_intersect_key(
@@ -418,10 +457,10 @@ class PdsController extends Controller
             $extractedText = $output['text'];
 
             // 2. Send to Gemini API for processing
-            $apiKey = env('GEMINI_API_KEY');
+            $apiKey = (string) config('services.google_genai.api_key', '');
 
             if (empty($apiKey)) {
-                return response()->json(['error' => 'AI Parsing is not configured. Missing GEMINI_API_KEY.'], 500);
+                return response()->json(['error' => 'AI Parsing is not configured. Missing GOOGLE_API_KEY.'], 500);
             }
 
             $prompt = <<<EOT

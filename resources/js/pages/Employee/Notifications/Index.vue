@@ -30,11 +30,16 @@ type PaginatedData = {
 
 const props = defineProps<{ notifications: PaginatedData; filter?: string }>();
 
-const notifications = ref<PaginatedData>(props.notifications ?? { data: [], current_page: 1, last_page: 1, links: [] });
+const notifications = ref<PaginatedData>(
+    props.notifications ?? {
+        data: [],
+        current_page: 1,
+        last_page: 1,
+        links: [],
+    },
+);
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Notifications' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Notifications' }];
 
 const hasNotifications = computed(() => notifications.value.data.length > 0);
 
@@ -46,11 +51,15 @@ const {
 } = useBroadcasting();
 
 function csrfToken(): string {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    return (
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content') || ''
+    );
 }
 
 async function markAsRead(notificationId: string) {
-    const notif = notifications.value.data.find(n => n.id === notificationId);
+    const notif = notifications.value.data.find((n) => n.id === notificationId);
     const wasUnread = !!notif && !notif.is_read;
     if (notif) {
         notif.is_read = true;
@@ -60,13 +69,16 @@ async function markAsRead(notificationId: string) {
     }
 
     try {
-        const response = await fetch(`/employee/notifications/${notificationId}/mark-as-read`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken(),
-                'Accept': 'application/json',
+        const response = await fetch(
+            `/employee/notifications/${notificationId}/mark-as-read`,
+            {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken(),
+                    Accept: 'application/json',
+                },
             },
-        });
+        );
 
         if (!response.ok && notif) {
             notif.is_read = false;
@@ -83,7 +95,9 @@ async function markAsRead(notificationId: string) {
 }
 
 async function openNotification(notificationId: string) {
-    const notification = notifications.value.data.find(n => n.id === notificationId);
+    const notification = notifications.value.data.find(
+        (n) => n.id === notificationId,
+    );
     if (!notification) return;
 
     const wasUnread = !notification.is_read;
@@ -93,13 +107,16 @@ async function openNotification(notificationId: string) {
     }
 
     try {
-        const response = await fetch(`/employee/notifications/${notificationId}/mark-as-read`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken(),
-                'Accept': 'application/json',
+        const response = await fetch(
+            `/employee/notifications/${notificationId}/mark-as-read`,
+            {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken(),
+                    Accept: 'application/json',
+                },
             },
-        });
+        );
 
         if (!response.ok) {
             notification.is_read = false;
@@ -113,9 +130,10 @@ async function openNotification(notificationId: string) {
     }
 
     const data = notification.data || {};
-    const redirect = (data.redirect_url as string | undefined)
-        ?? (data.url as string | undefined)
-        ?? undefined;
+    const redirect =
+        (data.redirect_url as string | undefined) ??
+        (data.url as string | undefined) ??
+        undefined;
 
     if (redirect) {
         window.location.href = redirect;
@@ -125,7 +143,7 @@ async function openNotification(notificationId: string) {
 async function markAllRead() {
     notifications.value = {
         ...notifications.value,
-        data: notifications.value.data.map(n => ({ ...n, is_read: true })),
+        data: notifications.value.data.map((n) => ({ ...n, is_read: true })),
     };
     markAllAsReadGlobal();
 
@@ -133,7 +151,7 @@ async function markAllRead() {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': csrfToken(),
-            'Accept': 'application/json',
+            Accept: 'application/json',
         },
     });
 
@@ -145,7 +163,7 @@ async function deleteAll() {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': csrfToken(),
-            'Accept': 'application/json',
+            Accept: 'application/json',
         },
     });
 
@@ -166,7 +184,9 @@ async function deleteAll() {
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div>
-                <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                <h1
+                    class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                >
                     Notifications
                 </h1>
                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -179,7 +199,11 @@ async function deleteAll() {
                     <Link
                         href="/employee/notifications"
                         class="text-sm"
-                        :class="props.filter === 'unread' ? 'text-muted-foreground hover:text-foreground' : 'font-medium text-foreground'"
+                        :class="
+                            props.filter === 'unread'
+                                ? 'text-muted-foreground hover:text-foreground'
+                                : 'font-medium text-foreground'
+                        "
                     >
                         All
                     </Link>
@@ -187,7 +211,11 @@ async function deleteAll() {
                     <Link
                         href="/employee/notifications?filter=unread"
                         class="text-sm"
-                        :class="props.filter === 'unread' ? 'font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                        :class="
+                            props.filter === 'unread'
+                                ? 'font-medium text-foreground'
+                                : 'text-muted-foreground hover:text-foreground'
+                        "
                     >
                         Unread
                     </Link>
@@ -211,10 +239,7 @@ async function deleteAll() {
                 </div>
             </div>
 
-            <div
-                v-if="hasNotifications"
-                class="space-y-3"
-            >
+            <div v-if="hasNotifications" class="space-y-3">
                 <NotificationCard
                     v-for="n in notifications.data"
                     :id="n.id"
@@ -239,7 +264,9 @@ async function deleteAll() {
                 v-else
                 class="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-neutral-700 dark:bg-neutral-800/50 dark:text-gray-400"
             >
-                <Bell class="mx-auto size-10 text-gray-400 dark:text-gray-500" />
+                <Bell
+                    class="mx-auto size-10 text-gray-400 dark:text-gray-500"
+                />
                 <p class="mt-2">No notifications yet.</p>
             </div>
 
@@ -247,4 +274,3 @@ async function deleteAll() {
         </div>
     </AppLayout>
 </template>
-

@@ -24,8 +24,13 @@ class CalendarController extends Controller
 
     public function events(Request $request)
     {
-        $start = $request->input('start');
-        $end = $request->input('end');
+        $validated = $request->validate([
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date'],
+        ]);
+
+        $start = (string) $validated['start'];
+        $end = (string) $validated['end'];
 
         // Fetch Holidays from Google Calendar (or fallback)
         $holidays = $this->getGoogleCalendarHolidays($start, $end);

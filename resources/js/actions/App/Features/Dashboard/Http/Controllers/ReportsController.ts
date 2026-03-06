@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 const indexf32b5bd5940752871d5bf97794f0c32e = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 indexf32b5bd5940752871d5bf97794f0c32e.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 indexf32b5bd5940752871d5bf97794f0c32e.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.get = (options?: RouteQueryOptions): Route
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 indexf32b5bd5940752871d5bf97794f0c32e.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.head = (options?: RouteQueryOptions): Rout
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
     const indexf32b5bd5940752871d5bf97794f0c32eForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.head = (options?: RouteQueryOptions): Rout
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
         indexf32b5bd5940752871d5bf97794f0c32eForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.head = (options?: RouteQueryOptions): Rout
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
         indexf32b5bd5940752871d5bf97794f0c32eForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ indexf32b5bd5940752871d5bf97794f0c32e.head = (options?: RouteQueryOptions): Rout
     indexf32b5bd5940752871d5bf97794f0c32e.form = indexf32b5bd5940752871d5bf97794f0c32eForm
     /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 const index0655b0808d255515b17e19c035419a6b = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ index0655b0808d255515b17e19c035419a6b.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 index0655b0808d255515b17e19c035419a6b.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ index0655b0808d255515b17e19c035419a6b.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 index0655b0808d255515b17e19c035419a6b.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ index0655b0808d255515b17e19c035419a6b.get = (options?: RouteQueryOptions): Route
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
 index0655b0808d255515b17e19c035419a6b.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ index0655b0808d255515b17e19c035419a6b.head = (options?: RouteQueryOptions): Rout
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
     const index0655b0808d255515b17e19c035419a6bForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ index0655b0808d255515b17e19c035419a6b.head = (options?: RouteQueryOptions): Rout
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
         index0655b0808d255515b17e19c035419a6bForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ index0655b0808d255515b17e19c035419a6b.head = (options?: RouteQueryOptions): Rout
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::index
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/hr/reports'
  */
         index0655b0808d255515b17e19c035419a6bForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -161,6 +161,84 @@ export const index = {
     '/hr/reports': index0655b0808d255515b17e19c035419a6b,
 }
 
-const ReportsController = { index }
+/**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+export const exportAdminAnalytics = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportAdminAnalytics.url(options),
+    method: 'get',
+})
+
+exportAdminAnalytics.definition = {
+    methods: ["get","head"],
+    url: '/admin/reports/export/analytics',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+exportAdminAnalytics.url = (options?: RouteQueryOptions) => {
+    return exportAdminAnalytics.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+exportAdminAnalytics.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: exportAdminAnalytics.url(options),
+    method: 'get',
+})
+/**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+exportAdminAnalytics.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: exportAdminAnalytics.url(options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+    const exportAdminAnalyticsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: exportAdminAnalytics.url(options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+        exportAdminAnalyticsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: exportAdminAnalytics.url(options),
+            method: 'get',
+        })
+            /**
+* @see \App\Features\Dashboard\Http\Controllers\ReportsController::exportAdminAnalytics
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:428
+ * @route '/admin/reports/export/analytics'
+ */
+        exportAdminAnalyticsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: exportAdminAnalytics.url({
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    exportAdminAnalytics.form = exportAdminAnalyticsForm
+const ReportsController = { index, exportAdminAnalytics }
 
 export default ReportsController

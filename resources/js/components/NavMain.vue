@@ -32,10 +32,20 @@ const { isCurrentUrl } = useCurrentUrl();
                         <component :is="item.icon" />
                         <span>{{ item.title }}</span>
                         <span
-                            v-if="(typeof item.badge === 'number' && item.badge > 0) || (typeof item.badge === 'string' && item.badge !== '')"
+                            v-if="
+                                (typeof item.badge === 'number' &&
+                                    item.badge > 0) ||
+                                (typeof item.badge === 'string' &&
+                                    item.badge !== '')
+                            "
                             class="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white"
                         >
-                            {{ typeof item.badge === 'number' && item.badge > 99 ? '99+' : item.badge }}
+                            {{
+                                typeof item.badge === 'number' &&
+                                item.badge > 99
+                                    ? '99+'
+                                    : item.badge
+                            }}
                         </span>
                     </Link>
                 </SidebarMenuButton>

@@ -90,17 +90,35 @@ class Employee extends Model
     public function getOrganizationalUnitAttribute(): string
     {
         $parts = [];
-        if ($this->section?->name) {
-            $parts[] = $this->section->name;
+        $section = $this->resolveOrgUnitName('section');
+        if ($section) {
+            $parts[] = $section;
         }
-        if ($this->subdivision?->name) {
-            $parts[] = $this->subdivision->name;
+        $subdivision = $this->resolveOrgUnitName('subdivision');
+        if ($subdivision) {
+            $parts[] = $subdivision;
         }
-        if ($this->division?->name) {
-            $parts[] = $this->division->name;
+        $division = $this->resolveOrgUnitName('division');
+        if ($division) {
+            $parts[] = $division;
         }
 
-        return implode(' → ', $parts) ?: $this->division ?? 'Unassigned';
+        return implode(' → ', $parts) ?: $this->getAttribute('division') ?? 'Unassigned';
+    }
+
+    private function resolveOrgUnitName(string $relation): ?string
+    {
+        $related = $this->getRelation($relation);
+        if (is_object($related) && property_exists($related, 'name')) {
+            return $related->name;
+        }
+
+        $fallback = $this->getAttribute($relation);
+        if (is_string($fallback) && $fallback !== '') {
+            return $fallback;
+        }
+
+        return null;
     }
 
     /**

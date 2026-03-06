@@ -21,7 +21,7 @@ class DailyDigestMail extends Mailable
 
     public function build(): self
     {
-        return $this->subject('HRIS Daily Summary Digest — ' . now()->toFormattedDateString())
+        return $this->subject('HRIS Daily Summary Digest — '.now()->toFormattedDateString())
             ->view('emails.daily-digest')
             ->with([
                 'pendingLeaves' => $this->pendingLeaves,

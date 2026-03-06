@@ -55,8 +55,23 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Announcements' }];
 const posts = ref<PaginatedData>(props.posts);
 
 const page = usePage();
-const authUser = computed(() => page.props.auth?.user as { first_name?: string; last_name?: string; name?: string; avatar?: string } | undefined);
-const userFirstName = computed(() => authUser.value?.first_name || authUser.value?.name?.split(' ')[0] || 'Alvin');
+const authUser = computed(
+    () =>
+        page.props.auth?.user as
+            | {
+                  first_name?: string;
+                  last_name?: string;
+                  name?: string;
+                  avatar?: string;
+              }
+            | undefined,
+);
+const userFirstName = computed(
+    () =>
+        authUser.value?.first_name ||
+        authUser.value?.name?.split(' ')[0] ||
+        'Alvin',
+);
 const userAvatar = computed(() => authUser.value?.avatar);
 const userInitials = computed(() => {
     const first = authUser.value?.first_name?.[0] || '';
@@ -69,7 +84,7 @@ watch(
     () => props.posts,
     (next) => {
         posts.value = next;
-    }
+    },
 );
 
 const searchForm = useForm({
@@ -87,7 +102,7 @@ const createForm = useForm({
 const createModalOpen = ref(false);
 
 function prependPost(post: PostItem) {
-    const exists = posts.value.data.some(p => p.id === post.id);
+    const exists = posts.value.data.some((p) => p.id === post.id);
     if (exists) return;
     posts.value.data.unshift(post);
     posts.value.data = posts.value.data.slice(0, 10);
@@ -103,9 +118,12 @@ function submitCreate() {
         },
         onFinish: async () => {
             try {
-                const res = await fetch(admin.posts.index().url + '?only=latest_post', {
-                    headers: { 'Accept': 'application/json' },
-                });
+                const res = await fetch(
+                    admin.posts.index().url + '?only=latest_post',
+                    {
+                        headers: { Accept: 'application/json' },
+                    },
+                );
                 if (!res.ok) return;
                 const json = await res.json();
                 const post = json?.props?.latestPost as PostItem | undefined;
@@ -139,21 +157,21 @@ watch(
     () => searchForm.search,
     () => {
         submitSearchDebounced();
-    }
+    },
 );
 
- onMounted(() => {
-     setupPostListeners('admin');
- });
+onMounted(() => {
+    setupPostListeners('admin');
+});
 
- watch(
+watch(
     () => lastPostEvent.value,
     (evt) => {
         if (!evt) return;
 
         if (evt.type === 'post_created') {
             const incoming = evt.post;
-            const exists = posts.value.data.some(p => p.id === incoming.id);
+            const exists = posts.value.data.some((p) => p.id === incoming.id);
             if (!exists) {
                 posts.value.data.unshift(incoming as any);
                 posts.value.data = posts.value.data.slice(0, 10);
@@ -164,19 +182,19 @@ watch(
         }
 
         if (evt.type === 'reaction_updated') {
-            const post = posts.value.data.find(p => p.id === evt.post_id);
+            const post = posts.value.data.find((p) => p.id === evt.post_id);
             if (!post) return;
             post.reactions_count = evt.reactions_count;
             return;
         }
 
         if (evt.type === 'comment_created') {
-            const post = posts.value.data.find(p => p.id === evt.post_id);
+            const post = posts.value.data.find((p) => p.id === evt.post_id);
             if (!post) return;
             post.comments_count = evt.comments_count;
         }
-    }
- );
+    },
+);
 </script>
 
 <template>
@@ -198,12 +216,16 @@ watch(
                         @click="createModalOpen = true"
                     />
 
-                    <Dialog :open="createModalOpen" @update:open="createModalOpen = $event">
+                    <Dialog
+                        :open="createModalOpen"
+                        @update:open="createModalOpen = $event"
+                    >
                         <DialogContent class="sm:max-w-2xl">
                             <DialogHeader>
                                 <DialogTitle>Create announcement</DialogTitle>
                                 <DialogDescription>
-                                    Share an announcement with an optional image and expiration date.
+                                    Share an announcement with an optional image
+                                    and expiration date.
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -218,13 +240,20 @@ watch(
                                 :role-scope-options="[
                                     { value: 'all', label: 'All users' },
                                     { value: 'hr', label: 'HR only' },
-                                    { value: 'employee', label: 'Employees only' },
+                                    {
+                                        value: 'employee',
+                                        label: 'Employees only',
+                                    },
                                 ]"
                                 @update:title="(v) => (createForm.title = v)"
                                 @update:body="(v) => (createForm.body = v)"
-                                @update:roleScope="(v) => (createForm.role_scope = v)"
+                                @update:roleScope="
+                                    (v) => (createForm.role_scope = v)
+                                "
                                 @update:image="(v) => (createForm.image = v)"
-                                @update:expiresAt="(v) => (createForm.expires_at = v)"
+                                @update:expiresAt="
+                                    (v) => (createForm.expires_at = v)
+                                "
                                 @submit="submitCreate"
                             />
                         </DialogContent>
@@ -259,4 +288,3 @@ watch(
         </div>
     </AppLayout>
 </template>
-

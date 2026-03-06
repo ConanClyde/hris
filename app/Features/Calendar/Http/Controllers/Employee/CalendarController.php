@@ -23,10 +23,17 @@ class CalendarController extends Controller
 
     public function events(Request $request)
     {
-        $start = $request->query('start');
-        $end = $request->query('end');
-        $category = $request->query('category', 'all');
-        $status = $request->query('status', 'all');
+        $validated = $request->validate([
+            'start' => ['required', 'date'],
+            'end' => ['required', 'date'],
+            'category' => ['nullable', 'string'],
+            'status' => ['nullable', 'string'],
+        ]);
+
+        $start = (string) $validated['start'];
+        $end = (string) $validated['end'];
+        $category = (string) ($validated['category'] ?? 'all');
+        $status = (string) ($validated['status'] ?? 'all');
 
         $events = [];
 
@@ -118,7 +125,7 @@ class CalendarController extends Controller
             if ($category !== 'all' && $e['category'] !== $category) {
                 return false;
             }
-            if ($category === 'leave' && $status !== 'all' && $e['status'] !== $status) {
+            if (in_array($category, ['leave', 'training'], true) && $status !== 'all' && $e['status'] !== $status) {
                 return false;
             }
 

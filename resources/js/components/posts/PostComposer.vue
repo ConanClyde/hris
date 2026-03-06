@@ -37,7 +37,7 @@ watch(
             previewUrl.value = URL.createObjectURL(file);
         }
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 function onFileChange(e: Event) {
@@ -73,8 +73,12 @@ const expiresAtValue = computed(() => {
         @submit.prevent="emit('submit')"
     >
         <div class="flex items-start gap-3">
-            <Avatar class="mt-0.5 h-10 w-10 shrink-0 overflow-hidden rounded-xl">
-                <AvatarFallback class="rounded-xl bg-foreground text-background font-bold">
+            <Avatar
+                class="mt-0.5 h-10 w-10 shrink-0 overflow-hidden rounded-xl"
+            >
+                <AvatarFallback
+                    class="rounded-xl bg-foreground font-bold text-background"
+                >
                     {{ actorInitials }}
                 </AvatarFallback>
             </Avatar>
@@ -96,8 +100,13 @@ const expiresAtValue = computed(() => {
                     rows="4"
                     required
                     placeholder="What's new? Share an announcement..."
-                    class="flex min-h-[120px] w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder:text-gray-500"
-                    @input="emit('update:body', ($event.target as HTMLTextAreaElement).value)"
+                    class="flex min-h-[120px] w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:placeholder:text-gray-500"
+                    @input="
+                        emit(
+                            'update:body',
+                            ($event.target as HTMLTextAreaElement).value,
+                        )
+                    "
                 />
 
                 <div class="space-y-2">
@@ -126,35 +135,70 @@ const expiresAtValue = computed(() => {
                         </Button>
                     </div>
 
-                    <div v-if="previewUrl" class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-950">
-                        <img :src="previewUrl" alt="" class="block max-h-[360px] w-full object-cover" />
+                    <div
+                        v-if="previewUrl"
+                        class="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-950"
+                    >
+                        <img
+                            :src="previewUrl"
+                            alt=""
+                            class="block max-h-[360px] w-full object-cover"
+                        />
                     </div>
                 </div>
 
                 <div class="space-y-1">
-                    <label class="text-xs font-medium text-gray-700 dark:text-gray-300">Expires at</label>
+                    <label
+                        class="text-xs font-medium text-gray-700 dark:text-gray-300"
+                        >Expires at</label
+                    >
                     <input
                         type="date"
-                        class="h-10 w-full rounded-xl border border-gray-300 bg-white px-3 text-xs text-gray-900 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-100"
+                        class="h-10 w-full rounded-xl border border-gray-300 bg-white px-3 text-xs text-gray-900 shadow-sm focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-100"
                         :value="expiresAtValue"
-                        @input="emit('update:expiresAt', ($event.target as HTMLInputElement).value || null)"
+                        @input="
+                            emit(
+                                'update:expiresAt',
+                                ($event.target as HTMLInputElement).value ||
+                                    null,
+                            )
+                        "
                     />
-                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Default: tomorrow. Clear to disable expiration.</p>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">
+                        Default: tomorrow. Clear to disable expiration.
+                    </p>
                 </div>
 
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+                >
                     <div class="flex flex-wrap items-center gap-3">
                         <select
                             :value="roleScope"
                             name="role_scope"
-                            class="h-10 rounded-xl border border-gray-300 bg-white px-3 text-xs text-gray-900 shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-100"
-                            @change="emit('update:roleScope', ($event.target as HTMLSelectElement).value)"
+                            class="h-10 rounded-xl border border-gray-300 bg-white px-3 text-xs text-gray-900 shadow-sm focus:border-brand focus:ring-1 focus:ring-brand focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-gray-100"
+                            @change="
+                                emit(
+                                    'update:roleScope',
+                                    ($event.target as HTMLSelectElement).value,
+                                )
+                            "
                         >
-                            <option v-for="opt in roleScopeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
+                            <option
+                                v-for="opt in roleScopeOptions"
+                                :key="opt.value"
+                                :value="opt.value"
+                            >
+                                {{ opt.label }}
+                            </option>
                         </select>
                     </div>
 
-                    <Button type="submit" class="h-10 rounded-full px-5" :disabled="processing">
+                    <Button
+                        type="submit"
+                        class="h-10 rounded-full px-5"
+                        :disabled="processing"
+                    >
                         {{ processing ? 'Posting...' : 'Post' }}
                     </Button>
                 </div>

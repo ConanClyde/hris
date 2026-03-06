@@ -69,11 +69,6 @@ class User extends Authenticatable
         return $this->hasOne(\App\Features\Employees\Models\Employee::class);
     }
 
-    public function attendances(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(\App\Models\Attendance::class);
-    }
-
     /**
      * Notices that have been read by this user.
      */

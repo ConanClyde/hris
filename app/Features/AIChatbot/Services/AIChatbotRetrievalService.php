@@ -16,7 +16,7 @@ class AIChatbotRetrievalService
     ) {}
 
     /**
-     * @param  array<string>|null  $topics  Optional topics from user profile (e.g. ["leave_policies", "DTR", "PDS"])
+     * @param  array<string>|null  $topics  Optional topics from user profile (e.g. ["leave_policies", "PDS"])
      */
     public function retrieve(string $query, int $limit = 3, ?string $role = null, ?array $topics = null): array
     {
@@ -540,7 +540,7 @@ class AIChatbotRetrievalService
         $multiplier = 1.0;
 
         if ($role === 'employee') {
-            $employeePref = ['dtr', 'leave', 'pds', 'labor', 'csc', 'code_of_conduct', 'ssl', 'gsis', 'spms'];
+            $employeePref = ['leave', 'pds', 'labor', 'csc', 'code_of_conduct', 'ssl', 'gsis', 'spms'];
             foreach ($employeePref as $pref) {
                 if (str_contains($base, $pref)) {
                     $multiplier = 1.1;

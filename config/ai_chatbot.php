@@ -33,9 +33,10 @@ return [
         'pbb_policies.txt',
         'policy_access.txt',
     ],
-    'chunk_size' => env('AI_CHATBOT_CHUNK_SIZE', 1200),
-    'chunk_overlap' => env('AI_CHATBOT_CHUNK_OVERLAP', 200),
-    'max_chunks' => env('AI_CHATBOT_MAX_CHUNKS', 800),
+    // Retrieval chunking defaults (tuned for latency vs. coverage)
+    'chunk_size' => env('AI_CHATBOT_CHUNK_SIZE', 800),
+    'chunk_overlap' => env('AI_CHATBOT_CHUNK_OVERLAP', 150),
+    'max_chunks' => env('AI_CHATBOT_MAX_CHUNKS', 400),
     'ingest_paths' => [
         storage_path('app/prompts'),
     ],

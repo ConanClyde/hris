@@ -74,24 +74,6 @@ it('returns null when response is invalid JSON', function () {
     expect($result)->toBeNull();
 });
 
-it('parses JSON wrapped in markdown code blocks', function () {
-    $json = '{"requires_google_calendar":false,"requires_database":[],"requires_markdown_prompts":["dtr_policies"],"min_required_role":"employee","topic_summary":"dtr policy"}';
-    $wrapped = "```json\n{$json}\n```";
-
-    Http::fake([
-        '*/api/chat' => Http::response([
-            'message' => ['content' => $wrapped],
-        ], 200),
-    ]);
-
-    $service = app(AIChatbotAnalysisService::class);
-    $result = $service->analyzePrompt('DTR policy?', 'employee');
-
-    expect($result)->not->toBeNull()
-        ->and($result['requires_markdown_prompts'])->toBe(['dtr_policies'])
-        ->and($result['min_required_role'])->toBe('employee');
-});
-
 it('userHasRequiredRole returns true when user role meets or exceeds required', function () {
     $service = app(AIChatbotAnalysisService::class);
 

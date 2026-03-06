@@ -3,9 +3,9 @@
 namespace App\Features\Training\Events;
 
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class TrainingStatusUpdated implements ShouldBroadcastNow
+class TrainingStatusUpdated implements ShouldBroadcast
 {
     public function __construct(
         public int $id,

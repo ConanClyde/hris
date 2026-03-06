@@ -63,7 +63,6 @@ const counts = computed(() => {
 const menu = computed(() => getRoleMenu(role.value, counts.value));
 
 const mainNavItems = computed<NavItem[]>(() => menu.value.main);
-
 </script>
 
 <template>

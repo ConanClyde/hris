@@ -3,9 +3,9 @@
 namespace App\Features\Pds\Events;
 
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class PdsStatusUpdated implements ShouldBroadcastNow
+class PdsStatusUpdated implements ShouldBroadcast
 {
     public function __construct(
         public int $id,

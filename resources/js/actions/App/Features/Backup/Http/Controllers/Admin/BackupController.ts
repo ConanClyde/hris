@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../../wayfinder'
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::index
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:12
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:21
  * @route '/admin/backup'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::run
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:22
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:34
  * @route '/admin/backup/run'
  */
 export const run = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ run.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::run
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:22
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:34
  * @route '/admin/backup/run'
  */
 run.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ run.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::run
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:22
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:34
  * @route '/admin/backup/run'
  */
 run.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ run.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::run
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:22
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:34
  * @route '/admin/backup/run'
  */
     const runForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ run.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::run
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:22
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:34
  * @route '/admin/backup/run'
  */
         runForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -134,7 +134,7 @@ run.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     run.form = runForm
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::upload
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:28
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:59
  * @route '/admin/backup/upload'
  */
 export const upload = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -149,7 +149,7 @@ upload.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::upload
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:28
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:59
  * @route '/admin/backup/upload'
  */
 upload.url = (options?: RouteQueryOptions) => {
@@ -158,7 +158,7 @@ upload.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::upload
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:28
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:59
  * @route '/admin/backup/upload'
  */
 upload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -168,7 +168,7 @@ upload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::upload
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:28
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:59
  * @route '/admin/backup/upload'
  */
     const uploadForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -178,7 +178,7 @@ upload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::upload
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:28
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:59
  * @route '/admin/backup/upload'
  */
         uploadForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -189,7 +189,7 @@ upload.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     upload.form = uploadForm
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
 export const download = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -204,7 +204,7 @@ download.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
 download.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -232,7 +232,7 @@ download.url = (args: { id: string | number } | [id: string | number ] | string 
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
 download.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -241,7 +241,7 @@ download.get = (args: { id: string | number } | [id: string | number ] | string 
 })
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
 download.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -251,7 +251,7 @@ download.head = (args: { id: string | number } | [id: string | number ] | string
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
     const downloadForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -261,7 +261,7 @@ download.head = (args: { id: string | number } | [id: string | number ] | string
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
         downloadForm.get = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -270,7 +270,7 @@ download.head = (args: { id: string | number } | [id: string | number ] | string
         })
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::download
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:37
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:96
  * @route '/admin/backup/{id}/download'
  */
         downloadForm.head = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -286,7 +286,7 @@ download.head = (args: { id: string | number } | [id: string | number ] | string
     download.form = downloadForm
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::restore
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:44
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:109
  * @route '/admin/backup/{id}/restore'
  */
 export const restore = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -301,7 +301,7 @@ restore.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::restore
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:44
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:109
  * @route '/admin/backup/{id}/restore'
  */
 restore.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -329,7 +329,7 @@ restore.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::restore
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:44
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:109
  * @route '/admin/backup/{id}/restore'
  */
 restore.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -339,7 +339,7 @@ restore.post = (args: { id: string | number } | [id: string | number ] | string 
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::restore
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:44
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:109
  * @route '/admin/backup/{id}/restore'
  */
     const restoreForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -349,7 +349,7 @@ restore.post = (args: { id: string | number } | [id: string | number ] | string 
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::restore
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:44
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:109
  * @route '/admin/backup/{id}/restore'
  */
         restoreForm.post = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -360,7 +360,7 @@ restore.post = (args: { id: string | number } | [id: string | number ] | string 
     restore.form = restoreForm
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::update
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:51
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:114
  * @route '/admin/backup/{id}'
  */
 export const update = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -375,7 +375,7 @@ update.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::update
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:51
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:114
  * @route '/admin/backup/{id}'
  */
 update.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -403,7 +403,7 @@ update.url = (args: { id: string | number } | [id: string | number ] | string | 
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::update
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:51
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:114
  * @route '/admin/backup/{id}'
  */
 update.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -413,7 +413,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::update
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:51
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:114
  * @route '/admin/backup/{id}'
  */
     const updateForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -428,7 +428,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::update
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:51
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:114
  * @route '/admin/backup/{id}'
  */
         updateForm.put = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -444,7 +444,7 @@ update.put = (args: { id: string | number } | [id: string | number ] | string | 
     update.form = updateForm
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::destroy
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:64
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:127
  * @route '/admin/backup/{id}'
  */
 export const destroy = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -459,7 +459,7 @@ destroy.definition = {
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::destroy
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:64
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:127
  * @route '/admin/backup/{id}'
  */
 destroy.url = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -487,7 +487,7 @@ destroy.url = (args: { id: string | number } | [id: string | number ] | string |
 
 /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::destroy
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:64
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:127
  * @route '/admin/backup/{id}'
  */
 destroy.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -497,7 +497,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
     /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::destroy
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:64
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:127
  * @route '/admin/backup/{id}'
  */
     const destroyForm = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -512,7 +512,7 @@ destroy.delete = (args: { id: string | number } | [id: string | number ] | strin
 
             /**
 * @see \App\Features\Backup\Http\Controllers\Admin\BackupController::destroy
- * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:64
+ * @see app/Features/Backup/Http/Controllers/Admin/BackupController.php:127
  * @route '/admin/backup/{id}'
  */
         destroyForm.delete = (args: { id: string | number } | [id: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

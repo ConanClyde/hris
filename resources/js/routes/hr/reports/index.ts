@@ -81,7 +81,7 @@ custom.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     custom.form = customForm
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
 export const leave = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -96,7 +96,7 @@ leave.definition = {
 
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
 leave.url = (options?: RouteQueryOptions) => {
@@ -105,7 +105,7 @@ leave.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
 leave.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -114,7 +114,7 @@ leave.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
 leave.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -124,7 +124,7 @@ leave.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
     const leaveForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -134,7 +134,7 @@ leave.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
         leaveForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -143,7 +143,7 @@ leave.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Leave\Http\Controllers\HR\LeaveReportsController::leave
- * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:16
+ * @see app/Features/Leave/Http/Controllers/HR/LeaveReportsController.php:18
  * @route '/hr/reports/leave'
  */
         leaveForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

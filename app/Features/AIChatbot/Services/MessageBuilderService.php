@@ -54,7 +54,7 @@ class MessageBuilderService
         array $policySnippets
     ): string {
         $prompt = "You are an expert HR Assistant for an IT company's HRIS system. ";
-        $prompt .= "Your primary goal is to provide ACCURATE, PRECISE, and RELIABLE information. ";
+        $prompt .= 'Your primary goal is to provide ACCURATE, PRECISE, and RELIABLE information. ';
         $prompt .= "The user has the role: {$userRole}.\n\n";
 
         // Critical accuracy instructions

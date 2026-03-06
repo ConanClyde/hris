@@ -32,17 +32,19 @@ const legendItems = [
             class="h-9 gap-2"
             @click="toggle"
         >
-            <Info class="w-4 h-4" />
+            <Info class="h-4 w-4" />
             Legend
         </Button>
 
         <Card
             v-if="isOpen"
-            class="absolute right-0 top-full z-50 mt-2 w-56 gap-0 border border-border py-0"
+            class="absolute top-full right-0 z-50 mt-2 w-56 gap-0 border border-border py-0"
             @click.stop
         >
             <CardHeader class="border-b border-border p-4 !pb-4">
-                <CardTitle class="text-sm font-semibold text-foreground m-0">Calendar Legend</CardTitle>
+                <CardTitle class="m-0 text-sm font-semibold text-foreground"
+                    >Calendar Legend</CardTitle
+                >
             </CardHeader>
             <CardContent class="space-y-3 p-4 pt-4">
                 <div
@@ -50,16 +52,16 @@ const legendItems = [
                     :key="item.label"
                     class="flex items-center gap-3"
                 >
-                    <span :class="['h-3 w-3 shrink-0 rounded-full', item.color]" />
-                    <span class="text-sm text-foreground">{{ item.label }}</span>
+                    <span
+                        :class="['h-3 w-3 shrink-0 rounded-full', item.color]"
+                    />
+                    <span class="text-sm text-foreground">{{
+                        item.label
+                    }}</span>
                 </div>
             </CardContent>
         </Card>
 
-        <div
-            v-if="isOpen"
-            class="fixed inset-0 z-40"
-            @click="close"
-        />
+        <div v-if="isOpen" class="fixed inset-0 z-40" @click="close" />
     </div>
 </template>

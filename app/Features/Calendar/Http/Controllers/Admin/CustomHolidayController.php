@@ -11,13 +11,14 @@ use App\Mail\HolidayAddedMail;
 use App\Mail\HolidayUpdatedMail;
 use App\Models\User;
 use App\Notifications\SystemNotification;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 class CustomHolidayController extends Controller
 {
-    public function index(): Response
+    public function index(): RedirectResponse
     {
         return redirect()->route('admin.calendar');
     }

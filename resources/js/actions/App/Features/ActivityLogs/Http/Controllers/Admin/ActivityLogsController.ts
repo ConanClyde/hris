@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../../wayfinder'
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:14
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:15
  * @route '/admin/activity-logs'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::exportMethod
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:133
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:120
  * @route '/admin/activity-logs/export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     exportMethod.form = exportMethodForm
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 const userIndex30e4780a579e671f39fd773e8f08895a = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.definition = {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 userIndex30e4780a579e671f39fd773e8f08895a.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.url = (options?: RouteQueryOptions) =>
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 userIndex30e4780a579e671f39fd773e8f08895a.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -190,7 +190,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.get = (options?: RouteQueryOptions): R
 })
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 userIndex30e4780a579e671f39fd773e8f08895a.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -200,7 +200,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.head = (options?: RouteQueryOptions): 
 
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
     const userIndex30e4780a579e671f39fd773e8f08895aForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -210,7 +210,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.head = (options?: RouteQueryOptions): 
 
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
         userIndex30e4780a579e671f39fd773e8f08895aForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -219,7 +219,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.head = (options?: RouteQueryOptions): 
         })
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
         userIndex30e4780a579e671f39fd773e8f08895aForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -235,7 +235,7 @@ userIndex30e4780a579e671f39fd773e8f08895a.head = (options?: RouteQueryOptions): 
     userIndex30e4780a579e671f39fd773e8f08895a.form = userIndex30e4780a579e671f39fd773e8f08895aForm
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
 const userIndexe4ed724e8962859b51a30b765a7b8626 = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -250,7 +250,7 @@ userIndexe4ed724e8962859b51a30b765a7b8626.definition = {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
 userIndexe4ed724e8962859b51a30b765a7b8626.url = (options?: RouteQueryOptions) => {
@@ -259,7 +259,7 @@ userIndexe4ed724e8962859b51a30b765a7b8626.url = (options?: RouteQueryOptions) =>
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
 userIndexe4ed724e8962859b51a30b765a7b8626.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -268,7 +268,7 @@ userIndexe4ed724e8962859b51a30b765a7b8626.get = (options?: RouteQueryOptions): R
 })
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
 userIndexe4ed724e8962859b51a30b765a7b8626.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -278,7 +278,7 @@ userIndexe4ed724e8962859b51a30b765a7b8626.head = (options?: RouteQueryOptions): 
 
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
     const userIndexe4ed724e8962859b51a30b765a7b8626Form = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -288,7 +288,7 @@ userIndexe4ed724e8962859b51a30b765a7b8626.head = (options?: RouteQueryOptions): 
 
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
         userIndexe4ed724e8962859b51a30b765a7b8626Form.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -297,7 +297,7 @@ userIndexe4ed724e8962859b51a30b765a7b8626.head = (options?: RouteQueryOptions): 
         })
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::userIndex
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/employee/activity-logs'
  */
         userIndexe4ed724e8962859b51a30b765a7b8626Form.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

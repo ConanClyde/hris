@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import type { EventInput } from '@fullcalendar/core';
-import { Head } from '@inertiajs/vue3';
-import {
-    AlertCircle,
-    Download,
-} from 'lucide-vue-next';
-import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
+import { AlertCircle, Download } from 'lucide-vue-next';
+import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue';
 import LegendPopover from '@/components/calendar/LegendPopover.vue';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +27,9 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import employee from '@/routes/employee';
 import type { BreadcrumbItem } from '@/types';
 
-const FullCalendar = defineAsyncComponent(() => import('@/components/FullCalendar.vue'));
+const FullCalendar = defineAsyncComponent(
+    () => import('@/components/FullCalendar.vue'),
+);
 
 type Holiday = {
     id: number;
@@ -67,6 +66,8 @@ withDefaults(
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Calendar' }];
 
+const page = usePage();
+
 const events = ref<EventInput[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
@@ -85,7 +86,38 @@ const selectedEvent = ref<{
 
 const filterCategory = ref('all');
 const filterStatus = ref('all');
-const showStatusFilter = computed(() => filterCategory.value === 'leave');
+const showStatusFilter = computed(
+    () =>
+        filterCategory.value === 'leave' || filterCategory.value === 'training',
+);
+
+const visibleRange = ref<{ start: Date; end: Date } | null>(null);
+
+function escapeCsv(value: unknown): string {
+    const s = String(value ?? '');
+    if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+    return s;
+}
+
+function downloadCsv(filename: string, rows: Array<Record<string, unknown>>) {
+    if (rows.length === 0) return;
+    const headers = Object.keys(rows[0]);
+    const lines = [
+        headers.join(','),
+        ...rows.map((r) => headers.map((h) => escapeCsv(r[h])).join(',')),
+    ];
+    const blob = new Blob([lines.join('\n')], {
+        type: 'text/csv;charset=utf-8',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
 
 function getEventColor(category: string, status?: string) {
     if (category === 'holiday') {
@@ -135,16 +167,35 @@ async function fetchEvents(start?: Date, end?: Date) {
     error.value = null;
 
     try {
+        const rangeStart = start ?? visibleRange.value?.start;
+        const rangeEnd = end ?? visibleRange.value?.end;
+
+        if (rangeStart)
+            visibleRange.value = {
+                start: rangeStart,
+                end: rangeEnd ?? rangeStart,
+            };
+
         const query: Record<string, string> = {};
-        if (start) query.start = start.toISOString().slice(0, 10);
-        if (end) query.end = end.toISOString().slice(0, 10);
+        if (rangeStart) query.start = rangeStart.toISOString().slice(0, 10);
+        if (rangeEnd) query.end = rangeEnd.toISOString().slice(0, 10);
         if (filterCategory.value !== 'all')
             query.category = filterCategory.value;
         if (showStatusFilter.value && filterStatus.value !== 'all')
             query.status = filterStatus.value;
 
+        if (!query.start || !query.end) {
+            throw new Error(
+                'Calendar range is missing. Please reload the page.',
+            );
+        }
+
         const url = employee.calendar.events.url({ query });
-        const res = await fetch(url);
+        const res = await fetch(url, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
 
         if (!res.ok) throw new Error('Failed to load calendar events');
 
@@ -176,6 +227,7 @@ async function fetchEvents(start?: Date, end?: Date) {
 }
 
 function onDatesSet(info: { start: Date; end: Date }) {
+    visibleRange.value = { start: info.start, end: info.end };
     fetchEvents(info.start, info.end);
 }
 
@@ -205,7 +257,23 @@ const eventsForSelectedDate = computed(() => {
 });
 
 function exportCalendar() {
-    alert('Calendar export functionality would be implemented here');
+    const now = new Date();
+    const suffix = now.toISOString().slice(0, 10);
+
+    const rows = events.value.map((ev) => {
+        const ep = (ev.extendedProps ?? {}) as Record<string, unknown>;
+        return {
+            id: String(ev.id ?? ''),
+            title: String(ev.title ?? ''),
+            start: ev.start ? String(ev.start) : '',
+            end: ev.end ? String(ev.end) : '',
+            category: String(ep.category ?? ''),
+            status: String(ep.status ?? ''),
+            description: String(ep.description ?? ''),
+        };
+    });
+
+    downloadCsv(`employee-calendar-events-${suffix}.csv`, rows);
 }
 
 function formatDateEventsTitle(dateStr: string) {
@@ -305,6 +373,40 @@ onMounted(() => {
     const start = new Date(now.getFullYear(), now.getMonth(), 1);
     const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     fetchEvents(start, end);
+
+    // Realtime refresh when holidays / leave / training updates occur.
+    try {
+        const echoAny = (window as any)?.Echo;
+        if (!echoAny) return;
+
+        const authUser = page.props.auth?.user as any;
+        const uid: number | null =
+            authUser && typeof authUser.id === 'number' ? authUser.id : null;
+        const refresh = () => fetchEvents();
+
+        echoAny
+            .private?.('calendar.holidays')
+            ?.listen?.('.holiday.added', refresh);
+        echoAny
+            .private?.('calendar.holidays')
+            ?.listen?.('.holiday.updated', refresh);
+
+        if (uid) {
+            const ch = echoAny.private?.(`App.Models.User.${uid}`);
+            ch?.listen?.('.leave.submitted', refresh);
+            ch?.listen?.('.leave.approved', refresh);
+            ch?.listen?.('.leave.rejected', refresh);
+            ch?.listen?.('.leave.cancelled', refresh);
+            ch?.listen?.('.training.assigned', refresh);
+            ch?.listen?.('.training.completed', refresh);
+        }
+    } catch {
+        // ignore
+    }
+});
+
+watch(filterCategory, () => {
+    filterStatus.value = 'all';
 });
 </script>
 
@@ -386,7 +488,7 @@ onMounted(() => {
                     <Card
                         class="flex h-[70vh] min-h-[500px] flex-col gap-0 overflow-hidden border-border bg-background py-0 text-foreground dark:border-border dark:bg-card dark:text-card-foreground"
                     >
-                        <CardContent class="flex-1 min-h-0 overflow-hidden p-0">
+                        <CardContent class="min-h-0 flex-1 overflow-hidden p-0">
                             <Suspense>
                                 <template #default>
                                     <FullCalendar
@@ -400,7 +502,9 @@ onMounted(() => {
                                     />
                                 </template>
                                 <template #fallback>
-                                    <div class="h-full min-h-[500px] w-full animate-pulse rounded-lg bg-muted" />
+                                    <div
+                                        class="h-full min-h-[500px] w-full animate-pulse rounded-lg bg-muted"
+                                    />
                                 </template>
                             </Suspense>
                         </CardContent>
@@ -439,17 +543,47 @@ onMounted(() => {
                             <Badge
                                 variant="outline"
                                 class="text-xs capitalize"
-                                :class="getEventBadgeClasses((ev.extendedProps as { category?: string })?.category ?? 'event', (ev.extendedProps as { status?: string })?.status)"
+                                :class="
+                                    getEventBadgeClasses(
+                                        (
+                                            ev.extendedProps as {
+                                                category?: string;
+                                            }
+                                        )?.category ?? 'event',
+                                        (
+                                            ev.extendedProps as {
+                                                status?: string;
+                                            }
+                                        )?.status,
+                                    )
+                                "
                             >
-                                {{ (ev.extendedProps as { category?: string })?.category ?? 'event' }}
+                                {{
+                                    (ev.extendedProps as { category?: string })
+                                        ?.category ?? 'event'
+                                }}
                             </Badge>
                             <Badge
-                                v-if="(ev.extendedProps as { status?: string })?.status"
+                                v-if="
+                                    (ev.extendedProps as { status?: string })
+                                        ?.status
+                                "
                                 variant="outline"
                                 class="text-xs capitalize"
-                                :class="getStatusBadgeClasses((ev.extendedProps as { status?: string })?.status)"
+                                :class="
+                                    getStatusBadgeClasses(
+                                        (
+                                            ev.extendedProps as {
+                                                status?: string;
+                                            }
+                                        )?.status,
+                                    )
+                                "
                             >
-                                {{ (ev.extendedProps as { status?: string })?.status }}
+                                {{
+                                    (ev.extendedProps as { status?: string })
+                                        ?.status
+                                }}
                             </Badge>
                         </div>
                     </button>
@@ -491,55 +625,100 @@ onMounted(() => {
 
                 <div class="space-y-4 py-4">
                     <div class="space-y-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Schedule</p>
+                        <p
+                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        >
+                            Schedule
+                        </p>
                         <p class="text-sm text-gray-900 dark:text-gray-100">
                             {{
                                 typeof selectedEvent.start === 'string'
-                                    ? new Date(selectedEvent.start).toLocaleString()
+                                    ? new Date(
+                                          selectedEvent.start,
+                                      ).toLocaleString()
                                     : selectedEvent.start.toLocaleString()
                             }}
                             <template v-if="selectedEvent.end">
                                 —
                                 {{
                                     typeof selectedEvent.end === 'string'
-                                        ? new Date(selectedEvent.end).toLocaleString()
+                                        ? new Date(
+                                              selectedEvent.end,
+                                          ).toLocaleString()
                                         : selectedEvent.end.toLocaleString()
                                 }}
                             </template>
                         </p>
                     </div>
 
-                    <div v-if="selectedEvent.extendedProps?.employeeName" class="space-y-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Employee</p>
+                    <div
+                        v-if="selectedEvent.extendedProps?.employeeName"
+                        class="space-y-1"
+                    >
+                        <p
+                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        >
+                            Employee
+                        </p>
                         <p class="text-sm text-gray-900 dark:text-gray-100">
                             {{ selectedEvent.extendedProps.employeeName }}
                         </p>
                     </div>
 
                     <div class="space-y-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Category & Status</p>
+                        <p
+                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        >
+                            Category & Status
+                        </p>
                         <div class="flex flex-wrap gap-2">
                             <Badge
                                 variant="outline"
                                 class="capitalize"
-                                :class="getEventBadgeClasses((selectedEvent.extendedProps?.category as string) ?? 'event', (selectedEvent.extendedProps?.status as string))"
+                                :class="
+                                    getEventBadgeClasses(
+                                        (selectedEvent.extendedProps
+                                            ?.category as string) ?? 'event',
+                                        selectedEvent.extendedProps
+                                            ?.status as string,
+                                    )
+                                "
                             >
-                                {{ (selectedEvent.extendedProps?.category as string) ?? 'event' }}
+                                {{
+                                    (selectedEvent.extendedProps
+                                        ?.category as string) ?? 'event'
+                                }}
                             </Badge>
                             <Badge
                                 v-if="selectedEvent.extendedProps?.status"
                                 variant="outline"
                                 class="capitalize"
-                                :class="getStatusBadgeClasses(selectedEvent.extendedProps?.status as string)"
+                                :class="
+                                    getStatusBadgeClasses(
+                                        selectedEvent.extendedProps
+                                            ?.status as string,
+                                    )
+                                "
                             >
-                                {{ selectedEvent.extendedProps.status as string }}
+                                {{
+                                    selectedEvent.extendedProps.status as string
+                                }}
                             </Badge>
                         </div>
                     </div>
 
-                    <div v-if="selectedEvent.extendedProps?.description" class="space-y-1">
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Details</p>
-                        <div class="rounded-md bg-gray-50 p-3 text-sm text-gray-700 dark:bg-neutral-800/50 dark:text-gray-300">
+                    <div
+                        v-if="selectedEvent.extendedProps?.description"
+                        class="space-y-1"
+                    >
+                        <p
+                            class="text-sm font-medium text-gray-500 dark:text-gray-400"
+                        >
+                            Details
+                        </p>
+                        <div
+                            class="rounded-md bg-gray-50 p-3 text-sm text-gray-700 dark:bg-neutral-800/50 dark:text-gray-300"
+                        >
                             {{ selectedEvent.extendedProps.description }}
                         </div>
                     </div>

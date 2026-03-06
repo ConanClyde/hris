@@ -4,9 +4,9 @@ namespace App\Features\Notices\Events;
 
 use App\Features\Notices\Models\Notice;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class NoticePublished implements ShouldBroadcastNow
+class NoticePublished implements ShouldBroadcast
 {
     public function __construct(
         public Notice $notice

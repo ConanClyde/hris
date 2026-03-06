@@ -2,7 +2,7 @@ import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFo
 import chatB2e4da from './chat'
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::chat
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:152
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:158
  * @route '/ai-chatbot/chat'
  */
 export const chat = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -17,7 +17,7 @@ chat.definition = {
 
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::chat
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:152
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:158
  * @route '/ai-chatbot/chat'
  */
 chat.url = (options?: RouteQueryOptions) => {
@@ -26,7 +26,7 @@ chat.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::chat
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:152
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:158
  * @route '/ai-chatbot/chat'
  */
 chat.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -36,7 +36,7 @@ chat.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::chat
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:152
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:158
  * @route '/ai-chatbot/chat'
  */
     const chatForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -46,7 +46,7 @@ chat.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::chat
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:152
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:158
  * @route '/ai-chatbot/chat'
  */
         chatForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -57,7 +57,7 @@ chat.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     chat.form = chatForm
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
 export const context = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -72,7 +72,7 @@ context.definition = {
 
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
 context.url = (options?: RouteQueryOptions) => {
@@ -81,7 +81,7 @@ context.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
 context.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -90,7 +90,7 @@ context.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
 context.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -100,7 +100,7 @@ context.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
     const contextForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -110,7 +110,7 @@ context.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
         contextForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -119,7 +119,7 @@ context.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\AIChatbot\Http\Controllers\AIChatbotController::context
- * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1206
+ * @see app/Features/AIChatbot/Http/Controllers/AIChatbotController.php:1212
  * @route '/ai-chatbot/context'
  */
         contextForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

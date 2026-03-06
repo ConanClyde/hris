@@ -50,7 +50,10 @@ function handleLogout() {
                     type="password"
                     autocomplete="new-password"
                 />
-                <p v-if="form.errors.password_confirmation" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                <p
+                    v-if="form.errors.password_confirmation"
+                    class="mt-1 text-sm text-red-600 dark:text-red-400"
+                >
                     {{ form.errors.password_confirmation }}
                 </p>
             </div>
@@ -70,4 +73,3 @@ function handleLogout() {
         </form>
     </AuthSimpleLayout>
 </template>
-

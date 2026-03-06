@@ -105,9 +105,12 @@ function handleDelete(event: MouseEvent) {
         <div
             class="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-background text-primary shadow-sm"
             :class="{
-                'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300': type === 'success',
-                'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300': type === 'warning',
-                'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300': type === 'error',
+                'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-300':
+                    type === 'success',
+                'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-300':
+                    type === 'warning',
+                'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300':
+                    type === 'error',
             }"
         >
             <Bell class="h-4 w-4" />
@@ -116,7 +119,9 @@ function handleDelete(event: MouseEvent) {
             <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0 flex-1">
                     <div class="flex flex-wrap items-center gap-2">
-                        <p class="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <p
+                            class="truncate text-sm font-medium text-gray-900 dark:text-gray-100"
+                        >
                             {{ title }}
                         </p>
                         <Badge
@@ -160,13 +165,21 @@ function handleDelete(event: MouseEvent) {
                     </Button>
                 </div>
             </div>
-            <p class="line-clamp-2 text-xs text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
+            <p
+                class="line-clamp-2 text-xs whitespace-pre-wrap text-gray-600 dark:text-gray-400"
+            >
                 {{ body }}
             </p>
-            <div class="mt-2 flex items-center justify-between gap-2 text-[11px] text-gray-500 dark:text-gray-500">
-                <div class="flex items-center gap-2 min-w-0">
+            <div
+                class="mt-2 flex items-center justify-between gap-2 text-[11px] text-gray-500 dark:text-gray-500"
+            >
+                <div class="flex min-w-0 items-center gap-2">
                     <Avatar v-if="userName || userAvatar" class="h-6 w-6">
-                        <AvatarImage v-if="userAvatar" :src="userAvatar" :alt="userName || 'User'" />
+                        <AvatarImage
+                            v-if="userAvatar"
+                            :src="userAvatar"
+                            :alt="userName || 'User'"
+                        />
                         <AvatarFallback class="text-[10px]">
                             {{ avatarInitials }}
                         </AvatarFallback>
@@ -182,4 +195,3 @@ function handleDelete(event: MouseEvent) {
         </div>
     </button>
 </template>
-

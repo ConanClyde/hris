@@ -16,11 +16,7 @@ import {
     subMonths,
     subYears,
 } from 'date-fns';
-import {
-    ref,
-    computed,
-    type Ref,
-} from 'vue';
+import { ref, computed, type Ref } from 'vue';
 import type { CalendarView } from './types';
 import type { CalendarEventNormalized } from './types';
 

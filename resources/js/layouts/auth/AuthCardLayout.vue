@@ -20,7 +20,7 @@ defineProps<{
     <div
         class="flex min-h-dvh flex-col items-center justify-center gap-6 bg-muted p-4 pb-[env(safe-area-inset-bottom)] sm:p-6 md:p-10"
     >
-        <div class="flex w-full min-w-0 max-w-md flex-col gap-6">
+        <div class="flex w-full max-w-md min-w-0 flex-col gap-6">
             <Link
                 :href="home()"
                 class="flex items-center gap-2 self-center font-medium"

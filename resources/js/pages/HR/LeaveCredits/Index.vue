@@ -100,7 +100,7 @@ function closeViewModal() {
     <Head title="Leave Credits" />
 
     <AppLayout :breadcrumbs="breadcrumbs">
-        <div class="space-y-4 p-4">
+        <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
             <div>
                 <h1
                     class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
@@ -282,21 +282,21 @@ function closeViewModal() {
                             <div class="overflow-x-auto">
                                 <table class="w-full border-collapse text-sm">
                                     <thead
-                                        class="border-b border-gray-200 dark:border-neutral-700"
+                                        class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50"
                                     >
                                         <tr>
                                             <th
-                                                class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-400"
+                                                class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
                                             >
                                                 Date
                                             </th>
                                             <th
-                                                class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-400"
+                                                class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
                                             >
                                                 Amount
                                             </th>
                                             <th
-                                                class="px-4 py-2 text-left font-medium text-gray-600 dark:text-gray-400"
+                                                class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
                                             >
                                                 Reason
                                             </th>
@@ -308,14 +308,15 @@ function closeViewModal() {
                                         <tr
                                             v-for="adj in creditDetail.adjustments"
                                             :key="adj.id"
+                                            class="hover:bg-gray-50 dark:hover:bg-neutral-800/50"
                                         >
                                             <td
-                                                class="px-4 py-2 text-gray-700 dark:text-gray-300"
+                                                class="px-4 py-3 text-gray-700 dark:text-gray-300"
                                             >
                                                 {{ formatDate(adj.created_at) }}
                                             </td>
                                             <td
-                                                class="px-4 py-2 font-medium"
+                                                class="px-4 py-3 font-medium"
                                                 :class="
                                                     Number(adj.amount) >= 0
                                                         ? 'text-green-600 dark:text-green-400'
@@ -329,7 +330,7 @@ function closeViewModal() {
                                                 }}{{ adj.amount }}
                                             </td>
                                             <td
-                                                class="px-4 py-2 text-gray-600 dark:text-gray-400"
+                                                class="px-4 py-3 text-gray-600 dark:text-gray-400"
                                             >
                                                 {{ adj.reason ?? '—' }}
                                             </td>

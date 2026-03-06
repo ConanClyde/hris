@@ -106,7 +106,6 @@ class AIChatbotUserProfileService
         $sourceToTopic = [
             'csc' => 'leave_policies',
             'labor' => 'leave_policies',
-            'dtr' => 'DTR',
             'pds' => 'PDS',
             'code_of_conduct' => 'code_of_conduct',
             'ssl' => 'SSL',

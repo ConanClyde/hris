@@ -40,15 +40,19 @@ export function useRealtimeAvatar() {
 
     function startListening() {
         if (isListening) return;
-        if (!echoIsConfigured()) return;
+        if (!echoIsConfigured()) {
+            // Retry after a short delay if Echo isn't ready yet
+            setTimeout(() => startListening(), 500);
+            return;
+        }
 
         const authUser = page.props.auth?.user as any;
-        const uid: number | null = authUser && typeof authUser.id === 'number' ? authUser.id : null;
+        const uid: number | null =
+            authUser && typeof authUser.id === 'number' ? authUser.id : null;
         if (uid === null) return;
 
         isListening = true;
 
-         
         const echoInstance = echo() as any;
 
         echoInstance
@@ -86,7 +90,6 @@ export function useRealtimeAvatar() {
     function stopListening() {
         if (!isListening) return;
 
-         
         const echoInstance = echo() as any;
         echoInstance.leave('private-avatar-updates');
         isListening = false;

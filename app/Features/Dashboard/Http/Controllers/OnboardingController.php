@@ -6,7 +6,6 @@ use App\Features\Employees\Models\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\OffboardingClearance;
 use App\Models\OnboardingChecklist;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -112,7 +111,9 @@ class OnboardingController extends Controller
             ->get()
             ->map(function ($emp) {
                 $clearances = OffboardingClearance::where('employee_id', $emp->id)->get();
-                if ($clearances->isEmpty()) return null;
+                if ($clearances->isEmpty()) {
+                    return null;
+                }
 
                 $total = $clearances->count();
                 $cleared = $clearances->where('status', 'cleared')->count();

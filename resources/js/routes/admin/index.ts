@@ -8,9 +8,10 @@ import backup from './backup'
 import notifications1ce82a from './notifications'
 import posts from './posts'
 import profile937a89 from './profile'
+import reports3613d0 from './reports'
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -25,7 +26,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -34,7 +35,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -43,7 +44,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -53,7 +54,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +64,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -72,7 +73,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\DashboardController::dashboard
- * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:16
+ * @see app/Features/Dashboard/Http/Controllers/DashboardController.php:22
  * @route '/admin/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -344,7 +345,7 @@ notifications.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => (
     
     notifications.form = notificationsForm
 /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
 export const settings = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -358,7 +359,7 @@ settings.definition = {
 } satisfies RouteDefinition<["get","head"]>
 
 /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
 settings.url = (options?: RouteQueryOptions) => {
@@ -366,7 +367,7 @@ settings.url = (options?: RouteQueryOptions) => {
 }
 
 /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
 settings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -374,7 +375,7 @@ settings.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     method: 'get',
 })
 /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
 settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -383,7 +384,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 })
 
     /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
     const settingsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -392,7 +393,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     })
 
             /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
         settingsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -400,7 +401,7 @@ settings.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
             method: 'get',
         })
             /**
- * @see routes/web/admin.php:79
+ * @see routes/web/admin.php:80
  * @route '/admin/settings'
  */
         settingsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -494,7 +495,7 @@ profile.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     profile.form = profileForm
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 export const reports = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -509,7 +510,7 @@ reports.definition = {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 reports.url = (options?: RouteQueryOptions) => {
@@ -518,7 +519,7 @@ reports.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -527,7 +528,7 @@ reports.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
 reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -537,7 +538,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
     const reportsForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -547,7 +548,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
         reportsForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -556,7 +557,7 @@ reports.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\Dashboard\Http\Controllers\ReportsController::reports
- * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:17
+ * @see app/Features/Dashboard/Http/Controllers/ReportsController.php:21
  * @route '/admin/reports'
  */
         reportsForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -582,7 +583,7 @@ notifications: Object.assign(notifications, notifications1ce82a),
 posts: Object.assign(posts, posts),
 settings: Object.assign(settings, settings),
 profile: Object.assign(profile, profile937a89),
-reports: Object.assign(reports, reports),
+reports: Object.assign(reports, reports3613d0),
 }
 
 export default admin

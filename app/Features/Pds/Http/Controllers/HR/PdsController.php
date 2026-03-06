@@ -2,6 +2,7 @@
 
 namespace App\Features\Pds\Http\Controllers\HR;
 
+use App\Features\ActivityLogs\Services\ActivityLogger;
 use App\Features\Pds\Events\PdsStatusUpdated;
 use App\Features\Pds\Models\Pds;
 use App\Features\Pds\Models\PdsBackgroundInfo;
@@ -30,6 +31,8 @@ use Inertia\Response;
 
 class PdsController extends Controller
 {
+    public function __construct(protected ActivityLogger $logger) {}
+
     public function index(Request $request): Response|RedirectResponse
     {
         $query = Pds::query()->with([
@@ -213,6 +216,7 @@ class PdsController extends Controller
         $validated = $request->validate([
             'pds_id' => 'required|exists:pds,id',
             'status' => 'required|in:draft,submitted,under_review,approved,rejected',
+            'remarks' => 'nullable|string|max:1000',
         ]);
 
         $pds = Pds::with('employee.user')->findOrFail($validated['pds_id']);
@@ -236,7 +240,24 @@ class PdsController extends Controller
             $update['reviewed_at'] = now();
         }
 
+        if ($nextStatus === 'rejected') {
+            $update['remarks'] = $validated['remarks'] ?? null;
+        } else {
+            $update['remarks'] = null;
+        }
+
         $pds->update($update);
+
+        $this->logger->log(
+            action: "pds_{$nextStatus}",
+            subjectType: Pds::class,
+            subjectId: $pds->id,
+            metadata: [
+                'employee_id' => $pds->employee_id,
+                'remarks' => $validated['remarks'] ?? null,
+                'previous_status' => $oldStatus,
+            ]
+        );
 
         if ($oldStatus !== (string) $validated['status']) {
             event(new PdsStatusUpdated(
@@ -457,6 +478,16 @@ class PdsController extends Controller
                 'reviewed_by_user_id' => Auth::id(),
                 'reviewed_at' => now(),
             ]);
+
+            $this->logger->log(
+                action: 'pds_revision_approved',
+                subjectType: Pds::class,
+                subjectId: $pds->id,
+                metadata: [
+                    'revision_id' => $revision->id,
+                    'employee_id' => $revision->employee_id,
+                ]
+            );
         });
 
         $employeeUser = $revision->employee?->user;
@@ -497,6 +528,16 @@ class PdsController extends Controller
             'reviewed_by_user_id' => Auth::id(),
             'reviewed_at' => now(),
         ]);
+
+        $this->logger->log(
+            action: 'pds_revision_rejected',
+            subjectType: 'App\Features\Pds\Models\PdsRevisionRequest',
+            subjectId: $revision->id,
+            metadata: [
+                'employee_id' => $revision->employee_id,
+                'remarks' => $validated['remarks'] ?? null,
+            ]
+        );
 
         $employeeUser = $revision->employee?->user;
         if ($employeeUser) {

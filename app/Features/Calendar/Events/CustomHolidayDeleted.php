@@ -3,9 +3,9 @@
 namespace App\Features\Calendar\Events;
 
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class CustomHolidayDeleted implements ShouldBroadcastNow
+class CustomHolidayDeleted implements ShouldBroadcast
 {
     public function __construct(
         public int $holidayId,

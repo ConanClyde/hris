@@ -4,9 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard' }
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard' }];
 </script>
 
 <template>

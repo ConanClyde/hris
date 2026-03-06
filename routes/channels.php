@@ -7,10 +7,6 @@ Broadcast::channel('App.Models.User.{id}', function (User $user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-Broadcast::channel('users.{userId}', function (User $user, string $userId) {
-    return (string) $user->id === (string) $userId;
-});
-
 Broadcast::channel('role.{role}', function (User $user, string $role) {
     return is_string($user->role ?? null) && $user->role === $role;
 });
@@ -56,11 +52,6 @@ Broadcast::channel('posts.hr', function (User $user) {
 });
 
 Broadcast::channel('posts.employee', function (User $user) {
-    return true;
-});
-
-// Calendar updates channel
-Broadcast::channel('calendar', function (User $user) {
     return true;
 });
 

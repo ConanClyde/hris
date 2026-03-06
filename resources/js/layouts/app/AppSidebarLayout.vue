@@ -25,7 +25,7 @@ watch(
         if (flash?.success) toast.success(flash.success);
         if (flash?.error) toast.error(flash.error);
     },
-    { deep: true, immediate: true }
+    { deep: true, immediate: true },
 );
 
 const {
@@ -49,15 +49,20 @@ watch(
         const n = notifications.value[0];
         if (!n) return;
 
-        if (n.type === 'success') toast.success(n.title, { description: n.message });
-        else if (n.type === 'warning') toast.warning(n.title, { description: n.message });
-        else if (n.type === 'error') toast.error(n.title, { description: n.message });
+        if (n.type === 'success')
+            toast.success(n.title, { description: n.message });
+        else if (n.type === 'warning')
+            toast.warning(n.title, { description: n.message });
+        else if (n.type === 'error')
+            toast.error(n.title, { description: n.message });
         else toast(n.title, { description: n.message });
-    }
+    },
 );
 
 onMounted(async () => {
-    const user = page.props.auth?.user as { id?: number; role?: string } | undefined;
+    const user = page.props.auth?.user as
+        | { id?: number; role?: string }
+        | undefined;
     if (!user?.id) return;
 
     initCountsFromPage(page.props.auth?.counts as any);
@@ -67,7 +72,8 @@ onMounted(async () => {
     setupUserListeners(user.id, user.role);
 
     if (user.role === 'admin') setupAdminListeners(user.role);
-    if (user.role === 'hr' || user.role === 'admin') setupHrListeners(user.role);
+    if (user.role === 'hr' || user.role === 'admin')
+        setupHrListeners(user.role);
 
     setupEmployeeListeners();
 });

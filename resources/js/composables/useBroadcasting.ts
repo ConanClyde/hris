@@ -31,7 +31,9 @@ const pdsPendingCount = ref<number | null>(null);
 
 // Shared notification state — module-level so all components see the same data
 const notifications = ref<RealTimeNotification[]>([]);
-const unreadCount = computed(() => notifications.value.filter(n => !n.read).length);
+const unreadCount = computed(
+    () => notifications.value.filter((n) => !n.read).length,
+);
 
 const currentAuthUserId = ref<number | null>(null);
 const currentUserRole = ref<string>('');
@@ -44,12 +46,32 @@ function rolePrefix(): string {
 }
 
 function getCsrfToken(): string {
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    return (
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content') || ''
+    );
 }
 
 type PostRealtimeEvent =
-    | { type: 'reaction_updated'; post_id: number; reactions_count: number; actor_user_id?: number | null; actor_reaction?: string | null }
-    | { type: 'comment_created'; post_id: number; comments_count: number; comment?: { id: number; body: string; user_id: number; created_at: string } }
+    | {
+          type: 'reaction_updated';
+          post_id: number;
+          reactions_count: number;
+          actor_user_id?: number | null;
+          actor_reaction?: string | null;
+      }
+    | {
+          type: 'comment_created';
+          post_id: number;
+          comments_count: number;
+          comment?: {
+              id: number;
+              body: string;
+              user_id: number;
+              created_at: string;
+          };
+      }
     | {
           type: 'post_created';
           post: {
@@ -61,7 +83,12 @@ type PostRealtimeEvent =
               is_published: boolean;
               comments_count: number;
               reactions_count: number;
-              author?: { id: number; name?: string; first_name?: string; last_name?: string } | null;
+              author?: {
+                  id: number;
+                  name?: string;
+                  first_name?: string;
+                  last_name?: string;
+              } | null;
               created_at: string;
           };
           actor_user_id?: number | null;
@@ -106,12 +133,17 @@ function getEchoAny(): any {
     return (window as any)?.Echo;
 }
 
-function listen(channelName: string, event: string, callback: (e: any) => void) {
+function listen(
+    channelName: string,
+    event: string,
+    callback: (e: any) => void,
+) {
     try {
         const echoAny = getEchoAny();
         if (!echoAny) return;
 
-        const channel = echoAny.private?.(channelName) ?? echoAny.channel?.(channelName);
+        const channel =
+            echoAny.private?.(channelName) ?? echoAny.channel?.(channelName);
         channel?.listen?.(event, callback);
     } catch {
         // ignore
@@ -149,7 +181,6 @@ function bumpPdsPending(delta: number) {
 }
 
 export function useBroadcasting() {
-
     const addNotification = (payload: NotificationPayload) => {
         const notification: RealTimeNotification = {
             id: crypto?.randomUUID?.() ?? String(Date.now()),
@@ -183,72 +214,118 @@ export function useBroadcasting() {
         }
 
         channels.forEach((channel) => {
-            listen(channel, '.post.created', (e: { post?: any; actor_user_id?: number | null }) => {
-                const post = (e.post || {}) as any;
-                if (typeof post.id !== 'number') return;
-                lastPostEvent.value = {
-                    type: 'post_created',
-                    post,
-                    actor_user_id: typeof e.actor_user_id === 'number' ? e.actor_user_id : null,
-                };
-            });
+            listen(
+                channel,
+                '.post.created',
+                (e: { post?: any; actor_user_id?: number | null }) => {
+                    const post = (e.post || {}) as any;
+                    if (typeof post.id !== 'number') return;
+                    lastPostEvent.value = {
+                        type: 'post_created',
+                        post,
+                        actor_user_id:
+                            typeof e.actor_user_id === 'number'
+                                ? e.actor_user_id
+                                : null,
+                    };
+                },
+            );
 
-            listen(channel, '.post.reaction.updated', (e: { post_id: number; reactions_count: number; actor_user_id?: number | null; actor_reaction?: string | null }) => {
-                lastPostEvent.value = {
-                    type: 'reaction_updated',
-                    post_id: Number(e.post_id),
-                    reactions_count: Number(e.reactions_count),
-                    actor_user_id: typeof e.actor_user_id === 'number' ? e.actor_user_id : null,
-                    actor_reaction: typeof e.actor_reaction === 'string' ? e.actor_reaction : null,
-                };
-            });
+            listen(
+                channel,
+                '.post.reaction.updated',
+                (e: {
+                    post_id: number;
+                    reactions_count: number;
+                    actor_user_id?: number | null;
+                    actor_reaction?: string | null;
+                }) => {
+                    lastPostEvent.value = {
+                        type: 'reaction_updated',
+                        post_id: Number(e.post_id),
+                        reactions_count: Number(e.reactions_count),
+                        actor_user_id:
+                            typeof e.actor_user_id === 'number'
+                                ? e.actor_user_id
+                                : null,
+                        actor_reaction:
+                            typeof e.actor_reaction === 'string'
+                                ? e.actor_reaction
+                                : null,
+                    };
+                },
+            );
 
-            listen(channel, '.post.comment.created', (e: { post_id: number; comments_count: number; comment?: { id: number; body: string; user_id: number; created_at: string } }) => {
-                lastPostEvent.value = {
-                    type: 'comment_created',
-                    post_id: Number(e.post_id),
-                    comments_count: Number(e.comments_count),
-                    comment: e.comment,
-                };
-            });
+            listen(
+                channel,
+                '.post.comment.created',
+                (e: {
+                    post_id: number;
+                    comments_count: number;
+                    comment?: {
+                        id: number;
+                        body: string;
+                        user_id: number;
+                        created_at: string;
+                    };
+                }) => {
+                    lastPostEvent.value = {
+                        type: 'comment_created',
+                        post_id: Number(e.post_id),
+                        comments_count: Number(e.comments_count),
+                        comment: e.comment,
+                    };
+                },
+            );
         });
     };
 
     const markAsRead = async (id: string) => {
-        const notif = notifications.value.find(n => n.id === id);
+        const notif = notifications.value.find((n) => n.id === id);
         if (notif && !notif.read) {
             notif.read = true;
             bumpNotificationsUnread(-1);
             try {
-                await fetch(`${rolePrefix()}/notifications/${id}/mark-as-read`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken(),
+                await fetch(
+                    `${rolePrefix()}/notifications/${id}/mark-as-read`,
+                    {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            Accept: 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                            'X-Requested-With': 'XMLHttpRequest',
+                        },
                     },
-                });
-            } catch { /* ignore */ }
+                );
+            } catch {
+                /* ignore */
+            }
         }
     };
 
     const markAllAsRead = async () => {
-        notifications.value.forEach(n => n.read = true);
+        notifications.value.forEach((n) => (n.read = true));
         if (notificationsUnreadCount.value !== null) {
             notificationsUnreadCount.value = 0;
         }
         try {
             await fetch(`${rolePrefix()}/notifications/mark-all-read`, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken(),
+                    'X-Requested-With': 'XMLHttpRequest',
                 },
             });
-        } catch { /* ignore */ }
+        } catch {
+            /* ignore */
+        }
     };
 
     const deleteNotification = async (id: string) => {
-        const index = notifications.value.findIndex(n => n.id === id);
+        const index = notifications.value.findIndex((n) => n.id === id);
         if (index > -1) {
             notifications.value.splice(index, 1);
         }
@@ -256,29 +333,48 @@ export function useBroadcasting() {
             await fetch(`${rolePrefix()}/notifications/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                     'X-CSRF-TOKEN': getCsrfToken(),
                 },
             });
-        } catch { /* ignore */ }
+        } catch {
+            /* ignore */
+        }
     };
 
-    const initCountsFromPage = (pageAuthCounts: Record<string, unknown> | undefined) => {
+    const initCountsFromPage = (
+        pageAuthCounts: Record<string, unknown> | undefined,
+    ) => {
         const base = (pageAuthCounts || {}) as Record<string, any>;
 
-        if (usersPendingCount.value === null && typeof base.users_pending === 'number') {
+        if (
+            usersPendingCount.value === null &&
+            typeof base.users_pending === 'number'
+        ) {
             usersPendingCount.value = base.users_pending;
         }
-        if (notificationsUnreadCount.value === null && typeof base.notifications_unread === 'number') {
+        if (
+            notificationsUnreadCount.value === null &&
+            typeof base.notifications_unread === 'number'
+        ) {
             notificationsUnreadCount.value = base.notifications_unread;
         }
-        if (leavesPendingCount.value === null && typeof base.leaves_pending === 'number') {
+        if (
+            leavesPendingCount.value === null &&
+            typeof base.leaves_pending === 'number'
+        ) {
             leavesPendingCount.value = base.leaves_pending;
         }
-        if (trainingsAssignedCount.value === null && typeof base.trainings_assigned === 'number') {
+        if (
+            trainingsAssignedCount.value === null &&
+            typeof base.trainings_assigned === 'number'
+        ) {
             trainingsAssignedCount.value = base.trainings_assigned;
         }
-        if (pdsPendingCount.value === null && typeof base.pds_pending === 'number') {
+        if (
+            pdsPendingCount.value === null &&
+            typeof base.pds_pending === 'number'
+        ) {
             pdsPendingCount.value = base.pds_pending;
         }
     };
@@ -286,53 +382,78 @@ export function useBroadcasting() {
     const loadInitialDropdownItems = async (role: string | undefined) => {
         try {
             const safeRole = typeof role === 'string' ? role.toLowerCase() : '';
-            const notificationsUrl = safeRole === 'admin'
-                ? '/admin/notifications?only=notifications'
-                : safeRole === 'hr'
-                    ? '/hr/notifications?only=notifications'
-                    : '/employee/notifications?only=notifications';
+            const notificationsUrl =
+                safeRole === 'admin'
+                    ? '/admin/notifications?only=notifications'
+                    : safeRole === 'hr'
+                      ? '/hr/notifications?only=notifications'
+                      : '/employee/notifications?only=notifications';
 
             const notifResponse = await fetch(notificationsUrl, {
                 headers: {
-                    'Accept': 'application/json',
+                    Accept: 'application/json',
                 },
             });
 
             if (notifResponse.ok) {
                 const json = await notifResponse.json();
-                const items = (json?.props?.notifications?.data || []) as Array<any>;
+                const items = (json?.props?.notifications?.data ||
+                    []) as Array<any>;
                 notifications.value = items.map((n, idx) => ({
                     id: String(n.id ?? idx + 1),
                     title: String(n.title ?? 'Notification'),
                     message: String(n.body ?? ''),
-                    type: (n.type === 'success' || n.type === 'warning' || n.type === 'error' || n.type === 'info') ? n.type : 'info',
+                    type:
+                        n.type === 'success' ||
+                        n.type === 'warning' ||
+                        n.type === 'error' ||
+                        n.type === 'info'
+                            ? n.type
+                            : 'info',
                     read: !!n.is_read,
-                    created_at: String(n.created_at ?? new Date().toISOString()),
+                    created_at: String(
+                        n.created_at ?? new Date().toISOString(),
+                    ),
                     data: n.data ?? undefined,
                 }));
             }
 
             if (safeRole === 'admin') {
-                const r = await fetch('/admin/notifications/unread-count', { headers: { 'Accept': 'application/json' } });
+                const r = await fetch('/admin/notifications/unread-count', {
+                    headers: { Accept: 'application/json' },
+                });
                 if (r.ok) {
                     const j = await r.json();
-                    if (notificationsUnreadCount.value === null && typeof j.count === 'number') {
+                    if (
+                        notificationsUnreadCount.value === null &&
+                        typeof j.count === 'number'
+                    ) {
                         notificationsUnreadCount.value = j.count;
                     }
                 }
             } else if (safeRole === 'hr') {
-                const r = await fetch('/hr/notifications/unread-count', { headers: { 'Accept': 'application/json' } });
+                const r = await fetch('/hr/notifications/unread-count', {
+                    headers: { Accept: 'application/json' },
+                });
                 if (r.ok) {
                     const j = await r.json();
-                    if (notificationsUnreadCount.value === null && typeof j.count === 'number') {
+                    if (
+                        notificationsUnreadCount.value === null &&
+                        typeof j.count === 'number'
+                    ) {
                         notificationsUnreadCount.value = j.count;
                     }
                 }
             } else {
-                const r = await fetch('/employee/notifications/unread-count', { headers: { 'Accept': 'application/json' } });
+                const r = await fetch('/employee/notifications/unread-count', {
+                    headers: { Accept: 'application/json' },
+                });
                 if (r.ok) {
                     const j = await r.json();
-                    if (notificationsUnreadCount.value === null && typeof j.count === 'number') {
+                    if (
+                        notificationsUnreadCount.value === null &&
+                        typeof j.count === 'number'
+                    ) {
                         notificationsUnreadCount.value = j.count;
                     }
                 }
@@ -372,7 +493,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'info',
                 });
-            }
+            },
         );
 
         if (isAdmin) {
@@ -400,7 +521,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'success',
                 });
-            }
+            },
         );
 
         listen(
@@ -412,7 +533,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'error',
                 });
-            }
+            },
         );
 
         listen(
@@ -424,7 +545,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'warning',
                 });
-            }
+            },
         );
 
         // Training events
@@ -437,7 +558,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'info',
                 });
-            }
+            },
         );
 
         listen(
@@ -449,7 +570,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'success',
                 });
-            }
+            },
         );
 
         // User events
@@ -462,7 +583,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'success',
                 });
-            }
+            },
         );
 
         listen(
@@ -474,7 +595,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'error',
                 });
-            }
+            },
         );
 
         // Generic notifications
@@ -487,18 +608,29 @@ export function useBroadcasting() {
                     const payload: NotificationPayload = {
                         title: String(data.title ?? 'Notification'),
                         message: String(data.message ?? data.body ?? ''),
-                        type: (data.type === 'success' || data.type === 'warning' || data.type === 'error' || data.type === 'info') ? data.type : 'info',
+                        type:
+                            data.type === 'success' ||
+                            data.type === 'warning' ||
+                            data.type === 'error' ||
+                            data.type === 'info'
+                                ? data.type
+                                : 'info',
                         data: (data.data ?? data) as Record<string, unknown>,
-                        timestamp: String(n?.created_at ?? new Date().toISOString()),
+                        timestamp: String(
+                            n?.created_at ?? new Date().toISOString(),
+                        ),
                     };
 
                     const notification: RealTimeNotification = {
-                        id: String(n?.id ?? crypto?.randomUUID?.() ?? Date.now()),
+                        id: String(
+                            n?.id ?? crypto?.randomUUID?.() ?? Date.now(),
+                        ),
                         title: payload.title,
                         message: payload.message,
                         type: payload.type,
                         read: false,
-                        created_at: payload.timestamp || new Date().toISOString(),
+                        created_at:
+                            payload.timestamp || new Date().toISOString(),
                         data: payload.data,
                     };
 
@@ -521,7 +653,7 @@ export function useBroadcasting() {
                 if (typeof e?.count === 'number') {
                     notificationsUnreadCount.value = e.count;
                 }
-            }
+            },
         );
     };
 
@@ -551,7 +683,7 @@ export function useBroadcasting() {
                         user,
                     };
                 }
-            }
+            },
         );
 
         listen(
@@ -576,7 +708,7 @@ export function useBroadcasting() {
                         user,
                     };
                 }
-            }
+            },
         );
 
         listen(
@@ -601,7 +733,7 @@ export function useBroadcasting() {
                         user,
                     };
                 }
-            }
+            },
         );
 
         const isAdminOrHr = true;
@@ -644,7 +776,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'info',
                 });
-            }
+            },
         );
 
         listen(
@@ -656,7 +788,7 @@ export function useBroadcasting() {
                     message: e.message,
                     type: 'warning',
                 });
-            }
+            },
         );
 
         listen(
@@ -683,19 +815,15 @@ export function useBroadcasting() {
         const isHr = safeRole === 'hr';
         const isAdminOrHr = isAdmin || isHr;
         if (!isAdminOrHr) return;
-        listen(
-            'hr.dashboard',
-            '.leave.submitted',
-            (e: { message: string }) => {
-                addNotification({
-                    title: 'New Leave Application',
-                    message: e.message,
-                    type: 'info',
-                });
+        listen('hr.dashboard', '.leave.submitted', (e: { message: string }) => {
+            addNotification({
+                title: 'New Leave Application',
+                message: e.message,
+                type: 'info',
+            });
 
-                bumpLeavesPending(1);
-            }
-        );
+            bumpLeavesPending(1);
+        });
 
         listen(
             'hr.dashboard',
@@ -716,7 +844,7 @@ export function useBroadcasting() {
                         user,
                     };
                 }
-            }
+            },
         );
 
         listen(
@@ -741,7 +869,7 @@ export function useBroadcasting() {
                         user,
                     };
                 }
-            }
+            },
         );
 
         listen(
@@ -766,40 +894,33 @@ export function useBroadcasting() {
                         user,
                     };
                 }
-            }
+            },
         );
 
-        listen(
-            'hr.dashboard',
-            '.holiday.added',
-            (e: { message: string }) => {
-                addNotification({
-                    title: 'Holiday Added',
-                    message: e.message,
-                    type: 'info',
-                });
-            }
-        );
+        listen('hr.dashboard', '.holiday.added', (e: { message: string }) => {
+            addNotification({
+                title: 'Holiday Added',
+                message: e.message,
+                type: 'info',
+            });
+        });
 
-        listen(
-            'hr.dashboard',
-            '.holiday.updated',
-            (e: { message: string }) => {
-                addNotification({
-                    title: 'Holiday Updated',
-                    message: e.message,
-                    type: 'warning',
-                });
-            }
-        );
+        listen('hr.dashboard', '.holiday.updated', (e: { message: string }) => {
+            addNotification({
+                title: 'Holiday Updated',
+                message: e.message,
+                type: 'warning',
+            });
+        });
 
         listen(
             'leave.management',
             '.LeaveStatusUpdated',
             (e: { status?: string }) => {
                 if (e?.status === 'pending') bumpLeavesPending(1);
-                if (e?.status === 'approved' || e?.status === 'rejected') bumpLeavesPending(-1);
-            }
+                if (e?.status === 'approved' || e?.status === 'rejected')
+                    bumpLeavesPending(-1);
+            },
         );
 
         listen(
@@ -807,8 +928,13 @@ export function useBroadcasting() {
             '.TrainingStatusUpdated',
             (e: { status?: string }) => {
                 if (e?.status === 'assigned') bumpTrainingsAssigned(1);
-                if (e?.status === 'approved' || e?.status === 'rejected' || e?.status === 'completed') bumpTrainingsAssigned(-1);
-            }
+                if (
+                    e?.status === 'approved' ||
+                    e?.status === 'rejected' ||
+                    e?.status === 'completed'
+                )
+                    bumpTrainingsAssigned(-1);
+            },
         );
 
         listen(
@@ -816,8 +942,14 @@ export function useBroadcasting() {
             '.PdsStatusUpdated',
             (e: { status?: string }) => {
                 if (e?.status === 'pending') bumpPdsPending(1);
-                if (e?.status === 'approved' || e?.status === 'rejected' || e?.status === 'draft' || e?.status === 'submitted') bumpPdsPending(-1);
-            }
+                if (
+                    e?.status === 'approved' ||
+                    e?.status === 'rejected' ||
+                    e?.status === 'draft' ||
+                    e?.status === 'submitted'
+                )
+                    bumpPdsPending(-1);
+            },
         );
     };
 
@@ -828,17 +960,40 @@ export function useBroadcasting() {
             return;
         }
         employeeListenersReady = true;
-        console.log('[Echo] Setting up employee listeners on channel: employees');
+        console.log(
+            '[Echo] Setting up employee listeners on channel: employees',
+        );
+        listen('employees', '.holiday.added', (e: { message: string }) => {
+            addNotification({
+                title: 'New Holiday',
+                message: e.message,
+                type: 'info',
+            });
+        });
+
         listen(
             'employees',
-            '.holiday.added',
-            (e: { message: string }) => {
-                addNotification({
-                    title: 'New Holiday',
-                    message: e.message,
-                    type: 'info',
-                });
-            }
+            '.user.identity.updated',
+            (e: { user?: Record<string, unknown> }) => {
+                console.log(
+                    '[Echo] Received identity update on employees channel:',
+                    e,
+                );
+                const user = (e.user || {}) as any;
+                if (typeof user.id === 'number') {
+                    lastUserManagementEvent.value = {
+                        type: 'identity_updated',
+                        user,
+                    };
+                    addNotification({
+                        title: 'Profile Updated',
+                        message: user.name
+                            ? `Your profile has been updated to ${user.name}`
+                            : 'Your profile has been updated',
+                        type: 'info',
+                    });
+                }
+            },
         );
     };
 

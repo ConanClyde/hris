@@ -6,7 +6,11 @@ import CalendarMonthView from './CalendarMonthView.vue';
 import CalendarToolbar from './CalendarToolbar.vue';
 import CalendarWeekView from './CalendarWeekView.vue';
 import CalendarYearView from './CalendarYearView.vue';
-import type { CalendarView, CalendarEventNormalized, CalendarEventInput } from './types';
+import type {
+    CalendarView,
+    CalendarEventNormalized,
+    CalendarEventInput,
+} from './types';
 import { useCalendar } from './useCalendar';
 
 function normalizeEvent(evt: CalendarEventInput): CalendarEventNormalized {
@@ -39,7 +43,7 @@ const props = withDefaults(
         loading: false,
         initialView: 'month',
         initialDate: undefined,
-    }
+    },
 );
 
 const emit = defineEmits<{
@@ -48,7 +52,7 @@ const emit = defineEmits<{
 }>();
 
 const normalizedEvents = ref<CalendarEventNormalized[]>(
-    props.events.map(normalizeEvent)
+    props.events.map(normalizeEvent),
 );
 
 watch(
@@ -56,7 +60,7 @@ watch(
     (next) => {
         normalizedEvents.value = (next || []).map(normalizeEvent);
     },
-    { deep: true }
+    { deep: true },
 );
 
 const calendar = useCalendar({
@@ -74,7 +78,7 @@ watch(
     (range) => {
         emit('dates-change', { start: range.start, end: range.end });
     },
-    { immediate: true, deep: true }
+    { immediate: true, deep: true },
 );
 
 provide('calendar', {
@@ -84,9 +88,9 @@ provide('calendar', {
 </script>
 
 <template>
-    <div class="flex flex-col h-full">
+    <div class="flex h-full flex-col">
         <CalendarToolbar />
-        <div class="relative flex-1 overflow-auto p-4 min-h-[400px]">
+        <div class="relative min-h-[400px] flex-1 overflow-auto p-4">
             <CalendarDayView v-if="calendar.view.value === 'day'" />
             <CalendarWeekView v-else-if="calendar.view.value === 'week'" />
             <CalendarMonthView v-else-if="calendar.view.value === 'month'" />

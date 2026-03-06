@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Features\ActivityLogs\Http\Controllers\Admin\ActivityLogsController::index
- * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:70
+ * @see app/Features/ActivityLogs/Http/Controllers/Admin/ActivityLogsController.php:64
  * @route '/hr/activity-logs'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

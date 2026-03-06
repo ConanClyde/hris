@@ -14,7 +14,13 @@ const props = withDefaults(
         subtitle?: string | null;
         size?: 'sm' | 'md';
     }>(),
-    { firstName: null, lastName: null, avatar: null, subtitle: null, size: 'sm' },
+    {
+        firstName: null,
+        lastName: null,
+        avatar: null,
+        subtitle: null,
+        size: 'sm',
+    },
 );
 
 const { getAvatar } = useCachedAvatar();
@@ -52,13 +58,20 @@ const displayAvatar = computed(() => {
     return props.avatar;
 });
 
-const showAvatar = computed(() =>
-    typeof displayAvatar.value === 'string' && displayAvatar.value.trim() !== '',
+const showAvatar = computed(
+    () =>
+        typeof displayAvatar.value === 'string' &&
+        displayAvatar.value.trim() !== '',
 );
 const avatarSizeClass = props.size === 'md' ? 'h-9 w-9' : 'h-8 w-8';
 
 const userInitials = computed(() => {
-    return getInitialsFromName({ first_name: props.firstName, last_name: props.lastName }) || getInitials(props.name);
+    return (
+        getInitialsFromName({
+            first_name: props.firstName,
+            last_name: props.lastName,
+        }) || getInitials(props.name)
+    );
 });
 </script>
 

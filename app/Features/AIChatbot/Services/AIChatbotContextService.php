@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Features\AIChatbot\Services;
 
+use App\Features\AIChatbot\DTOs\ContextDTO;
 use App\Features\Calendar\Services\HolidayTextFormatter;
 use App\Features\Users\Enums\UserRole;
 use App\Models\User;
@@ -13,7 +16,6 @@ class AIChatbotContextService
         'labor_code_leaves' => 'labor_code_leaves.txt',
         'csc_leave_policies' => 'csc_leave_policies.txt',
         'csc_leave_rules' => 'csc_leave_rules.txt',
-        'dtr_policies' => 'dtr_policies.txt',
         'pds_policies' => 'pds_policies.txt',
         'code_of_conduct' => 'code_of_conduct.txt',
         'ssl_vi_policies' => 'ssl_vi_policies.txt',
@@ -37,7 +39,7 @@ class AIChatbotContextService
         private AIChatbotUserProfileService $profileService
     ) {}
 
-    public function getContext(User $user, ?string $query = null): array
+    public function getContext(User $user, ?string $query = null): ContextDTO
     {
         $userRole = (string) $user->role;
         $retrieval = ['snippets' => [], 'meta' => []];
@@ -54,23 +56,23 @@ class AIChatbotContextService
             $stats = $this->toolService->getContextStatsForRole($user);
         }
 
-        return [
-            'role' => $userRole,
-            'stats' => $stats,
-            'employee_list' => '',
-            'employee_data' => [],
-            'policy_snippets' => $policySnippets,
-            'retrieval_meta' => $retrievalMeta,
-            'generated_at' => now()->toDateTimeString(),
-        ];
+        return new ContextDTO(
+            role: $userRole,
+            stats: $stats,
+            employeeList: '',
+            employeeData: [],
+            policySnippets: $policySnippets,
+            retrievalMeta: $retrievalMeta,
+            generatedAt: now()->toDateTimeString(),
+        );
     }
 
     /**
-     * Resolve context from AI analysis. Returns context array or permission_denied on access failure.
+     * Resolve context from AI analysis. Returns ContextDTO or permission_denied on access failure.
      *
-     * @return array{role: string, stats: array, employee_list: string, employee_data: array, policy_snippets: array, retrieval_meta: array, generated_at: string}|array{permission_denied: true, message: string}
+     * @return ContextDTO|array{permission_denied: true, message: string}
      */
-    public function resolveFromAnalysis(array $analysis, User $user, string $query): array
+    public function resolveFromAnalysis(array $analysis, User $user, string $query): ContextDTO|array
     {
         $userRole = (string) $user->role;
 
@@ -141,15 +143,15 @@ class AIChatbotContextService
 
         $policySnippets = $this->capAndLabelSnippets($policySnippets);
 
-        return [
-            'role' => $userRole,
-            'stats' => $stats,
-            'employee_list' => '',
-            'employee_data' => [],
-            'policy_snippets' => $policySnippets,
-            'retrieval_meta' => $retrievalMeta,
-            'generated_at' => now()->toDateTimeString(),
-        ];
+        return new ContextDTO(
+            role: $userRole,
+            stats: $stats,
+            employeeList: '',
+            employeeData: [],
+            policySnippets: $policySnippets,
+            retrievalMeta: $retrievalMeta,
+            generatedAt: now()->toDateTimeString(),
+        );
     }
 
     /**

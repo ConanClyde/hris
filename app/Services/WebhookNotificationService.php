@@ -39,7 +39,7 @@ class WebhookNotificationService
                 ],
             ]);
         } catch (\Throwable $e) {
-            Log::warning('Slack webhook failed: ' . $e->getMessage());
+            Log::warning('Slack webhook failed: '.$e->getMessage());
         }
     }
 
@@ -62,7 +62,7 @@ class WebhookNotificationService
                 ],
             ]);
         } catch (\Throwable $e) {
-            Log::warning('Teams webhook failed: ' . $e->getMessage());
+            Log::warning('Teams webhook failed: '.$e->getMessage());
         }
     }
 
@@ -96,7 +96,7 @@ class WebhookNotificationService
     public function notifyDailyDigest(int $pendingLeaves, int $pendingTrainings, int $pendingPds, int $outToday): void
     {
         $lines = [
-            "📊 *Daily HR Summary* — " . now()->toFormattedDateString(),
+            '📊 *Daily HR Summary* — '.now()->toFormattedDateString(),
             "• Pending Leaves: {$pendingLeaves}",
             "• Pending Trainings: {$pendingTrainings}",
             "• PDS Reviews: {$pendingPds}",

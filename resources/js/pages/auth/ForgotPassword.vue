@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import {
-    Clock,
-    HelpCircle,
-    Key,
-    Mail,
-} from 'lucide-vue-next';
+import { Clock, HelpCircle, Key, Mail } from 'lucide-vue-next';
 import AlertError from '@/components/AlertError.vue';
 import TextLink from '@/components/TextLink.vue';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -18,10 +13,26 @@ import { login } from '@/routes';
 import { email } from '@/routes/password';
 
 const forgotFeatures = [
-    { icon: Key, title: 'Secure recovery', description: 'We verify your identity before reset' },
-    { icon: Mail, title: 'Email link', description: 'Get a secure reset link in your inbox' },
-    { icon: HelpCircle, title: 'Quick support', description: 'Contact us if you need help' },
-    { icon: Clock, title: '24/7 access', description: 'Reset anytime that works for you' },
+    {
+        icon: Key,
+        title: 'Secure recovery',
+        description: 'We verify your identity before reset',
+    },
+    {
+        icon: Mail,
+        title: 'Email link',
+        description: 'Get a secure reset link in your inbox',
+    },
+    {
+        icon: HelpCircle,
+        title: 'Quick support',
+        description: 'Contact us if you need help',
+    },
+    {
+        icon: Clock,
+        title: '24/7 access',
+        description: 'Reset anytime that works for you',
+    },
 ];
 
 defineProps<{
@@ -46,7 +57,9 @@ const errorsList = (errors: Record<string, string>) => {
             v-if="status"
             class="mb-4 border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200"
         >
-            <AlertDescription class="text-sm font-medium">{{ status }}</AlertDescription>
+            <AlertDescription class="text-sm font-medium">{{
+                status
+            }}</AlertDescription>
         </Alert>
 
         <div class="space-y-6">
@@ -58,7 +71,11 @@ const errorsList = (errors: Record<string, string>) => {
                 </div>
             </div>
 
-            <Form v-bind="email.form()" v-slot="{ errors, processing }" class="flex flex-col gap-6">
+            <Form
+                v-bind="email.form()"
+                v-slot="{ errors, processing }"
+                class="flex flex-col gap-6"
+            >
                 <AlertError
                     v-if="Object.keys(errors).length"
                     :errors="errorsList(errors)"

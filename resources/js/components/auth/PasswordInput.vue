@@ -20,7 +20,7 @@ const props = withDefaults(
     {
         modelValue: '',
         autocomplete: 'current-password',
-    }
+    },
 );
 
 const emit = defineEmits<{
@@ -28,9 +28,7 @@ const emit = defineEmits<{
 }>();
 
 const showPassword = ref(false);
-const inputType = computed(() =>
-    showPassword.value ? 'text' : 'password'
-);
+const inputType = computed(() => (showPassword.value ? 'text' : 'password'));
 
 const toggleVisibility = () => {
     showPassword.value = !showPassword.value;
@@ -51,11 +49,13 @@ const toggleVisibility = () => {
             :readonly="readonly"
             :tabindex="tabindex"
             :class="cn('pr-10', props.class)"
-            @update:model-value="emit('update:modelValue', String($event ?? ''))"
+            @update:model-value="
+                emit('update:modelValue', String($event ?? ''))
+            "
         />
         <button
             type="button"
-            class="cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+            class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer p-1 text-gray-400 transition-colors hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
             aria-label="Toggle password visibility"
             @click="toggleVisibility"
         >

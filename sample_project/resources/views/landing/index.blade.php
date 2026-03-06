@@ -52,8 +52,8 @@
         </header>
         <main class="flex-1 flex items-center justify-center p-6 lg:p-8">
             <div class="text-center max-w-2xl">
-                <div class="w-14 h-14 mx-auto mb-6 rounded-md bg-[#013CFC] flex items-center justify-center">
-                    <span class="text-white font-semibold text-xl">{{ substr(config('app.name', 'HRIS'), 0, 1) }}</span>
+                <div class="h-14 mx-auto mb-6 flex items-center justify-center">
+                    <img src="/images/hris_logo.png" alt="HRIS Logo" class="h-full object-contain" />
                 </div>
                 <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ config('app.name', 'HRIS') }}</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Human Resource Information System. Manage employees, attendance, and payroll in one place.</p>

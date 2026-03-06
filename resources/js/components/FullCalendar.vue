@@ -98,7 +98,10 @@ function initCalendar() {
                     title: info.event.title,
                     start: info.event.start ?? new Date(),
                     end: info.event.end ?? undefined,
-                    extendedProps: info.event.extendedProps as Record<string, unknown>,
+                    extendedProps: info.event.extendedProps as Record<
+                        string,
+                        unknown
+                    >,
                 },
             });
         },
@@ -279,7 +282,9 @@ defineExpose({
                 </Button>
             </div>
 
-            <div class="text-lg font-semibold text-foreground text-center flex-1 truncate px-4">
+            <div
+                class="flex-1 truncate px-4 text-center text-lg font-semibold text-foreground"
+            >
                 {{ currentTitle }}
             </div>
 
@@ -304,7 +309,7 @@ defineExpose({
             </div>
         </div>
         <div
-            class="relative flex-1 min-h-[400px] overflow-auto overscroll-contain touch-pan-x touch-pan-y bg-background p-3 sm:p-4 dark:bg-card"
+            class="relative min-h-[400px] flex-1 touch-pan-x touch-pan-y overflow-auto overscroll-contain bg-background p-3 sm:p-4 dark:bg-card"
         >
             <div
                 v-if="props.loading"

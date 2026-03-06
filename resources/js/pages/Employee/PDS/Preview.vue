@@ -52,13 +52,48 @@ type PdsFamily = {
 };
 
 type PdsChild = { name?: string; dob?: string };
-type PdsEducation = { level?: string; school_name?: string; degree_course?: string; year_graduated?: string };
-type PdsCscEligibility = { license_name?: string; rating?: string; date_of_examination?: string; place_of_examination?: string };
-type PdsWorkExperience = { employed_from?: string; employed_to?: string; position_title?: string; department?: string; is_government?: boolean };
-type PdsVoluntaryWork = { org_name_address?: string; volunteer_from?: string; volunteer_to?: string; number_of_hours?: string; nature_of_work?: string };
-type PdsTraining = { title?: string; training_from?: string; training_to?: string; number_of_hours?: string };
-type PdsOtherInfo = { skills?: string; recognition?: string; membership?: string };
-type PdsReference = { reference_name?: string; reference_address?: string; reference_telno?: string };
+type PdsEducation = {
+    level?: string;
+    school_name?: string;
+    degree_course?: string;
+    year_graduated?: string;
+};
+type PdsCscEligibility = {
+    license_name?: string;
+    rating?: string;
+    date_of_examination?: string;
+    place_of_examination?: string;
+};
+type PdsWorkExperience = {
+    employed_from?: string;
+    employed_to?: string;
+    position_title?: string;
+    department?: string;
+    is_government?: boolean;
+};
+type PdsVoluntaryWork = {
+    org_name_address?: string;
+    volunteer_from?: string;
+    volunteer_to?: string;
+    number_of_hours?: string;
+    nature_of_work?: string;
+};
+type PdsTraining = {
+    title?: string;
+    training_from?: string;
+    training_to?: string;
+    number_of_hours?: string;
+};
+type PdsOtherInfo = {
+    skills?: string;
+    recognition?: string;
+    membership?: string;
+};
+type PdsReference = {
+    reference_name?: string;
+    reference_address?: string;
+    reference_telno?: string;
+};
 
 type PdsRecord = {
     id?: number;
@@ -84,7 +119,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 function formatDate(value: string | null | undefined) {
     if (!value) return '—';
-    try { return new Date(value).toLocaleDateString(); } catch { return value; }
+    try {
+        return new Date(value).toLocaleDateString();
+    } catch {
+        return value;
+    }
 }
 
 function fullName(p?: PdsPersonal | null) {
@@ -104,11 +143,18 @@ function doPrint() {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-4">
-            <div class="mb-4 flex flex-col gap-3 print:hidden sm:flex-row sm:items-center sm:justify-between">
+            <div
+                class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between print:hidden"
+            >
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">PDS Preview</h1>
+                    <h1
+                        class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                    >
+                        PDS Preview
+                    </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {{ pds?.personal ? fullName(pds.personal) : '—' }} — Personal Data Sheet
+                        {{ pds?.personal ? fullName(pds.personal) : '—' }} —
+                        Personal Data Sheet
                     </p>
                 </div>
 
@@ -116,198 +162,510 @@ function doPrint() {
                     <Button as-child variant="outline" size="sm">
                         <Link :href="employee.pds.index.url()">Edit PDS</Link>
                     </Button>
-                    <Button variant="outline" size="sm" @click="doPrint">Print</Button>
+                    <Button variant="outline" size="sm" @click="doPrint"
+                        >Print</Button
+                    >
                 </div>
             </div>
 
             <div class="mx-auto w-full max-w-5xl">
-                <div class="pds-paper bg-white text-black shadow print:shadow-none">
+                <div
+                    class="pds-paper bg-white text-black shadow print:shadow-none"
+                >
                     <!-- Page 1 -->
                     <div class="pds-page">
                         <div class="pds-header">
                             <div class="text-center">
-                                <div class="text-xs font-semibold">CS FORM No. 212</div>
+                                <div class="text-xs font-semibold">
+                                    CS FORM No. 212
+                                </div>
                                 <div class="text-xs">Revised 2025</div>
-                                <div class="mt-2 text-sm font-bold tracking-wide">PERSONAL DATA SHEET</div>
+                                <div
+                                    class="mt-2 text-sm font-bold tracking-wide"
+                                >
+                                    PERSONAL DATA SHEET
+                                </div>
                             </div>
                             <div class="mt-3 text-[10px] leading-tight">
                                 <div>
                                     <span class="font-semibold">WARNING:</span>
-                                    Any misrepresentation made in the Personal Data Sheet and the Work Experience Sheet shall cause the filing of administrative/criminal case/s against the person concerned.
+                                    Any misrepresentation made in the Personal
+                                    Data Sheet and the Work Experience Sheet
+                                    shall cause the filing of
+                                    administrative/criminal case/s against the
+                                    person concerned.
                                 </div>
                             </div>
                         </div>
 
                         <div v-if="pds?.personal" class="pds-section">
-                            <div class="pds-section-title">I. PERSONAL INFORMATION</div>
+                            <div class="pds-section-title">
+                                I. PERSONAL INFORMATION
+                            </div>
                             <table class="pds-form-table">
                                 <tbody>
                                     <tr>
-                                        <td class="pds-form-label" rowspan="2">2. SURNAME</td>
-                                        <td class="pds-form-value" colspan="4">{{ pds.personal?.surname || '' }}</td>
-                                        <td class="pds-form-label">NAME EXTENSION (JR., SR.)</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.name_extension || '' }}</td>
+                                        <td class="pds-form-label" rowspan="2">
+                                            2. SURNAME
+                                        </td>
+                                        <td class="pds-form-value" colspan="4">
+                                            {{ pds.personal?.surname || '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            NAME EXTENSION (JR., SR.)
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.name_extension ||
+                                                ''
+                                            }}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-label">3. FIRST NAME</td>
-                                        <td class="pds-form-value" colspan="3">{{ pds.personal?.first_name || '' }}</td>
-                                        <td class="pds-form-label">MIDDLE NAME</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.middle_name || '' }}</td>
+                                        <td class="pds-form-label">
+                                            3. FIRST NAME
+                                        </td>
+                                        <td class="pds-form-value" colspan="3">
+                                            {{ pds.personal?.first_name || '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            MIDDLE NAME
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.middle_name || ''
+                                            }}
+                                        </td>
                                     </tr>
 
                                     <tr>
-                                        <td class="pds-form-label">4. DATE OF BIRTH (mm/dd/yyyy)</td>
-                                        <td class="pds-form-value" colspan="2">{{ formatDate(pds.personal?.dob ?? null) }}</td>
-                                        <td class="pds-form-label" colspan="2">5. PLACE OF BIRTH</td>
-                                        <td class="pds-form-value" colspan="3">{{ pds.personal?.place_of_birth || '' }}</td>
+                                        <td class="pds-form-label">
+                                            4. DATE OF BIRTH (mm/dd/yyyy)
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                formatDate(
+                                                    pds.personal?.dob ?? null,
+                                                )
+                                            }}
+                                        </td>
+                                        <td class="pds-form-label" colspan="2">
+                                            5. PLACE OF BIRTH
+                                        </td>
+                                        <td class="pds-form-value" colspan="3">
+                                            {{
+                                                pds.personal?.place_of_birth ||
+                                                ''
+                                            }}
+                                        </td>
                                     </tr>
 
                                     <tr>
                                         <td class="pds-form-label">6. SEX</td>
                                         <td class="pds-form-value" colspan="2">
-                                            <span class="pds-checkbox"></span> Male
-                                            <span class="pds-checkbox ml-4"></span> Female
+                                            <span class="pds-checkbox"></span>
+                                            Male
+                                            <span
+                                                class="pds-checkbox ml-4"
+                                            ></span>
+                                            Female
                                         </td>
-                                        <td class="pds-form-label">7. CIVIL STATUS</td>
+                                        <td class="pds-form-label">
+                                            7. CIVIL STATUS
+                                        </td>
                                         <td class="pds-form-value" colspan="2">
                                             <div class="pds-checkbox-grid">
-                                                <div><span class="pds-checkbox"></span> Single</div>
-                                                <div><span class="pds-checkbox"></span> Widowed</div>
-                                                <div><span class="pds-checkbox"></span> Married</div>
-                                                <div><span class="pds-checkbox"></span> Separated</div>
+                                                <div>
+                                                    <span
+                                                        class="pds-checkbox"
+                                                    ></span>
+                                                    Single
+                                                </div>
+                                                <div>
+                                                    <span
+                                                        class="pds-checkbox"
+                                                    ></span>
+                                                    Widowed
+                                                </div>
+                                                <div>
+                                                    <span
+                                                        class="pds-checkbox"
+                                                    ></span>
+                                                    Married
+                                                </div>
+                                                <div>
+                                                    <span
+                                                        class="pds-checkbox"
+                                                    ></span>
+                                                    Separated
+                                                </div>
                                             </div>
                                         </td>
-                                        <td class="pds-form-label">8. CITIZENSHIP</td>
+                                        <td class="pds-form-label">
+                                            8. CITIZENSHIP
+                                        </td>
                                         <td class="pds-form-value">
                                             <div class="pds-checkbox-grid">
-                                                <div><span class="pds-checkbox"></span> Filipino</div>
-                                                <div><span class="pds-checkbox"></span> Dual Citizenship</div>
+                                                <div>
+                                                    <span
+                                                        class="pds-checkbox"
+                                                    ></span>
+                                                    Filipino
+                                                </div>
+                                                <div>
+                                                    <span
+                                                        class="pds-checkbox"
+                                                    ></span>
+                                                    Dual Citizenship
+                                                </div>
                                             </div>
                                             <div class="mt-1 text-[9px]">
-                                                <span class="pds-checkbox"></span> by birth
-                                                <span class="pds-checkbox ml-4"></span> by naturalization
+                                                <span
+                                                    class="pds-checkbox"
+                                                ></span>
+                                                by birth
+                                                <span
+                                                    class="pds-checkbox ml-4"
+                                                ></span>
+                                                by naturalization
                                             </div>
-                                            <div class="mt-1 text-[9px]">Pls. indicate country: {{ pds.personal?.citizenship_country ?? '' }}</div>
+                                            <div class="mt-1 text-[9px]">
+                                                Pls. indicate country:
+                                                {{
+                                                    pds.personal
+                                                        ?.citizenship_country ??
+                                                    ''
+                                                }}
+                                            </div>
                                         </td>
                                     </tr>
 
                                     <tr>
-                                        <td class="pds-form-label">9. HEIGHT (m)</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.height ?? '' }}</td>
-                                        <td class="pds-form-label">10. WEIGHT (kg)</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.weight ?? '' }}</td>
-                                        <td class="pds-form-label">11. BLOOD TYPE</td>
-                                        <td class="pds-form-value">{{ pds.personal?.blood_type ?? '' }}</td>
+                                        <td class="pds-form-label">
+                                            9. HEIGHT (m)
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.height ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            10. WEIGHT (kg)
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.weight ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            11. BLOOD TYPE
+                                        </td>
+                                        <td class="pds-form-value">
+                                            {{ pds.personal?.blood_type ?? '' }}
+                                        </td>
                                     </tr>
 
                                     <tr>
-                                        <td class="pds-form-label" rowspan="4">12. RESIDENTIAL ADDRESS</td>
-                                        <td class="pds-form-sub" colspan="2">House/Block/Lot No.</td>
-                                        <td class="pds-form-sub" colspan="2">Street</td>
-                                        <td class="pds-form-sub" colspan="3">Subdivision/Village</td>
+                                        <td class="pds-form-label" rowspan="4">
+                                            12. RESIDENTIAL ADDRESS
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            House/Block/Lot No.
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            Street
+                                        </td>
+                                        <td class="pds-form-sub" colspan="3">
+                                            Subdivision/Village
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.residential_address?.house_no ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.residential_address?.street ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="3">{{ pds.personal?.residential_address?.subdivision ?? '' }}</td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.house_no ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.street ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="3">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.subdivision ?? ''
+                                            }}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-sub" colspan="2">Barangay</td>
-                                        <td class="pds-form-sub" colspan="2">City/Municipality</td>
-                                        <td class="pds-form-sub" colspan="2">Province</td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            Barangay
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            City/Municipality
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            Province
+                                        </td>
                                         <td class="pds-form-sub">Zip Code</td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.residential_address?.barangay ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.residential_address?.city ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.residential_address?.province ?? '' }}</td>
-                                        <td class="pds-form-value">{{ pds.personal?.residential_address?.zip_code ?? '' }}</td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.barangay ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.city ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.province ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value">
+                                            {{
+                                                pds.personal
+                                                    ?.residential_address
+                                                    ?.zip_code ?? ''
+                                            }}
+                                        </td>
                                     </tr>
 
                                     <tr>
-                                        <td class="pds-form-label" rowspan="4">13. PERMANENT ADDRESS</td>
-                                        <td class="pds-form-sub" colspan="2">House/Block/Lot No.</td>
-                                        <td class="pds-form-sub" colspan="2">Street</td>
-                                        <td class="pds-form-sub" colspan="3">Subdivision/Village</td>
+                                        <td class="pds-form-label" rowspan="4">
+                                            13. PERMANENT ADDRESS
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            House/Block/Lot No.
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            Street
+                                        </td>
+                                        <td class="pds-form-sub" colspan="3">
+                                            Subdivision/Village
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.permanent_address?.house_no ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.permanent_address?.street ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="3">{{ pds.personal?.permanent_address?.subdivision ?? '' }}</td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.house_no ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.street ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="3">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.subdivision ?? ''
+                                            }}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-sub" colspan="2">Barangay</td>
-                                        <td class="pds-form-sub" colspan="2">City/Municipality</td>
-                                        <td class="pds-form-sub" colspan="2">Province</td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            Barangay
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            City/Municipality
+                                        </td>
+                                        <td class="pds-form-sub" colspan="2">
+                                            Province
+                                        </td>
                                         <td class="pds-form-sub">Zip Code</td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.permanent_address?.barangay ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.permanent_address?.city ?? '' }}</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.permanent_address?.province ?? '' }}</td>
-                                        <td class="pds-form-value">{{ pds.personal?.permanent_address?.zip_code ?? '' }}</td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.barangay ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.city ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.province ?? ''
+                                            }}
+                                        </td>
+                                        <td class="pds-form-value">
+                                            {{
+                                                pds.personal?.permanent_address
+                                                    ?.zip_code ?? ''
+                                            }}
+                                        </td>
                                     </tr>
 
                                     <tr>
-                                        <td class="pds-form-label">14. TELEPHONE NO.</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.phone ?? '' }}</td>
-                                        <td class="pds-form-label">15. MOBILE NO.</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.mobile ?? '' }}</td>
-                                        <td class="pds-form-label">16. EMAIL ADDRESS</td>
-                                        <td class="pds-form-value">{{ pds.personal?.email ?? '' }}</td>
+                                        <td class="pds-form-label">
+                                            14. TELEPHONE NO.
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.phone ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            15. MOBILE NO.
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.mobile ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            16. EMAIL ADDRESS
+                                        </td>
+                                        <td class="pds-form-value">
+                                            {{ pds.personal?.email ?? '' }}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-label">17. GSIS ID NO.</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.gsis ?? '' }}</td>
-                                        <td class="pds-form-label">18. PAG-IBIG ID NO.</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.pag_ibig ?? '' }}</td>
-                                        <td class="pds-form-label">19. PHILHEALTH NO.</td>
-                                        <td class="pds-form-value">{{ pds.personal?.philhealth ?? '' }}</td>
+                                        <td class="pds-form-label">
+                                            17. GSIS ID NO.
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.gsis ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            18. PAG-IBIG ID NO.
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.pag_ibig ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            19. PHILHEALTH NO.
+                                        </td>
+                                        <td class="pds-form-value">
+                                            {{ pds.personal?.philhealth ?? '' }}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="pds-form-label">20. SSS NO.</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.sss ?? '' }}</td>
-                                        <td class="pds-form-label">21. TIN NO.</td>
-                                        <td class="pds-form-value" colspan="2">{{ pds.personal?.tin ?? '' }}</td>
-                                        <td class="pds-form-label">22. AGENCY EMPLOYEE NO.</td>
-                                        <td class="pds-form-value">{{ pds.personal?.agency_employee_no ?? '' }}</td>
+                                        <td class="pds-form-label">
+                                            20. SSS NO.
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.sss ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            21. TIN NO.
+                                        </td>
+                                        <td class="pds-form-value" colspan="2">
+                                            {{ pds.personal?.tin ?? '' }}
+                                        </td>
+                                        <td class="pds-form-label">
+                                            22. AGENCY EMPLOYEE NO.
+                                        </td>
+                                        <td class="pds-form-value">
+                                            {{
+                                                pds.personal
+                                                    ?.agency_employee_no ?? ''
+                                            }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
                         <div class="pds-section">
-                            <div class="pds-section-title">II. FAMILY BACKGROUND</div>
+                            <div class="pds-section-title">
+                                II. FAMILY BACKGROUND
+                            </div>
                             <div class="pds-grid">
                                 <div class="pds-field pds-span-2">
-                                    <div class="pds-label">SPOUSE (Full Name)</div>
+                                    <div class="pds-label">
+                                        SPOUSE (Full Name)
+                                    </div>
                                     <div class="pds-value">
-                                        {{ [pds?.family?.spouse_first_name, pds?.family?.spouse_middle_name, pds?.family?.spouse_surname, pds?.family?.spouse_name_extension].filter(Boolean).join(' ') }}
+                                        {{
+                                            [
+                                                pds?.family?.spouse_first_name,
+                                                pds?.family?.spouse_middle_name,
+                                                pds?.family?.spouse_surname,
+                                                pds?.family
+                                                    ?.spouse_name_extension,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' ')
+                                        }}
                                     </div>
                                 </div>
                                 <div class="pds-field pds-span-2">
-                                    <div class="pds-label">SPOUSE OCCUPATION / EMPLOYER</div>
+                                    <div class="pds-label">
+                                        SPOUSE OCCUPATION / EMPLOYER
+                                    </div>
                                     <div class="pds-value">
-                                        {{ [pds?.family?.spouse_occupation, pds?.family?.spouse_employer].filter(Boolean).join(' / ') }}
+                                        {{
+                                            [
+                                                pds?.family?.spouse_occupation,
+                                                pds?.family?.spouse_employer,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' / ')
+                                        }}
                                     </div>
                                 </div>
                                 <div class="pds-field pds-span-2">
-                                    <div class="pds-label">FATHER (Full Name)</div>
+                                    <div class="pds-label">
+                                        FATHER (Full Name)
+                                    </div>
                                     <div class="pds-value">
-                                        {{ [pds?.family?.father_first_name, pds?.family?.father_middle_name, pds?.family?.father_surname, pds?.family?.father_name_extension].filter(Boolean).join(' ') }}
+                                        {{
+                                            [
+                                                pds?.family?.father_first_name,
+                                                pds?.family?.father_middle_name,
+                                                pds?.family?.father_surname,
+                                                pds?.family
+                                                    ?.father_name_extension,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' ')
+                                        }}
                                     </div>
                                 </div>
                                 <div class="pds-field pds-span-2">
-                                    <div class="pds-label">MOTHER'S MAIDEN NAME</div>
+                                    <div class="pds-label">
+                                        MOTHER'S MAIDEN NAME
+                                    </div>
                                     <div class="pds-value">
-                                        {{ [pds?.family?.mother_maiden_first_name, pds?.family?.mother_maiden_middle_name, pds?.family?.mother_maiden_surname].filter(Boolean).join(' ') }}
+                                        {{
+                                            [
+                                                pds?.family
+                                                    ?.mother_maiden_first_name,
+                                                pds?.family
+                                                    ?.mother_maiden_middle_name,
+                                                pds?.family
+                                                    ?.mother_maiden_surname,
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' ')
+                                        }}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="pds-section" v-if="(pds?.children?.length ?? 0) > 0">
-                            <div class="pds-section-title">III. CHILDREN (Full Name / Date of Birth)</div>
+                        <div
+                            class="pds-section"
+                            v-if="(pds?.children?.length ?? 0) > 0"
+                        >
+                            <div class="pds-section-title">
+                                III. CHILDREN (Full Name / Date of Birth)
+                            </div>
                             <table class="pds-table">
                                 <thead>
                                     <tr>
@@ -316,7 +674,10 @@ function doPrint() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(c, i) in (pds?.children ?? [])" :key="i">
+                                    <tr
+                                        v-for="(c, i) in pds?.children ?? []"
+                                        :key="i"
+                                    >
                                         <td>{{ c.name || '' }}</td>
                                         <td>{{ formatDate(c.dob ?? null) }}</td>
                                     </tr>
@@ -324,19 +685,29 @@ function doPrint() {
                             </table>
                         </div>
 
-                        <div class="pds-section" v-if="(pds?.education?.length ?? 0) > 0">
-                            <div class="pds-section-title">IV. EDUCATIONAL BACKGROUND</div>
+                        <div
+                            class="pds-section"
+                            v-if="(pds?.education?.length ?? 0) > 0"
+                        >
+                            <div class="pds-section-title">
+                                IV. EDUCATIONAL BACKGROUND
+                            </div>
                             <table class="pds-table">
                                 <thead>
                                     <tr>
                                         <th>LEVEL</th>
                                         <th>NAME OF SCHOOL</th>
-                                        <th>BASIC EDUCATION / DEGREE / COURSE</th>
+                                        <th>
+                                            BASIC EDUCATION / DEGREE / COURSE
+                                        </th>
                                         <th>YEAR GRADUATED</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(e, i) in (pds?.education ?? [])" :key="i">
+                                    <tr
+                                        v-for="(e, i) in pds?.education ?? []"
+                                        :key="i"
+                                    >
                                         <td>{{ e.level || '' }}</td>
                                         <td>{{ e.school_name || '' }}</td>
                                         <td>{{ e.degree_course || '' }}</td>
@@ -346,23 +717,49 @@ function doPrint() {
                             </table>
                         </div>
 
-                        <div class="pds-section" v-if="(pds?.csc_eligibility?.length ?? 0) > 0">
-                            <div class="pds-section-title">V. CIVIL SERVICE ELIGIBILITY</div>
+                        <div
+                            class="pds-section"
+                            v-if="(pds?.csc_eligibility?.length ?? 0) > 0"
+                        >
+                            <div class="pds-section-title">
+                                V. CIVIL SERVICE ELIGIBILITY
+                            </div>
                             <table class="pds-table">
                                 <thead>
                                     <tr>
-                                        <th>CAREER SERVICE / RA 1080 (BOARD/BAR) / UNDER SPECIAL LAWS / CSC ELIGIBILITY</th>
+                                        <th>
+                                            CAREER SERVICE / RA 1080 (BOARD/BAR)
+                                            / UNDER SPECIAL LAWS / CSC
+                                            ELIGIBILITY
+                                        </th>
                                         <th>RATING</th>
-                                        <th>DATE OF EXAMINATION / CONFERMENT</th>
-                                        <th>PLACE OF EXAMINATION / CONFERMENT</th>
+                                        <th>
+                                            DATE OF EXAMINATION / CONFERMENT
+                                        </th>
+                                        <th>
+                                            PLACE OF EXAMINATION / CONFERMENT
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(r, i) in (pds?.csc_eligibility ?? [])" :key="i">
+                                    <tr
+                                        v-for="(r, i) in pds?.csc_eligibility ??
+                                        []"
+                                        :key="i"
+                                    >
                                         <td>{{ r.license_name || '' }}</td>
                                         <td>{{ r.rating || '' }}</td>
-                                        <td>{{ formatDate(r.date_of_examination ?? null) }}</td>
-                                        <td>{{ r.place_of_examination || '' }}</td>
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    r.date_of_examination ??
+                                                        null,
+                                                )
+                                            }}
+                                        </td>
+                                        <td>
+                                            {{ r.place_of_examination || '' }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -370,32 +767,65 @@ function doPrint() {
 
                         <div class="pds-page-break"></div>
 
-                        <div class="pds-section" v-if="(pds?.work_experience?.length ?? 0) > 0">
-                            <div class="pds-section-title">VI. WORK EXPERIENCE</div>
+                        <div
+                            class="pds-section"
+                            v-if="(pds?.work_experience?.length ?? 0) > 0"
+                        >
+                            <div class="pds-section-title">
+                                VI. WORK EXPERIENCE
+                            </div>
                             <table class="pds-table">
                                 <thead>
                                     <tr>
                                         <th>FROM</th>
                                         <th>TO</th>
                                         <th>POSITION TITLE</th>
-                                        <th>DEPARTMENT / AGENCY / OFFICE / COMPANY</th>
+                                        <th>
+                                            DEPARTMENT / AGENCY / OFFICE /
+                                            COMPANY
+                                        </th>
                                         <th>GOV'T SERVICE</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(w, i) in (pds?.work_experience ?? [])" :key="i">
-                                        <td>{{ formatDate(w.employed_from ?? null) }}</td>
-                                        <td>{{ formatDate(w.employed_to ?? null) }}</td>
+                                    <tr
+                                        v-for="(w, i) in pds?.work_experience ??
+                                        []"
+                                        :key="i"
+                                    >
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    w.employed_from ?? null,
+                                                )
+                                            }}
+                                        </td>
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    w.employed_to ?? null,
+                                                )
+                                            }}
+                                        </td>
                                         <td>{{ w.position_title || '' }}</td>
                                         <td>{{ w.department || '' }}</td>
-                                        <td>{{ w.is_government ? 'Y' : 'N' }}</td>
+                                        <td>
+                                            {{ w.is_government ? 'Y' : 'N' }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <div class="pds-section" v-if="(pds?.voluntary_work?.length ?? 0) > 0">
-                            <div class="pds-section-title">VII. VOLUNTARY WORK OR INVOLVEMENT IN CIVIC / NON-GOVERNMENT / PEOPLE / VOLUNTARY ORGANIZATION/S</div>
+                        <div
+                            class="pds-section"
+                            v-if="(pds?.voluntary_work?.length ?? 0) > 0"
+                        >
+                            <div class="pds-section-title">
+                                VII. VOLUNTARY WORK OR INVOLVEMENT IN CIVIC /
+                                NON-GOVERNMENT / PEOPLE / VOLUNTARY
+                                ORGANIZATION/S
+                            </div>
                             <table class="pds-table">
                                 <thead>
                                     <tr>
@@ -407,10 +837,26 @@ function doPrint() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(v, i) in (pds?.voluntary_work ?? [])" :key="i">
+                                    <tr
+                                        v-for="(v, i) in pds?.voluntary_work ??
+                                        []"
+                                        :key="i"
+                                    >
                                         <td>{{ v.org_name_address || '' }}</td>
-                                        <td>{{ formatDate(v.volunteer_from ?? null) }}</td>
-                                        <td>{{ formatDate(v.volunteer_to ?? null) }}</td>
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    v.volunteer_from ?? null,
+                                                )
+                                            }}
+                                        </td>
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    v.volunteer_to ?? null,
+                                                )
+                                            }}
+                                        </td>
                                         <td>{{ v.number_of_hours || '' }}</td>
                                         <td>{{ v.nature_of_work || '' }}</td>
                                     </tr>
@@ -418,31 +864,62 @@ function doPrint() {
                             </table>
                         </div>
 
-                        <div class="pds-section" v-if="(pds?.training?.length ?? 0) > 0">
-                            <div class="pds-section-title">VIII. LEARNING AND DEVELOPMENT (L&D) INTERVENTIONS / TRAINING PROGRAMS ATTENDED</div>
+                        <div
+                            class="pds-section"
+                            v-if="(pds?.training?.length ?? 0) > 0"
+                        >
+                            <div class="pds-section-title">
+                                VIII. LEARNING AND DEVELOPMENT (L&D)
+                                INTERVENTIONS / TRAINING PROGRAMS ATTENDED
+                            </div>
                             <table class="pds-table">
                                 <thead>
                                     <tr>
-                                        <th>TITLE OF LEARNING AND DEVELOPMENT INTERVENTIONS / TRAINING PROGRAMS</th>
+                                        <th>
+                                            TITLE OF LEARNING AND DEVELOPMENT
+                                            INTERVENTIONS / TRAINING PROGRAMS
+                                        </th>
                                         <th>FROM</th>
                                         <th>TO</th>
                                         <th>NO. OF HOURS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(t, i) in (pds?.training ?? [])" :key="i">
+                                    <tr
+                                        v-for="(t, i) in pds?.training ?? []"
+                                        :key="i"
+                                    >
                                         <td>{{ t.title || '' }}</td>
-                                        <td>{{ formatDate(t.training_from ?? null) }}</td>
-                                        <td>{{ formatDate(t.training_to ?? null) }}</td>
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    t.training_from ?? null,
+                                                )
+                                            }}
+                                        </td>
+                                        <td>
+                                            {{
+                                                formatDate(
+                                                    t.training_to ?? null,
+                                                )
+                                            }}
+                                        </td>
                                         <td>{{ t.number_of_hours || '' }}</td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
 
-                        <div v-if="!pds?.personal" class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-muted-foreground dark:border-neutral-700 dark:bg-neutral-800/50">
+                        <div
+                            v-if="!pds?.personal"
+                            class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-8 text-center text-sm text-muted-foreground dark:border-neutral-700 dark:bg-neutral-800/50"
+                        >
                             No PDS data yet. Fill out your PDS from the
-                            <Link :href="employee.pds.index.url()" class="text-primary underline">PDS form</Link>.
+                            <Link
+                                :href="employee.pds.index.url()"
+                                class="text-primary underline"
+                                >PDS form</Link
+                            >.
                         </div>
                     </div>
                 </div>
@@ -454,7 +931,7 @@ function doPrint() {
 <style scoped>
 .pds-paper {
     border: 2px solid #111;
-    font-family: "Arial Narrow", Arial, Helvetica, sans-serif;
+    font-family: 'Arial Narrow', Arial, Helvetica, sans-serif;
 }
 
 .pds-page {

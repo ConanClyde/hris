@@ -4,9 +4,9 @@ namespace App\Features\Calendar\Events;
 
 use App\Features\Calendar\Models\CustomHoliday;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class CustomHolidayCreated implements ShouldBroadcastNow
+class CustomHolidayCreated implements ShouldBroadcast
 {
     public function __construct(
         public CustomHoliday $holiday,

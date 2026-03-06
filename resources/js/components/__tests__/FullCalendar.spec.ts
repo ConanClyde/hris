@@ -53,7 +53,10 @@ describe('FullCalendar', () => {
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         const options = mockCalendarState.lastOptions;
-        options.dateClick({ date: new Date('2024-01-01'), dateStr: '2024-01-01' });
+        options.dateClick({
+            date: new Date('2024-01-01'),
+            dateStr: '2024-01-01',
+        });
         options.eventClick({
             event: {
                 id: '1',

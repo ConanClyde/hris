@@ -97,11 +97,16 @@ if (trainingsAssignedCount.value === null) {
 
 const assignedCountComputed = computed(() => trainingsAssignedCount.value ?? 0);
 
-function safeListen(channelName: string, event: string, callback: (e: any) => void) {
+function safeListen(
+    channelName: string,
+    event: string,
+    callback: (e: any) => void,
+) {
     try {
         const echoAny = (window as any)?.Echo;
         if (!echoAny) return;
-        const channel = echoAny.private?.(channelName) ?? echoAny.channel?.(channelName);
+        const channel =
+            echoAny.private?.(channelName) ?? echoAny.channel?.(channelName);
         channel?.listen?.(event, callback);
     } catch {
         // ignore
@@ -182,9 +187,13 @@ function upsertOrRemoveFromTable(payload: TrainingStatusUpdatedPayload) {
 }
 
 onMounted(() => {
-    safeListen('training.management', '.TrainingStatusUpdated', (e: TrainingStatusUpdatedPayload) => {
-        upsertOrRemoveFromTable(e);
-    });
+    safeListen(
+        'training.management',
+        '.TrainingStatusUpdated',
+        (e: TrainingStatusUpdatedPayload) => {
+            upsertOrRemoveFromTable(e);
+        },
+    );
 });
 
 const searchInput = ref(props.filters?.search ?? '');
@@ -214,11 +223,11 @@ const addEmployeeDropdownOpen = ref(false);
 const filteredEmployees = computed(() => {
     const q = addEmployeeSearch.value.trim().toLowerCase();
     if (!q) return props.employees;
-    return props.employees.filter(emp => emp.name.toLowerCase().includes(q));
+    return props.employees.filter((emp) => emp.name.toLowerCase().includes(q));
 });
 const selectedEmployeeName = computed(() => {
     if (!addEmployeeId.value) return '';
-    const found = props.employees.find(e => e.id === addEmployeeId.value);
+    const found = props.employees.find((e) => e.id === addEmployeeId.value);
     return found?.name ?? '';
 });
 function selectEmployee(emp: EmployeeOption) {
@@ -710,9 +719,7 @@ function confirmDeleteTraining() {
                                     "
                                 >
                                     (
-                                    {{
-                                        viewingTraining.time_from ?? '—'
-                                    }}
+                                    {{ viewingTraining.time_from ?? '—' }}
                                     -
                                     {{ viewingTraining.time_to ?? '—' }}
                                     )
@@ -837,13 +844,30 @@ function confirmDeleteTraining() {
                                         :aria-expanded="addEmployeeDropdownOpen"
                                         class="w-full justify-between font-normal"
                                     >
-                                        <span :class="{ 'text-muted-foreground': !addEmployeeId }">
-                                            {{ selectedEmployeeName || 'Select employee...' }}
+                                        <span
+                                            :class="{
+                                                'text-muted-foreground':
+                                                    !addEmployeeId,
+                                            }"
+                                        >
+                                            {{
+                                                selectedEmployeeName ||
+                                                'Select employee...'
+                                            }}
                                         </span>
-                                        <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        <ChevronsUpDown
+                                            class="ml-2 h-4 w-4 shrink-0 opacity-50"
+                                        />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent class="p-0" align="start" :style="{ minWidth: 'var(--reka-popper-anchor-width)' }">
+                                <PopoverContent
+                                    class="p-0"
+                                    align="start"
+                                    :style="{
+                                        minWidth:
+                                            'var(--reka-popper-anchor-width)',
+                                    }"
+                                >
                                     <div class="p-2">
                                         <Input
                                             v-model="addEmployeeSearch"
@@ -854,7 +878,9 @@ function confirmDeleteTraining() {
                                     </div>
                                     <div class="max-h-60 overflow-y-auto">
                                         <div
-                                            v-if="filteredEmployees.length === 0"
+                                            v-if="
+                                                filteredEmployees.length === 0
+                                            "
                                             class="px-4 py-6 text-center text-sm text-muted-foreground"
                                         >
                                             No employees found.
@@ -863,14 +889,20 @@ function confirmDeleteTraining() {
                                             v-for="emp in filteredEmployees"
                                             :key="emp.id"
                                             type="button"
-                                            class="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                                            class="flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
                                             @click="selectEmployee(emp)"
                                         >
                                             <Check
                                                 class="h-4 w-4 shrink-0"
-                                                :class="addEmployeeId === emp.id ? 'opacity-100' : 'opacity-0'"
+                                                :class="
+                                                    addEmployeeId === emp.id
+                                                        ? 'opacity-100'
+                                                        : 'opacity-0'
+                                                "
                                             />
-                                            <span class="truncate">{{ emp.name }}</span>
+                                            <span class="truncate">{{
+                                                emp.name
+                                            }}</span>
                                         </button>
                                     </div>
                                 </PopoverContent>
@@ -957,7 +989,9 @@ function confirmDeleteTraining() {
                             />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="add-category">Category (optional)</Label>
+                            <Label for="add-category"
+                                >Category (optional)</Label
+                            >
                             <Input
                                 id="add-category"
                                 v-model="addCategory"
@@ -1098,7 +1132,9 @@ function confirmDeleteTraining() {
                             />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="edit-time_to">End time (optional)</Label>
+                            <Label for="edit-time_to"
+                                >End time (optional)</Label
+                            >
                             <Input
                                 id="edit-time_to"
                                 v-model="editTimeTo"
@@ -1127,7 +1163,9 @@ function confirmDeleteTraining() {
                             />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="edit-category">Category (optional)</Label>
+                            <Label for="edit-category"
+                                >Category (optional)</Label
+                            >
                             <Input
                                 id="edit-category"
                                 v-model="editCategory"

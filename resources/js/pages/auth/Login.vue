@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
-import {
-    Bell,
-    LayoutDashboard,
-    Shield,
-    User,
-} from 'lucide-vue-next';
+import { Bell, LayoutDashboard, Shield, User } from 'lucide-vue-next';
 import { ref } from 'vue';
 import AlertError from '@/components/AlertError.vue';
 import PasswordInput from '@/components/auth/PasswordInput.vue';
@@ -22,10 +17,26 @@ import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
 const loginFeatures = [
-    { icon: Shield, title: 'Secure access', description: 'Sign in safely with your credentials' },
-    { icon: LayoutDashboard, title: 'Your dashboard', description: 'Quick access to your HR tools' },
-    { icon: Bell, title: 'Real-time updates', description: 'Stay informed with notifications' },
-    { icon: User, title: 'Profile management', description: 'Update your info anytime' },
+    {
+        icon: Shield,
+        title: 'Secure access',
+        description: 'Sign in safely with your credentials',
+    },
+    {
+        icon: LayoutDashboard,
+        title: 'Your dashboard',
+        description: 'Quick access to your HR tools',
+    },
+    {
+        icon: Bell,
+        title: 'Real-time updates',
+        description: 'Stay informed with notifications',
+    },
+    {
+        icon: User,
+        title: 'Profile management',
+        description: 'Update your info anytime',
+    },
 ];
 
 defineProps<{
@@ -46,7 +57,11 @@ const errorsList = (errors: Record<string, string>) => {
     <AuthBase
         title="Welcome back."
         description="Enter your credentials to sign in to your account."
-        :header-link="canRegister ? { href: register().url, label: 'Register' } : undefined"
+        :header-link="
+            canRegister
+                ? { href: register().url, label: 'Register' }
+                : undefined
+        "
         :features="loginFeatures"
     >
         <Head title="Log in" />
@@ -55,7 +70,9 @@ const errorsList = (errors: Record<string, string>) => {
             v-if="status"
             class="mb-4 border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200"
         >
-            <AlertDescription class="text-sm font-medium">{{ status }}</AlertDescription>
+            <AlertDescription class="text-sm font-medium">{{
+                status
+            }}</AlertDescription>
         </Alert>
 
         <Form
@@ -111,9 +128,13 @@ const errorsList = (errors: Record<string, string>) => {
                         id="remember"
                         :checked="remember"
                         :tabindex="3"
-                        @update:checked="(val: boolean) => remember = val"
+                        @update:checked="(val: boolean) => (remember = val)"
                     />
-                    <input type="hidden" name="remember" :value="remember ? '1' : ''" />
+                    <input
+                        type="hidden"
+                        name="remember"
+                        :value="remember ? '1' : ''"
+                    />
                     <Label
                         for="remember"
                         class="cursor-pointer text-sm font-normal"

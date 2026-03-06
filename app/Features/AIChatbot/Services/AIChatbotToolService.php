@@ -155,24 +155,6 @@ class AIChatbotToolService
                 ]
             );
             $tools[] = $this->toolDeclaration(
-                'get_attendance_summary',
-                'Retrieve attendance/DTR summary for a date range.',
-                [
-                    'date_from' => [
-                        'type' => 'STRING',
-                        'description' => 'Start date (YYYY-MM-DD).',
-                    ],
-                    'date_to' => [
-                        'type' => 'STRING',
-                        'description' => 'End date (YYYY-MM-DD).',
-                    ],
-                    'user_id' => [
-                        'type' => 'STRING',
-                        'description' => 'Filter by specific user ID. Optional.',
-                    ],
-                ]
-            );
-            $tools[] = $this->toolDeclaration(
                 'get_holiday_list',
                 'Retrieve list of holidays for a year.',
                 [
@@ -285,13 +267,6 @@ class AIChatbotToolService
                     : ['error' => 'Unauthorized'],
                 'get_leave_balance_summary' => in_array($role, [UserRole::Admin->value, UserRole::Hr->value])
                     ? $this->getLeaveBalanceSummary((string) ($arguments['division'] ?? ''))
-                    : ['error' => 'Unauthorized'],
-                'get_attendance_summary' => in_array($role, [UserRole::Admin->value, UserRole::Hr->value])
-                    ? $this->getAttendanceSummary(
-                        (string) ($arguments['date_from'] ?? ''),
-                        (string) ($arguments['date_to'] ?? ''),
-                        (string) ($arguments['user_id'] ?? '')
-                    )
                     : ['error' => 'Unauthorized'],
                 'get_holiday_list' => in_array($role, [UserRole::Admin->value, UserRole::Hr->value])
                     ? $this->getHolidayList(
@@ -663,6 +638,70 @@ class AIChatbotToolService
         ];
     }
 
+    private function getLeaveApplicationDetails(string $status = 'all', string $dateFrom = '', string $dateTo = ''): array
+    {
+        if (! Schema::hasTable('leave_applications')) {
+            return ['error' => 'Leave applications table is not available.'];
+        }
+
+        $query = DB::table('leave_applications')
+            ->select([
+                'id',
+                'employee_id',
+                'type',
+                'status',
+                'date_from',
+                'date_to',
+                'total_days',
+                'created_at',
+            ]);
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if ($dateFrom !== '') {
+            $query->where('date_from', '>=', $dateFrom);
+        }
+
+        if ($dateTo !== '') {
+            $query->where('date_to', '<=', $dateTo);
+        }
+
+        $applications = $query->latest('created_at')->limit(50)->get();
+
+        $byStatus = [
+            'pending' => 0,
+            'approved' => 0,
+            'rejected' => 0,
+        ];
+
+        $byType = [];
+
+        foreach ($applications as $app) {
+            if (isset($byStatus[$app->status])) {
+                $byStatus[$app->status]++;
+            }
+            $type = $app->type ?? 'Other';
+            $byType[$type] = ($byType[$type] ?? 0) + 1;
+        }
+
+        return [
+            'applications' => $applications->toArray(),
+            'summary' => [
+                'total' => $applications->count(),
+                'by_status' => $byStatus,
+                'by_type' => $byType,
+                'filters' => [
+                    'status' => $status,
+                    'date_from' => $dateFrom ?: null,
+                    'date_to' => $dateTo ?: null,
+                ],
+            ],
+            'timestamp' => now()->toDateTimeString(),
+        ];
+    }
+
     private function getEmployeeById(string $employeeId): array
     {
         if (! Schema::hasTable('employees')) {
@@ -849,86 +888,6 @@ class AIChatbotToolService
         return [
             'summary' => $summary->toArray(),
             'filter_applied' => $division ?: null,
-            'timestamp' => now()->toDateTimeString(),
-        ];
-    }
-
-    private function getAttendanceSummary(string $dateFrom = '', string $dateTo = '', string $userId = ''): array
-    {
-        if (! Schema::hasTable('attendances')) {
-            return ['error' => 'Attendance table is not available.'];
-        }
-
-        $query = DB::table('attendances')
-            ->select([
-                'user_id',
-                'date',
-                'time_in_am',
-                'time_out_am',
-                'time_in_pm',
-                'time_out_pm',
-                'status',
-                'late_minutes',
-                'undertime_minutes',
-            ]);
-
-        if ($dateFrom !== '') {
-            $query->whereDate('date', '>=', $dateFrom);
-        }
-
-        if ($dateTo !== '') {
-            $query->whereDate('date', '<=', $dateTo);
-        }
-
-        if ($userId !== '') {
-            $query->where('user_id', $userId);
-        }
-
-        $records = $query->orderBy('date', 'desc')->limit(200)->get();
-
-        $totalLate = 0;
-        $totalUndertime = 0;
-        $totalPresent = 0;
-        $totalAbsent = 0;
-        $totalOnLeave = 0;
-        $totalHalfDay = 0;
-
-        foreach ($records as $record) {
-            switch ($record->status) {
-                case 'present':
-                    $totalPresent++;
-                    break;
-                case 'absent':
-                    $totalAbsent++;
-                    break;
-                case 'on_leave':
-                    $totalOnLeave++;
-                    break;
-                case 'half_day':
-                    $totalHalfDay++;
-                    break;
-            }
-
-            $totalLate += (int) ($record->late_minutes ?? 0);
-            $totalUndertime += (int) ($record->undertime_minutes ?? 0);
-        }
-
-        return [
-            'attendance_records' => $records->toArray(),
-            'summary' => [
-                'total_records' => $records->count(),
-                'present' => $totalPresent,
-                'absent' => $totalAbsent,
-                'on_leave' => $totalOnLeave,
-                'half_day' => $totalHalfDay,
-                'total_late_minutes' => $totalLate,
-                'total_undertime_minutes' => $totalUndertime,
-                'filters_applied' => [
-                    'date_from' => $dateFrom ?: null,
-                    'date_to' => $dateTo ?: null,
-                    'user_id' => $userId ?: null,
-                ],
-            ],
             'timestamp' => now()->toDateTimeString(),
         ];
     }

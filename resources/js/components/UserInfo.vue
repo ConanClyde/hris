@@ -18,19 +18,26 @@ const { getInitials, getInitialsFromName } = useInitials();
 const userInitials = computed(() => {
     const first = (props.user as any).first_name;
     const last = (props.user as any).last_name;
-    return getInitialsFromName({ first_name: first, last_name: last }) || getInitials(props.user.name);
+    return (
+        getInitialsFromName({ first_name: first, last_name: last }) ||
+        getInitials(props.user.name)
+    );
 });
 
 // Compute whether we should show the avatar image
 const showAvatar = computed(
-    () => typeof (props.user as any).avatar === 'string' && (props.user as any).avatar.trim() !== '',
+    () =>
+        typeof (props.user as any).avatar === 'string' &&
+        (props.user as any).avatar.trim() !== '',
 );
 </script>
 
 <template>
     <Avatar class="h-8 w-8 shrink-0 overflow-hidden rounded-lg">
         <AvatarImage v-if="showAvatar" :src="user.avatar!" :alt="user.name" />
-        <AvatarFallback class="rounded-lg bg-foreground text-background font-bold">
+        <AvatarFallback
+            class="rounded-lg bg-foreground font-bold text-background"
+        >
             {{ userInitials }}
         </AvatarFallback>
     </Avatar>

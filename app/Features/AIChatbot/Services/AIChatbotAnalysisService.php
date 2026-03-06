@@ -87,7 +87,7 @@ Analyze this HRIS user query and return ONLY valid JSON with these exact keys (n
 Rules:
 - requires_google_calendar: true only if the query is about holidays, calendar events, upcoming dates, or special non-working days
 - requires_database: array of categories if live data is needed. Valid values: users, employees, leave_applications, trainings, pds, activity_logs. Use [] if not needed
-- requires_markdown_prompts: array of policy file stems if policy content is needed. Valid: labor_code_leaves, csc_leave_policies, dtr_policies, pds_policies, code_of_conduct, ssl_vi_policies, gsis_policies, spms_policies, paternity_leave, solo_parent_leave, special_leave_women, year_end_bonus, mid_year_bonus, pbb_policies. Use [] if not needed
+- requires_markdown_prompts: array of policy file stems if policy content is needed. Valid: labor_code_leaves, csc_leave_policies, pds_policies, code_of_conduct, ssl_vi_policies, gsis_policies, spms_policies, paternity_leave, solo_parent_leave, special_leave_women, year_end_bonus, mid_year_bonus, pbb_policies. Use [] if not needed
 - min_required_role: "employee" | "hr" | "admin" - the minimum role needed to answer. Use "employee" for general policy questions, "hr" for HR data, "admin" for system/admin data
 - topic_summary: one short phrase describing the topic (e.g. "leave policy", "holiday calendar", "employee count")
 PROMPT;

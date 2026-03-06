@@ -55,7 +55,7 @@ class AIChatbotDataController extends Controller
             }
 
             $query = (string) $request->input('query', '');
-            $context = $this->contextService->getContext($user, $query);
+            $context = $this->contextService->getContext($user, $query)->toArray();
 
             Log::info('AI chatbot data context generated', [
                 'user_id' => $user->id,

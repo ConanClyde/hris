@@ -567,13 +567,6 @@ class AIChatbotSuggestionService
                 'roles' => [UserRole::Employee->value],
                 'answer' => 'SSL VI provides updated salary schedules for government employees, adjusting the salary grade steps over several tranches. The SSL VI policy document explains how your current salary grade and step are mapped to the new rates and the timetable for the implementation of each tranche.',
             ],
-            [
-                'id' => 'emp_dtr',
-                'title' => 'What is the proper way to fill out my Daily Time Record (DTR)?',
-                'icon' => 'clock',
-                'roles' => [UserRole::Employee->value],
-                'answer' => 'The DTR policy describes the correct way to record your time in and time out, including breaks, corrections and authorized adjustments. Employees should ensure entries are complete, legible and aligned with the biometric or attendance system, following the step-by-step guidance in the DTR policy document.',
-            ],
         ];
     }
 
@@ -872,7 +865,6 @@ class AIChatbotSuggestionService
                     'emp_spms' => 'spms_policies.txt',
                     'emp_ssl_vi' => 'ssl_vi_policies.txt',
                     'emp_mid_year_bonus' => 'mid_year_bonus_policies.txt',
-                    'emp_dtr' => 'dtr_policies.txt',
                 ];
 
                 if (! isset($policyMap[$id])) {

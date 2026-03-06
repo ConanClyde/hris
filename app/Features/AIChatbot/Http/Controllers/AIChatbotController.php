@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Features\AIChatbot\Http\Controllers;
 
 use App\Features\ActivityLogs\Services\ActivityLogger;
@@ -50,17 +52,21 @@ class AIChatbotController extends Controller
     private function resolveContextForChat(\App\Models\User $user, string $query): array
     {
         if (! config('ai_chatbot.enable_analysis_pipeline', true)) {
-            return $this->contextService->getContext($user, $query);
+            return $this->contextService->getContext($user, $query)->toArray();
         }
 
         $userRole = (string) $user->role;
         $analysis = $this->analysisService->analyzePrompt($query, $userRole);
 
         if ($analysis === null) {
-            return $this->contextService->getContext($user, $query);
+            return $this->contextService->getContext($user, $query)->toArray();
         }
 
-        return $this->contextService->resolveFromAnalysis($analysis, $user, $query);
+        $resolved = $this->contextService->resolveFromAnalysis($analysis, $user, $query);
+
+        return $resolved instanceof \App\Features\AIChatbot\DTOs\ContextDTO
+            ? $resolved->toArray()
+            : $resolved;
     }
 
     private function getOllamaChatUrl(): string
@@ -213,7 +219,7 @@ class AIChatbotController extends Controller
             if ($this->suggestionService->isCompoundQuestion($normalizedMessage) || $this->shouldPreferToolsForStatsQuestion($normalizedMessage)) {
                 Log::info('Compound question detected, skipping suggestion to use tools', [
                     'suggestion_id' => $matchedSuggestion['id'],
-                    'question' => $normalizedMessage,
+                    'query_hash' => hash('sha256', $normalizedMessage),
                 ]);
             } else {
                 $recentIntents = $this->suggestionService->rememberIntent($user, (string) $matchedSuggestion['id']);
@@ -345,7 +351,7 @@ class AIChatbotController extends Controller
                 // Validate response accuracy against context data
                 $validationResult = $this->validatorService->validateResponse($data['response'], $context['stats'] ?? []);
 
-                if (!$validationResult['valid']) {
+                if (! $validationResult['valid']) {
                     Log::warning('AI response validation failed', [
                         'user_id' => $user->id,
                         'issues' => $validationResult['issues'],
@@ -354,7 +360,7 @@ class AIChatbotController extends Controller
 
                     // If validation failed, append correction to the response
                     if ($validationResult['corrected_response']) {
-                        $data['response'] .= "\n\n" . $validationResult['corrected_response'];
+                        $data['response'] .= "\n\n".$validationResult['corrected_response'];
                         $data['meta']['validation_corrected'] = true;
                         $data['meta']['validation_issues'] = $validationResult['issues'];
                     }
@@ -438,7 +444,7 @@ class AIChatbotController extends Controller
             if ($this->suggestionService->isCompoundQuestion($normalizedMessage) || $this->shouldPreferToolsForStatsQuestion($normalizedMessage)) {
                 Log::info('Compound question detected in stream, skipping suggestion to use tools', [
                     'suggestion_id' => $matchedSuggestion['id'],
-                    'question' => $normalizedMessage,
+                    'query_hash' => hash('sha256', $normalizedMessage),
                 ]);
             } else {
                 $recentIntents = $this->suggestionService->rememberIntent($user, (string) $matchedSuggestion['id']);
@@ -1216,7 +1222,7 @@ class AIChatbotController extends Controller
             }
 
             $query = (string) $request->input('query', '');
-            $context = $this->contextService->getContext($user, $query);
+            $context = $this->contextService->getContext($user, $query)->toArray();
 
             Log::info('AI chatbot context generated', [
                 'user_id' => $user->id,
@@ -1940,9 +1946,6 @@ STATS;
         $cscPoliciesPath = storage_path('app/prompts/csc_leave_policies.txt');
         $cscPolicies = file_exists($cscPoliciesPath) ? file_get_contents($cscPoliciesPath) : '';
 
-        $dtrPoliciesPath = storage_path('app/prompts/dtr_policies.txt');
-        $dtrPolicies = file_exists($dtrPoliciesPath) ? file_get_contents($dtrPoliciesPath) : '';
-
         $pdsPoliciesPath = storage_path('app/prompts/pds_policies.txt');
         $pdsPolicies = file_exists($pdsPoliciesPath) ? file_get_contents($pdsPoliciesPath) : '';
 
@@ -1987,7 +1990,6 @@ STATS;
                 '{pending_requests}',
                 '{labor_code}',
                 '{csc_leave_policies}',
-                '{dtr_policies}',
                 '{pds_policies}',
                 '{code_of_conduct}',
                 '{ssl_vi_policies}',
@@ -2010,7 +2012,6 @@ STATS;
                 $pendingRequests,
                 $laborCodePolicies,
                 $cscPolicies,
-                $dtrPolicies,
                 $pdsPolicies,
                 $codeOfConduct,
                 $sslViPolicies,

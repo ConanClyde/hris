@@ -88,7 +88,12 @@ type PaginatedData = {
 const props = withDefaults(
     defineProps<{
         users: PaginatedData;
-        filters?: { search?: string; role?: string; status?: string; per_page?: string | number };
+        filters?: {
+            search?: string;
+            role?: string;
+            status?: string;
+            per_page?: string | number;
+        };
         pendingCount?: number;
         rejectedCount?: number;
     }>(),
@@ -200,7 +205,9 @@ watch(
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Manage Users' }];
 
 // Separate filter states for each tab
-const basePerPage = String(props.filters?.per_page ?? props.users.per_page ?? 8);
+const basePerPage = String(
+    props.filters?.per_page ?? props.users.per_page ?? 8,
+);
 
 const allUsersFilters = ref({
     search: props.filters?.search ?? '',
@@ -269,11 +276,13 @@ const filterStatus = computed({
 const perPage = computed({
     get: () => {
         if (activeTab.value === 'pending') return pendingFilters.value.per_page;
-        if (activeTab.value === 'rejected') return rejectedFilters.value.per_page;
+        if (activeTab.value === 'rejected')
+            return rejectedFilters.value.per_page;
         return allUsersFilters.value.per_page;
     },
     set: (value) => {
-        if (activeTab.value === 'pending') pendingFilters.value.per_page = value;
+        if (activeTab.value === 'pending')
+            pendingFilters.value.per_page = value;
         else if (activeTab.value === 'rejected')
             rejectedFilters.value.per_page = value;
         else allUsersFilters.value.per_page = value;
@@ -287,7 +296,12 @@ const roleOptions = [
 ];
 
 watch(
-    () => [props.filters?.search, props.filters?.role, props.filters?.status, props.filters?.per_page],
+    () => [
+        props.filters?.search,
+        props.filters?.role,
+        props.filters?.status,
+        props.filters?.per_page,
+    ],
     ([search, role, status, perPageValue]) => {
         const statusValue = (status as string) || 'all';
         const searchValue = (search as string) ?? '';
@@ -342,7 +356,8 @@ function clearFilters() {
         allUsersFilters.value.status = 'all';
         allUsersFilters.value.per_page = basePerPage;
     }
-    const query: Record<string, string> = activeTab.value !== 'all' ? { status: activeTab.value } : {};
+    const query: Record<string, string> =
+        activeTab.value !== 'all' ? { status: activeTab.value } : {};
     if (basePerPage) query.per_page = basePerPage;
     router.get(admin.users.url(undefined, { query }));
 }
@@ -1452,6 +1467,47 @@ function submitEditUser(e: Event) {
                                         Organizational Unit
                                     </h5>
                                     <div
+                                        class="mb-3 grid grid-cols-1 gap-2 text-sm sm:grid-cols-3"
+                                    >
+                                        <div>
+                                            <div
+                                                class="text-xs font-medium text-muted-foreground"
+                                            >
+                                                Division
+                                            </div>
+                                            <div class="mt-0.5">
+                                                {{
+                                                    editingUser?.division ?? '—'
+                                                }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div
+                                                class="text-xs font-medium text-muted-foreground"
+                                            >
+                                                Subdivision
+                                            </div>
+                                            <div class="mt-0.5">
+                                                {{
+                                                    editingUser?.subdivision ??
+                                                    '—'
+                                                }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div
+                                                class="text-xs font-medium text-muted-foreground"
+                                            >
+                                                Section
+                                            </div>
+                                            <div class="mt-0.5">
+                                                {{
+                                                    editingUser?.section ?? '—'
+                                                }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
                                         class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
                                     >
                                         <div class="space-y-2">
@@ -1743,9 +1799,7 @@ function submitEditUser(e: Event) {
                                     </div>
                                 </div>
                                 <!-- Sex & Date of Birth for all roles -->
-                                <div
-                                    class="grid gap-4 sm:grid-cols-2"
-                                >
+                                <div class="grid gap-4 sm:grid-cols-2">
                                     <div class="grid gap-2">
                                         <Label for="add-sex">Sex</Label>
                                         <Select v-model="addSex">

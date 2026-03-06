@@ -8,7 +8,6 @@ class SourceLabelService
         'labor_code_leaves.txt' => 'Labor Code (Leaves)',
         'csc_leave_policies.txt' => 'CSC Leave Policies',
         'csc_leave_rules.txt' => 'CSC Leave Rules',
-        'dtr_policies.txt' => 'DTR Policies',
         'pds_policies.txt' => 'PDS Policies',
         'code_of_conduct.txt' => 'Code of Conduct',
         'ssl_vi_policies.txt' => 'SSL VI Policies',

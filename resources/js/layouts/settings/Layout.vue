@@ -34,7 +34,9 @@ const { isCurrentUrl } = useCurrentUrl();
 </script>
 
 <template>
-    <div class="px-4 py-6 pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))]">
+    <div
+        class="px-4 py-6 pr-[max(1rem,env(safe-area-inset-right))] pl-[max(1rem,env(safe-area-inset-left))]"
+    >
         <Heading
             title="Settings"
             description="Manage your profile and account settings"
@@ -67,7 +69,7 @@ const { isCurrentUrl } = useCurrentUrl();
             <Separator class="my-6 lg:hidden" />
 
             <div class="min-w-0 flex-1 md:max-w-2xl">
-                <section class="min-w-0 max-w-xl space-y-12">
+                <section class="max-w-xl min-w-0 space-y-12">
                     <slot />
                 </section>
             </div>

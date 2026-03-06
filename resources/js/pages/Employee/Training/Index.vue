@@ -55,19 +55,20 @@ const props = withDefaults(
         statusOptions: Record<string, string>;
         filters?: { type?: string; status?: string };
     }>(),
-    { filters: () => ({}) }
+    { filters: () => ({}) },
 );
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Learning & Development' },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Learning & Development' }];
 
 const page = usePage();
 const { trainingsAssignedCount } = useBroadcasting();
 
 if (trainingsAssignedCount.value === null) {
     const base = (page.props.auth?.counts || {}) as Record<string, any>;
-    trainingsAssignedCount.value = typeof base.trainings_assigned === 'number' ? base.trainings_assigned : 0;
+    trainingsAssignedCount.value =
+        typeof base.trainings_assigned === 'number'
+            ? base.trainings_assigned
+            : 0;
 }
 
 const assignedCountComputed = computed(() => trainingsAssignedCount.value ?? 0);
@@ -97,7 +98,9 @@ const editProvider = ref('');
 const editType = ref('');
 const editCategory = ref('');
 
-const statusOptionsEntries = computed(() => Object.entries(props.statusOptions));
+const statusOptionsEntries = computed(() =>
+    Object.entries(props.statusOptions),
+);
 
 watch(
     () => [props.filters?.status, props.filters?.type],
@@ -105,7 +108,7 @@ watch(
         filterStatus.value = (status as string) || 'all';
         filterType.value = (type as string) ?? '';
     },
-    { immediate: true }
+    { immediate: true },
 );
 
 let filterDebounce: ReturnType<typeof setTimeout> | null = null;
@@ -113,23 +116,32 @@ watch([filterStatus, filterType], () => {
     if (filterDebounce) clearTimeout(filterDebounce);
     filterDebounce = setTimeout(() => {
         const query: Record<string, string> = {};
-        if (filterStatus.value && filterStatus.value !== 'all') query.status = filterStatus.value;
+        if (filterStatus.value && filterStatus.value !== 'all')
+            query.status = filterStatus.value;
         if (filterType.value) query.type = filterType.value;
-        router.get(employee.training.index.url(), query, { preserveState: true });
+        router.get(employee.training.index.url(), query, {
+            preserveState: true,
+        });
     }, 300);
 });
 
-watch(editingTraining, (t) => {
-    if (t) {
-        editTitle.value = t.title ?? '';
-        editDateFrom.value = t.date_from ? String(t.date_from).slice(0, 10) : '';
-        editDateTo.value = t.date_to ? String(t.date_to).slice(0, 10) : '';
-        editHours.value = t.hours != null ? String(t.hours) : '';
-        editProvider.value = t.provider ?? '';
-        editType.value = t.type ?? '';
-        editCategory.value = t.category ?? '';
-    }
-}, { immediate: true });
+watch(
+    editingTraining,
+    (t) => {
+        if (t) {
+            editTitle.value = t.title ?? '';
+            editDateFrom.value = t.date_from
+                ? String(t.date_from).slice(0, 10)
+                : '';
+            editDateTo.value = t.date_to ? String(t.date_to).slice(0, 10) : '';
+            editHours.value = t.hours != null ? String(t.hours) : '';
+            editProvider.value = t.provider ?? '';
+            editType.value = t.type ?? '';
+            editCategory.value = t.category ?? '';
+        }
+    },
+    { immediate: true },
+);
 
 function clearFilters() {
     filterStatus.value = 'all';
@@ -170,29 +182,41 @@ function closeEdit() {
 
 function submitAdd(e: Event) {
     e.preventDefault();
-    router.post(employee.training.store.url(), {
-        title: addTitle.value,
-        date_from: addDateFrom.value,
-        date_to: addDateTo.value || null,
-        hours: addHours.value ? Number(addHours.value) : null,
-        provider: addProvider.value || null,
-        type: addType.value || null,
-        category: addCategory.value || null,
-    }, { onSuccess: () => { addModalOpen.value = false; } });
+    router.post(
+        employee.training.store.url(),
+        {
+            title: addTitle.value,
+            date_from: addDateFrom.value,
+            date_to: addDateTo.value || null,
+            hours: addHours.value ? Number(addHours.value) : null,
+            provider: addProvider.value || null,
+            type: addType.value || null,
+            category: addCategory.value || null,
+        },
+        {
+            onSuccess: () => {
+                addModalOpen.value = false;
+            },
+        },
+    );
 }
 
 function submitEdit(e: Event) {
     e.preventDefault();
     if (!editingTraining.value) return;
-    router.put(employee.training.update.url(editingTraining.value.id), {
-        title: editTitle.value,
-        date_from: editDateFrom.value,
-        date_to: editDateTo.value || null,
-        hours: editHours.value ? Number(editHours.value) : null,
-        provider: editProvider.value || null,
-        type: editType.value || null,
-        category: editCategory.value || null,
-    }, { onSuccess: () => closeEdit() });
+    router.put(
+        employee.training.update.url(editingTraining.value.id),
+        {
+            title: editTitle.value,
+            date_from: editDateFrom.value,
+            date_to: editDateTo.value || null,
+            hours: editHours.value ? Number(editHours.value) : null,
+            provider: editProvider.value || null,
+            type: editType.value || null,
+            category: editCategory.value || null,
+        },
+        { onSuccess: () => closeEdit() },
+    );
 }
 
 function statusVariant(status: string) {
@@ -211,7 +235,9 @@ function formatDate(value: string | null) {
 }
 
 function inclusiveDates(t: TrainingItem) {
-    const from = t.date_from ? formatDate(String(t.date_from).slice(0, 10)) : '—';
+    const from = t.date_from
+        ? formatDate(String(t.date_from).slice(0, 10))
+        : '—';
     const to = t.date_to ? formatDate(String(t.date_to).slice(0, 10)) : null;
     return to && to !== from ? `${from} – ${to}` : from;
 }
@@ -222,9 +248,13 @@ function inclusiveDates(t: TrainingItem) {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="mx-auto w-full max-w-7xl space-y-4 p-4">
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div
+                class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+            >
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                    <h1
+                        class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                    >
                         Learning & Development
                     </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -233,8 +263,12 @@ function inclusiveDates(t: TrainingItem) {
                 </div>
                 <div class="flex items-center gap-2">
                     <Button variant="outline" as-child>
-                        <a :href="employee.training.export.url()" target="_blank" rel="noopener noreferrer">
-                            <Download class="size-4 mr-1.5" />
+                        <a
+                            :href="employee.training.export.url()"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Download class="mr-1.5 size-4" />
                             Export CSV
                         </a>
                     </Button>
@@ -245,22 +279,30 @@ function inclusiveDates(t: TrainingItem) {
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Card class="border border-gray-200 dark:border-neutral-800">
                     <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-normal text-gray-500 dark:text-gray-400">
+                        <CardTitle
+                            class="text-sm font-normal text-gray-500 dark:text-gray-400"
+                        >
                             Assigned / Pending
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                        <p
+                            class="text-2xl font-semibold text-gray-900 dark:text-gray-100"
+                        >
                             {{ assignedCountComputed }}
                         </p>
-                        <p class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400">
+                        <p
+                            class="mt-2 text-sm font-medium text-amber-600 dark:text-amber-400"
+                        >
                             In progress
                         </p>
                     </CardContent>
                 </Card>
             </div>
 
-            <div class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50">
+            <div
+                class="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3 dark:border-neutral-700 dark:bg-neutral-800/50"
+            >
                 <div class="w-[140px]">
                     <Label for="filter-status" class="sr-only">Status</Label>
                     <Select v-model="filterStatus">
@@ -269,7 +311,11 @@ function inclusiveDates(t: TrainingItem) {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All</SelectItem>
-                            <SelectItem v-for="[val, label] in statusOptionsEntries" :key="val" :value="val">
+                            <SelectItem
+                                v-for="[val, label] in statusOptionsEntries"
+                                :key="val"
+                                :value="val"
+                            >
                                 {{ label }}
                             </SelectItem>
                         </SelectContent>
@@ -290,40 +336,90 @@ function inclusiveDates(t: TrainingItem) {
                 </Button>
             </div>
 
-            <div class="rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
+            <div
+                class="overflow-hidden rounded-lg border border-gray-200 dark:border-neutral-700"
+            >
                 <div class="overflow-x-auto">
                     <table class="w-full min-w-[560px] border-collapse text-sm">
-                        <thead class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50">
+                        <thead
+                            class="border-b border-gray-200 bg-gray-50 dark:border-neutral-700 dark:bg-neutral-800/50"
+                        >
                             <tr>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Title</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Inclusive Dates</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Hours</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Type</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Category</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Provider</th>
-                                <th class="text-left font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Status</th>
-                                <th class="text-right font-medium text-gray-700 dark:text-gray-300 px-4 py-3">Actions</th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Title
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Inclusive Dates
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Hours
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Type
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Category
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Provider
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Status
+                                </th>
+                                <th
+                                    class="px-4 py-3 text-right font-medium text-gray-700 dark:text-gray-300"
+                                >
+                                    Actions
+                                </th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-neutral-700">
+                        <tbody
+                            class="divide-y divide-gray-200 dark:divide-neutral-700"
+                        >
                             <tr
                                 v-for="t in trainings.data"
                                 :key="t.id"
                                 class="hover:bg-gray-50 dark:hover:bg-neutral-800/50"
                             >
-                                <td class="px-4 py-3 font-medium">{{ t.title || '—' }}</td>
-                                <td class="px-4 py-3 text-muted-foreground">{{ inclusiveDates(t) }}</td>
+                                <td class="px-4 py-3 font-medium">
+                                    {{ t.title || '—' }}
+                                </td>
+                                <td class="px-4 py-3 text-muted-foreground">
+                                    {{ inclusiveDates(t) }}
+                                </td>
                                 <td class="px-4 py-3">{{ t.hours ?? '—' }}</td>
                                 <td class="px-4 py-3">{{ t.type ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ t.category ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ t.provider ?? '—' }}</td>
+                                <td class="px-4 py-3">
+                                    {{ t.category ?? '—' }}
+                                </td>
+                                <td class="px-4 py-3">
+                                    {{ t.provider ?? '—' }}
+                                </td>
                                 <td class="px-4 py-3">
                                     <Badge :variant="statusVariant(t.status)">
-                                        {{ statusOptions[t.status] ?? t.status }}
+                                        {{
+                                            statusOptions[t.status] ?? t.status
+                                        }}
                                     </Badge>
                                 </td>
                                 <td class="px-4 py-3 text-right">
-                                    <div class="flex items-center justify-end gap-1">
+                                    <div
+                                        class="flex items-center justify-end gap-1"
+                                    >
                                         <Button
                                             type="button"
                                             variant="ghost"
@@ -355,7 +451,12 @@ function inclusiveDates(t: TrainingItem) {
                     class="px-4 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
                 >
                     No training records yet.
-                    <Button variant="link" class="ml-1 h-auto p-0" @click="openAdd">Add training</Button>
+                    <Button
+                        variant="link"
+                        class="ml-1 h-auto p-0"
+                        @click="openAdd"
+                        >Add training</Button
+                    >
                 </div>
             </div>
 
@@ -364,52 +465,112 @@ function inclusiveDates(t: TrainingItem) {
 
         <!-- View modal -->
         <Dialog v-model:open="viewModalOpen">
-            <DialogContent v-if="viewingTraining" :show-close-button="true" class="sm:max-w-md">
+            <DialogContent
+                v-if="viewingTraining"
+                :show-close-button="true"
+                class="sm:max-w-md"
+            >
                 <DialogHeader>
                     <DialogTitle>View Training</DialogTitle>
                     <DialogDescription class="sr-only">
                         View training record details.
                     </DialogDescription>
                 </DialogHeader>
-                <div class="max-h-[60vh] overflow-y-auto space-y-3 p-1">
+                <div class="max-h-[60vh] space-y-3 overflow-y-auto p-1">
                     <dl class="grid grid-cols-1 gap-2 text-sm">
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Title</dt>
-                            <dd class="mt-0.5">{{ viewingTraining.title || '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Inclusive dates</dt>
-                            <dd class="mt-0.5">{{ inclusiveDates(viewingTraining) }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Hours</dt>
-                            <dd class="mt-0.5">{{ viewingTraining.hours ?? '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Type</dt>
-                            <dd class="mt-0.5">{{ viewingTraining.type ?? '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Category</dt>
-                            <dd class="mt-0.5">{{ viewingTraining.category ?? '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Provider</dt>
-                            <dd class="mt-0.5">{{ viewingTraining.provider ?? '—' }}</dd>
-                        </div>
-                        <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</dt>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Title
+                            </dt>
                             <dd class="mt-0.5">
-                                <Badge :variant="statusVariant(viewingTraining.status)">
-                                    {{ statusOptions[viewingTraining.status] ?? viewingTraining.status }}
+                                {{ viewingTraining.title || '—' }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Inclusive dates
+                            </dt>
+                            <dd class="mt-0.5">
+                                {{ inclusiveDates(viewingTraining) }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Hours
+                            </dt>
+                            <dd class="mt-0.5">
+                                {{ viewingTraining.hours ?? '—' }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Type
+                            </dt>
+                            <dd class="mt-0.5">
+                                {{ viewingTraining.type ?? '—' }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Category
+                            </dt>
+                            <dd class="mt-0.5">
+                                {{ viewingTraining.category ?? '—' }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Provider
+                            </dt>
+                            <dd class="mt-0.5">
+                                {{ viewingTraining.provider ?? '—' }}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt
+                                class="text-xs font-medium tracking-wider text-muted-foreground uppercase"
+                            >
+                                Status
+                            </dt>
+                            <dd class="mt-0.5">
+                                <Badge
+                                    :variant="
+                                        statusVariant(viewingTraining.status)
+                                    "
+                                >
+                                    {{
+                                        statusOptions[viewingTraining.status] ??
+                                        viewingTraining.status
+                                    }}
                                 </Badge>
                             </dd>
                         </div>
                     </dl>
                 </div>
                 <DialogFooter>
-                    <Button type="button" variant="outline" @click="closeView()">Close</Button>
-                    <Button v-if="viewingTraining.status === 'pending'" type="button" @click="openEdit(viewingTraining); closeView();">
+                    <Button type="button" variant="outline" @click="closeView()"
+                        >Close</Button
+                    >
+                    <Button
+                        v-if="viewingTraining.status === 'pending'"
+                        type="button"
+                        @click="
+                            openEdit(viewingTraining);
+                            closeView();
+                        "
+                    >
                         Edit
                     </Button>
                 </DialogFooter>
@@ -426,7 +587,7 @@ function inclusiveDates(t: TrainingItem) {
                     </DialogDescription>
                 </DialogHeader>
                 <form class="flex flex-col gap-4" @submit.prevent="submitAdd">
-                    <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                    <div class="max-h-[60vh] space-y-4 overflow-y-auto p-1">
                         <div class="grid gap-2">
                             <Label for="add-title">Title</Label>
                             <Input id="add-title" v-model="addTitle" required />
@@ -434,32 +595,56 @@ function inclusiveDates(t: TrainingItem) {
                         <div class="grid grid-cols-2 gap-3">
                             <div class="grid gap-2">
                                 <Label for="add-date_from">Start date</Label>
-                                <Input id="add-date_from" v-model="addDateFrom" type="date" required />
+                                <Input
+                                    id="add-date_from"
+                                    v-model="addDateFrom"
+                                    type="date"
+                                    required
+                                />
                             </div>
                             <div class="grid gap-2">
                                 <Label for="add-date_to">End date</Label>
-                                <Input id="add-date_to" v-model="addDateTo" type="date" />
+                                <Input
+                                    id="add-date_to"
+                                    v-model="addDateTo"
+                                    type="date"
+                                />
                             </div>
                         </div>
                         <div class="grid gap-2">
                             <Label for="add-hours">Hours</Label>
-                            <Input id="add-hours" v-model="addHours" type="number" step="0.5" min="0" />
+                            <Input
+                                id="add-hours"
+                                v-model="addHours"
+                                type="number"
+                                step="0.5"
+                                min="0"
+                            />
                         </div>
                         <div class="grid gap-2">
                             <Label for="add-type">Type (optional)</Label>
                             <Input id="add-type" v-model="addType" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="add-category">Category (optional)</Label>
+                            <Label for="add-category"
+                                >Category (optional)</Label
+                            >
                             <Input id="add-category" v-model="addCategory" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="add-provider">Provider (optional)</Label>
+                            <Label for="add-provider"
+                                >Provider (optional)</Label
+                            >
                             <Input id="add-provider" v-model="addProvider" />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="addModalOpen = false">Cancel</Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="addModalOpen = false"
+                            >Cancel</Button
+                        >
                         <Button type="submit">Add</Button>
                     </DialogFooter>
                 </form>
@@ -468,7 +653,11 @@ function inclusiveDates(t: TrainingItem) {
 
         <!-- Edit modal -->
         <Dialog v-model:open="editModalOpen">
-            <DialogContent v-if="editingTraining" :show-close-button="true" class="sm:max-w-md">
+            <DialogContent
+                v-if="editingTraining"
+                :show-close-button="true"
+                class="sm:max-w-md"
+            >
                 <DialogHeader>
                     <DialogTitle>Edit Training</DialogTitle>
                     <DialogDescription class="sr-only">
@@ -476,40 +665,68 @@ function inclusiveDates(t: TrainingItem) {
                     </DialogDescription>
                 </DialogHeader>
                 <form class="flex flex-col gap-4" @submit.prevent="submitEdit">
-                    <div class="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                    <div class="max-h-[60vh] space-y-4 overflow-y-auto p-1">
                         <div class="grid gap-2">
                             <Label for="edit-title">Title</Label>
-                            <Input id="edit-title" v-model="editTitle" required />
+                            <Input
+                                id="edit-title"
+                                v-model="editTitle"
+                                required
+                            />
                         </div>
                         <div class="grid grid-cols-2 gap-3">
                             <div class="grid gap-2">
                                 <Label for="edit-date_from">Start date</Label>
-                                <Input id="edit-date_from" v-model="editDateFrom" type="date" required />
+                                <Input
+                                    id="edit-date_from"
+                                    v-model="editDateFrom"
+                                    type="date"
+                                    required
+                                />
                             </div>
                             <div class="grid gap-2">
                                 <Label for="edit-date_to">End date</Label>
-                                <Input id="edit-date_to" v-model="editDateTo" type="date" />
+                                <Input
+                                    id="edit-date_to"
+                                    v-model="editDateTo"
+                                    type="date"
+                                />
                             </div>
                         </div>
                         <div class="grid gap-2">
                             <Label for="edit-hours">Hours</Label>
-                            <Input id="edit-hours" v-model="editHours" type="number" step="0.5" min="0" />
+                            <Input
+                                id="edit-hours"
+                                v-model="editHours"
+                                type="number"
+                                step="0.5"
+                                min="0"
+                            />
                         </div>
                         <div class="grid gap-2">
                             <Label for="edit-type">Type (optional)</Label>
                             <Input id="edit-type" v-model="editType" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="edit-category">Category (optional)</Label>
+                            <Label for="edit-category"
+                                >Category (optional)</Label
+                            >
                             <Input id="edit-category" v-model="editCategory" />
                         </div>
                         <div class="grid gap-2">
-                            <Label for="edit-provider">Provider (optional)</Label>
+                            <Label for="edit-provider"
+                                >Provider (optional)</Label
+                            >
                             <Input id="edit-provider" v-model="editProvider" />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="outline" @click="closeEdit()">Cancel</Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            @click="closeEdit()"
+                            >Cancel</Button
+                        >
                         <Button type="submit">Save changes</Button>
                     </DialogFooter>
                 </form>

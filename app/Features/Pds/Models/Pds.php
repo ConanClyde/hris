@@ -20,6 +20,7 @@ class Pds extends Model
         'submitted_at',
         'reviewed_by_user_id',
         'reviewed_at',
+        'remarks',
     ];
 
     protected function casts(): array

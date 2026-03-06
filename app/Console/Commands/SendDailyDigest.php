@@ -74,6 +74,7 @@ class SendDailyDigest extends Command
 
         if ($hrUsers->isEmpty()) {
             $this->warn('No HR users found to send digest to.');
+
             return self::SUCCESS;
         }
 

@@ -11,12 +11,20 @@ import { useRealtimeUserIdentity } from './composables/useRealtimeUserIdentity';
 configureEcho({
     broadcaster: 'reverb',
     authEndpoint: '/broadcasting/auth',
-    csrfToken: document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || undefined,
+    csrfToken:
+        document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute('content') || undefined,
     withCredentials: true,
     auth: {
         headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-            'X-XSRF-TOKEN': decodeURIComponent((document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '')),
+            'X-CSRF-TOKEN':
+                document
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute('content') || '',
+            'X-XSRF-TOKEN': decodeURIComponent(
+                document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? '',
+            ),
             'X-Requested-With': 'XMLHttpRequest',
         },
     },
@@ -42,7 +50,8 @@ createInertiaApp({
         startListening();
 
         // Start listening for real-time user identity updates
-        const { startListening: startIdentityListening } = useRealtimeUserIdentity();
+        const { startListening: startIdentityListening } =
+            useRealtimeUserIdentity();
         startIdentityListening();
     },
     progress: {
