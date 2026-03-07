@@ -52,10 +52,12 @@ Thumbs.db
 *.temp
 
 # Project-specific exclusions
-# /sample_project/
-# /docs/
-# /*.md
-# !.gitignore
-# !.env.example
-# !.README.md
-# !README.md
+/.cursor/
+/.kiro/
+/.qoder/
+/md_files/
+/pds/
+/sample_project/
+/CODING-STANDARDS.md
+/TESTING-CHECKLIST.md
+/Personal Data Sheet (PDS) 2025 _ CS Form 212 Revised 2025.pdf
